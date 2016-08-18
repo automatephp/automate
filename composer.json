@@ -1,0 +1,28 @@
+{
+    "name": "automate/automate",
+    "description": "Deployment Tool",
+    "type": "project",
+    "require": {
+        "symfony/console": "^3.1",
+        "symfony/yaml": "^3.1",
+        "romaricdrigon/metayaml": "^1.1",
+        "symfony/serializer": "3.1",
+        "herzult/php-ssh": "~1.0"
+    },
+    "require-dev": {
+        "phake/phake": "@stable"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Julien Jacottet",
+            "email": "jjacottet@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Automate\\": "src/Automate"
+        }
+    }
+}

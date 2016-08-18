@@ -1,0 +1,23 @@
+{
+  "directories": ["src", "vendor"],
+  "finder": [
+    {
+      "name": "*.php",
+      "exclude": [
+        "File",
+        "mikey179",
+        "Net",
+        "phpunit",
+        "phpunit-test-case",
+        "Tester",
+        "Tests",
+        "tests",
+        "yaml"
+      ],
+      "in": "vendor"
+    }
+  ],
+  "main": "bin/automate",
+  "output": "automate.phar",
+  "stub": true
+}
