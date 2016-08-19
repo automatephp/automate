@@ -6,6 +6,16 @@ require __DIR__.'/../vendor/autoload.php';
 
 use Automate\Application;
 
+set_error_handler(
+    function ($code, $message, $file, $line) {
+        if (error_reporting() & $code) {
+            throw new ErrorException($message, 0, $code, $file, $line);
+        }
+        // @codeCoverageIgnoreStart
+    }
+    // @codeCoverageIgnoreEnd
+);
+
 $application = new Application();
 
 $application->run();
