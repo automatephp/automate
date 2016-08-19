@@ -16,7 +16,6 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Ssh\Session;
 
 /**
  * Deplyement workflow
@@ -52,6 +51,7 @@ class Workflow
      * @var SessionFactory
      */
     private $sessionFactory;
+
 
     /**
      * Workflow constructor.
@@ -170,24 +170,43 @@ class Workflow
     /**
      * @param string  $path
      * @param Server  $server
-     * @param boolean $isFolder
      */
-    private function doShared($path, Server $server, $isFolder)
+    private function doShared($path, Server $server, $isDirectory)
     {
-        $sftp = $this->getSession($server)->getSftp();
+        $session = $this->getSession($server);
 
         $path = trim($path);
         $path = ltrim($path, '/');
         $releasePath = $this->getReleasePath($server) . '/' . $path;
         $sharedPath  = $this->getSharedPath($server) . '/' . $path;
 
-        if($sftp->exists($sharedPath)) {
-            $sftp->rename($releasePath, $sharedPath);
-        } else {
-            $sftp->unlink($releasePath);
+        // For the first deployment : create shared form source
+        if(!$session->exists($sharedPath) && $session->exists($releasePath)) {
+            $session->mv($releasePath, dirname($sharedPath));
         }
 
-        $sftp->symlink($sharedPath, $releasePath);
+        // Remove from source
+        if($session->exists($releasePath)) {
+            $session->rm($releasePath, true);
+        }
+
+        // Create path to shared dir in release dir if it does not exist.
+        // (symlink will not create the path and will fail otherwise)
+        if(!$session->exists(dirname($releasePath))) {
+            $session->mkdir(dirname($releasePath), true);
+        }
+
+        // ensure shared file or directory exists
+        if(!$session->exists($sharedPath)) {
+            if($isDirectory) {
+                $session->mkdir($sharedPath, true);
+            } else {
+                $session->touch($sharedPath);
+            }
+        }
+
+        // create symlink
+        $session->symlink($sharedPath, $releasePath);
     }
 
     /**
@@ -198,7 +217,7 @@ class Workflow
         $this->logger->section('Publish new release');
 
         foreach ($this->platform->getServers() as $server) {
-            $this->getSession($server)->getSftp()->symlink($this->getCurrentPath($server), $this->getReleasePath($server));
+            $this->getSession($server)->symlink($this->getReleasePath($server), $this->getCurrentPath($server));
         }
     }
 
@@ -208,10 +227,9 @@ class Workflow
 
         foreach ($this->platform->getServers() as $server) {
 
-            $sftp = $this->getSession($server)->getSftp();
+            $session = $this->getSession($server);
 
-            $list = $sftp->listDirectory($this->getReleasesPath($server));
-            $releases = $list['directories'];
+            $releases = $session->listDirectory($this->getReleasesPath($server));
             rsort($releases);
 
             $keep = $this->platform->getMaxReleases();
@@ -221,7 +239,7 @@ class Workflow
                 --$keep;
             }
             foreach ($releases as $release) {
-                $sftp->unlink($release);
+                $session->rm($release, true);
             }
         }
     }
@@ -232,7 +250,7 @@ class Workflow
     private function createReleaseDirectory()
     {
         foreach ($this->platform->getServers() as $server) {
-            $this->getSession($server)->getSftp()->mkdir($this->getReleasePath($server), true);
+            $this->getSession($server)->mkdir($this->getReleasePath($server), true);
         }
     }
 
@@ -261,7 +279,7 @@ class Workflow
     private function doRun(Server $server, $command, $addWorkingDir = true)
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
-        $response = $this->getSession($server)->getExec()->run($realCommand);
+        $response = $this->getSession($server)->run($realCommand);
 
         if($response) {
             $this->logger->response($response, $server->getName());

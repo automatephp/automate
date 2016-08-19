@@ -4,11 +4,23 @@
 namespace Automate;
 
 
+use phpseclib\Net\SSH2;
+
 class Session
 {
-    public function __construct()
-    {
+    /**
+     * @var SSH2
+     */
+    private $ssh;
 
+    /**
+     * Session constructor.
+     *
+     * @param SSH2 $ssh
+     */
+    public function __construct(SSH2 $ssh)
+    {
+        $this->ssh = $ssh;
     }
 
 
@@ -19,9 +31,15 @@ class Session
      *
      * @return mixed
      */
-    public function exec($command)
+    public function run($command)
     {
+        $rs = $this->ssh->exec($command);
 
+        if(0 !== $this->ssh->getExitStatus()) {
+            throw new \RuntimeException($rs);
+        }
+
+        return $rs;
     }
 
     /**
@@ -31,11 +49,12 @@ class Session
      * @param  boolean $recursive Whether to automatically create any required
      *                            parent directory
      *
-     * @return boolean TRUE on success, or FALSE on failure
      */
     public function mkdir($path, $recursive = false)
     {
+        $command = sprintf('mkdir%s %s', $recursive ? ' -p' : '', $path);
 
+        $this->run($command);
     }
 
     /**
@@ -43,12 +62,14 @@ class Session
      *
      * @param  string  $from    The current name of the directory or file
      * @param  string  $to      The new name of the directory or file
-     *
-     * @return boolean TRUE on success, or FALSE on failure
      */
     public function mv($from, $to)
     {
+        if(!$this->exists(dirname($to))) {
+            $this->run(sprintf('mkdir -p %s', dirname($to)));
+        }
 
+        $this->run(sprintf('mv %s %s', $from, $to));
     }
 
     /**
@@ -56,12 +77,10 @@ class Session
      *
      * @param  string  $path The directory or file that is being removed
      * @param  boolean $recursive
-     *
-     * @return boolean TRUE on success, or FALSE on failure
      */
     public function rm($path, $recursive = false)
     {
-
+        $this->run(sprintf('rm%s %s', $recursive ? ' -R' : '', $path));
     }
 
     /**
@@ -73,7 +92,15 @@ class Session
      */
     public function exists($path)
     {
+        if('Y' === trim($this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
+            return true;
+        }
 
+        if('Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)))) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -81,24 +108,39 @@ class Session
      *
      * @param  string $target The target of the symlink
      * @param  string $link   The path of the link
-     *
-     * @return boolean TRUE on success, or FALSE on failure
      */
     public function symlink($target, $link)
     {
-
+        $this->run(sprintf('ln -sfn %s %s', $target, $link));
     }
 
+
     /**
-     * Lists files and directories of the specified path
+     * Touch file
+     *
+     * @param  string $path FIle path
+     */
+    public function touch($path)
+    {
+        $this->run(sprintf('mkdir -p %s', dirname($path)));
+        $this->run(sprintf('touch %s', $path));
+    }
+
+
+
+
+    /**
+     * Lists directories of the specified path
      *
      * @param  string $path
      *
      * @return array
      */
-    public function ls($path)
+    public function listDirectory($path)
     {
+        $rs = $this->run(sprintf('find %s -maxdepth 1 -mindepth 1 -type d', $path));
 
+        return explode("\n", trim($rs));
     }
 
 }
