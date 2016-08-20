@@ -16,7 +16,6 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Ssh\Session;
 
 /**
  * Deplyement workflow
@@ -52,6 +51,7 @@ class Workflow
      * @var SessionFactory
      */
     private $sessionFactory;
+
 
     /**
      * Workflow constructor.
@@ -154,53 +154,59 @@ class Workflow
     private function initShared()
     {
         $this->logger->section('Setting up shared items');
-
-        $dirs = $this->project->getSharedFolders();
+        $folders = $this->project->getSharedFolders();
         $files = $this->project->getSharedFiles();
 
         foreach ($this->platform->getServers() as $server) {
-
-            foreach ($dirs as $dir) {
-                $dir = trim($dir);
-                $dir = ltrim($dir, '/');
-                $releaseDir = $this->getReleasePath($server) . '/' . $dir;
-                $sharedDir  = $this->getSharedPath($server) . '/' . $dir;
-
-                // Remove from source.
-                $this->doRun($server, sprintf('if [ -d %s ]; then rm -rf %s; fi', $releaseDir, $releaseDir), false);
-
-                // Create shared dir if it does not exist.
-                $this->doRun($server, sprintf('mkdir -p %s', $sharedDir), false);
-
-                // Create path to shared dir in release dir if it does not exist.
-                // (symlink will not create the path and will fail otherwise)
-                $this->doRun($server, sprintf('mkdir -p `dirname %s`', $releaseDir), false);
-
-                // Symlink shared dir to release dir
-                $this->doRun($server, sprintf('ln -nfs %s %s', $sharedDir, $releaseDir), false);
+            foreach ($folders as $folder) {
+                $this->doShared($folder, $server, true);
             }
             foreach ($files as $file) {
-                $file = trim($file);
-                $file = ltrim($file, '/');
-                $releaseFile = $this->getReleasePath($server) . '/' . $file;
-                $sharedFile  = $this->getSharedPath($server) . '/' . $file;
-
-                // Remove from source.
-                $this->doRun($server, sprintf('if [ -f %s ]; then rm -rf %s; fi', $releaseFile, $releaseFile), false);
-
-                // Ensure dir is available in release
-                $this->doRun($server, sprintf('if [ ! -d `dirname %s` ]; then mkdir -p `dirname %s`;fi', $releaseFile, $releaseFile), false);
-
-                // Create dir of shared file
-                $this->doRun($server, sprintf('mkdir -p `dirname %s`', $sharedFile), false);
-
-                // Touch shared
-                $this->doRun($server, sprintf('touch %s', $sharedFile), false);
-
-                // Symlink shared dir to release dir
-                $this->doRun($server, sprintf('ln -nfs %s %s', $sharedFile, $releaseFile), false);
+                $this->doShared($file, $server, false);
             }
         }
+    }
+
+    /**
+     * @param string  $path
+     * @param Server  $server
+     */
+    private function doShared($path, Server $server, $isDirectory)
+    {
+        $session = $this->getSession($server);
+
+        $path = trim($path);
+        $path = ltrim($path, '/');
+        $releasePath = $this->getReleasePath($server) . '/' . $path;
+        $sharedPath  = $this->getSharedPath($server) . '/' . $path;
+
+        // For the first deployment : create shared form source
+        if(!$session->exists($sharedPath) && $session->exists($releasePath)) {
+            $session->mv($releasePath, dirname($sharedPath));
+        }
+
+        // Remove from source
+        if($session->exists($releasePath)) {
+            $session->rm($releasePath, true);
+        }
+
+        // Create path to shared dir in release dir if it does not exist.
+        // (symlink will not create the path and will fail otherwise)
+        if(!$session->exists(dirname($releasePath))) {
+            $session->mkdir(dirname($releasePath), true);
+        }
+
+        // ensure shared file or directory exists
+        if(!$session->exists($sharedPath)) {
+            if($isDirectory) {
+                $session->mkdir($sharedPath, true);
+            } else {
+                $session->touch($sharedPath);
+            }
+        }
+
+        // create symlink
+        $session->symlink($sharedPath, $releasePath);
     }
 
     /**
@@ -211,8 +217,7 @@ class Workflow
         $this->logger->section('Publish new release');
 
         foreach ($this->platform->getServers() as $server) {
-            $command = sprintf('ln -sfn %s %s', $this->getReleasePath($server), $this->getCurrentPath($server));
-            $this->doRun($server, $command, false);
+            $this->getSession($server)->symlink($this->getReleasePath($server), $this->getCurrentPath($server));
         }
     }
 
@@ -222,20 +227,19 @@ class Workflow
 
         foreach ($this->platform->getServers() as $server) {
 
-            $response = $this->doRun($server, sprintf('find `dirname %s` -maxdepth 1 -mindepth 1 -type d', $this->getReleasePath($server)), false);
+            $session = $this->getSession($server);
 
-            $releases = explode("\n", trim($response));
-
+            $releases = $session->listDirectory($this->getReleasesPath($server));
             rsort($releases);
 
-            $keep = 3;
+            $keep = $this->platform->getMaxReleases();
 
             while ($keep > 0) {
                 array_shift($releases);
                 --$keep;
             }
             foreach ($releases as $release) {
-                $this->doRun($server, sprintf('rm -rf %s', $release), false);
+                $session->rm($release, true);
             }
         }
     }
@@ -246,8 +250,7 @@ class Workflow
     private function createReleaseDirectory()
     {
         foreach ($this->platform->getServers() as $server) {
-            $command = sprintf('mkdir -p %s', $this->getReleasePath($server));
-            $this->doRun($server, $command, false);
+            $this->getSession($server)->mkdir($this->getReleasePath($server), true);
         }
     }
 
@@ -275,15 +278,28 @@ class Workflow
      */
     private function doRun(Server $server, $command, $addWorkingDir = true)
     {
-        $session = $this->sessions[$server->getName()];
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
-        $response = $session->getExec()->run($realCommand);
+        $response = $this->getSession($server)->run($realCommand);
 
         if($response) {
             $this->logger->response($response, $server->getName());
         }
 
         return $response;
+    }
+
+    /**
+     * @param Server $server
+     *
+     * @return Session
+     */
+    private function getSession(Server $server)
+    {
+        if(!isset($this->sessions[$server->getName()])) {
+            throw new \RuntimeException('Unable to find session');
+        }
+
+        return $this->sessions[$server->getName()];
     }
 
     /**
@@ -295,7 +311,19 @@ class Workflow
      */
     private function getReleasePath(Server $server)
     {
-        return $server->getPath().'/releases/'.$this->releaseId;
+        return $this->getReleasesPath($server) . '/' .$this->releaseId;
+    }
+
+    /**
+     * Get releases path.
+     *
+     * @param Server $server
+     *
+     * @return string
+     */
+    private function getReleasesPath(Server $server)
+    {
+        return $server->getPath().'/releases';
     }
 
     /**

@@ -13,26 +13,22 @@ namespace Automate\Tests;
 
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
+use Automate\Session;
 use Automate\SessionFactory;
 use Automate\Workflow;
 use PHPUnit\Framework\TestCase;
 use Phake;
-use Ssh\Exec;
-use Ssh\Session;
 
 class WorkflowTest extends TestCase
 {
     public function testDeploy()
     {
         $logger  = Phake::mock(LoggerInterface::class);
-        $exec = Phake::mock(Exec::class);
+        $session = Phake::mock(Session::class);
 
-        $workflow = $this->createWorkflow($exec, $logger);
+        $workflow = $this->createWorkflow($session, $logger);
 
         $workflow->deploy();
-
-//        Phake::verify($exec)->exec('git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .', null, array(), 80, 50);
-//        Phake::verify($exec)->exec(Phake::anyParameters());
 
         Phake::inOrder(
             Phake::verify($logger)->section('Remote servers connection'),
@@ -49,14 +45,11 @@ class WorkflowTest extends TestCase
 
     }
 
-    private function createWorkflow(Exec $exec, LoggerInterface $logger)
+    private function createWorkflow(Session $session, LoggerInterface $logger)
     {
         $loader = new Loader();
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
-
-        $session = Phake::mock(Session::class);
-        Phake::when($session)->getExec()->thenReturn($exec);
 
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
