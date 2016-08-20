@@ -11,12 +11,11 @@
 
 namespace Automate\Serializer;
 
-
 use Automate\Model\Platform;
 use Automate\Model\Server;
 
 /**
- * Platform Denormalizer
+ * Platform Denormalizer.
  *
  * @see http://symfony.com/doc/current/components/serializer.html
  */
@@ -37,7 +36,7 @@ class PlatformDenormalizer extends AbstractDenormalizer
 
         $servers = $this->extractValue($data, 'servers', array());
 
-        foreach($servers as $name => $serverData) {
+        foreach ($servers as $name => $serverData) {
             $serverData['name'] = $name;
             $server = $this->normalizer->denormalize($serverData, Server::class);
 

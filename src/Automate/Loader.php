@@ -20,12 +20,12 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Configuration loader
+ * Configuration loader.
  */
 class Loader
 {
     /**
-     * Load project configuration
+     * Load project configuration.
      *
      * @param string|null $path
      *
@@ -35,7 +35,7 @@ class Loader
     {
         $schema = new MetaYaml($this->getSchema(), true);
 
-        if(!file_exists($path)) {
+        if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
         }
 
@@ -52,7 +52,7 @@ class Loader
     }
 
     /**
-     * Schema defintition
+     * Schema defintition.
      *
      * @see https://github.com/romaricdrigon/MetaYaml
      *
@@ -62,32 +62,32 @@ class Loader
     {
         return [
             'root' => [
-                '_type' =>  'array',
+                '_type' => 'array',
                 '_children' => [
                     'repository' => [
                         '_type' => 'text',
                         '_required' => true,
-                        '_not_empty' => true
+                        '_not_empty' => true,
                     ],
                     'shared_files' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text']
+                        '_prototype' => ['_type' => 'text'],
                     ],
                     'shared_folders' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text']
+                        '_prototype' => ['_type' => 'text'],
                     ],
                     'pre_deploy' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text']
+                        '_prototype' => ['_type' => 'text'],
                     ],
                     'on_deploy' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text']
+                        '_prototype' => ['_type' => 'text'],
                     ],
                     'post_deploy' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text']
+                        '_prototype' => ['_type' => 'text'],
                     ],
                     'platforms' => [
                         '_type' => 'prototype',
@@ -99,10 +99,10 @@ class Loader
                                 'default_branch' => [
                                     '_type' => 'text',
                                     '_required' => true,
-                                    '_not_empty' => true
+                                    '_not_empty' => true,
                                 ],
                                 'max_release' => [
-                                    '_type' => 'number'
+                                    '_type' => 'number',
                                 ],
                                 'servers' => [
                                     '_type' => 'prototype',
@@ -114,32 +114,31 @@ class Loader
                                             'host' => [
                                                 '_type' => 'text',
                                                 '_required' => true,
-                                                '_not_empty' => true
+                                                '_not_empty' => true,
                                             ],
                                             'user' => [
                                                 '_type' => 'text',
                                                 '_required' => true,
-                                                '_not_empty' => true
+                                                '_not_empty' => true,
                                             ],
                                             'password' => [
                                                 '_type' => 'text',
                                                 '_required' => true,
-                                                '_not_empty' => true
+                                                '_not_empty' => true,
                                             ],
                                             'path' => [
                                                 '_type' => 'text',
                                                 '_required' => true,
-                                                '_not_empty' => true
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                                '_not_empty' => true,
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
-
 }

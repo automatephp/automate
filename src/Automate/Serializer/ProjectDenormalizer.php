@@ -11,12 +11,11 @@
 
 namespace Automate\Serializer;
 
-
 use Automate\Model\Platform;
 use Automate\Model\Project;
 
 /**
- * Project Denormalizer
+ * Project Denormalizer.
  *
  * @see http://symfony.com/doc/current/components/serializer.html
  */
@@ -40,7 +39,7 @@ class ProjectDenormalizer extends AbstractDenormalizer
 
         $platforms = $this->extractValue($data, 'platforms', array());
 
-        foreach($platforms as $name => $platformData) {
+        foreach ($platforms as $name => $platformData) {
             $platformData['name'] = $name;
             $platform = $this->normalizer->denormalize($platformData, Platform::class);
 

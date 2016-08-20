@@ -26,7 +26,6 @@ class DeployCommand extends Command
 {
     const CONFIG_FILE = '.automate.yml';
 
-
     protected function configure()
     {
         $this

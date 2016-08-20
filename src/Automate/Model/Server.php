@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-
 namespace Automate\Model;
 
 /**
- * Server configuration
+ * Server configuration.
  */
 class Server
 {
@@ -28,17 +27,17 @@ class Server
     private $host;
 
     /**
-     * @var integer
+     * @var int
      */
     private $user;
 
     /**
-     * @var integer
+     * @var int
      */
     private $password;
 
     /**
-     * @var integer
+     * @var int
      */
     private $path;
 
@@ -52,6 +51,7 @@ class Server
 
     /**
      * @param string $name
+     *
      * @return Server
      */
     public function setName($name)
@@ -71,6 +71,7 @@ class Server
 
     /**
      * @param string $host
+     *
      * @return Server
      */
     public function setHost($host)
@@ -90,6 +91,7 @@ class Server
 
     /**
      * @param int $user
+     *
      * @return Server
      */
     public function setUser($user)
@@ -109,6 +111,7 @@ class Server
 
     /**
      * @param int $password
+     *
      * @return Server
      */
     public function setPassword($password)
@@ -128,6 +131,7 @@ class Server
 
     /**
      * @param int $path
+     *
      * @return Server
      */
     public function setPath($path)
@@ -136,6 +140,4 @@ class Server
 
         return $this;
     }
-
-
 }

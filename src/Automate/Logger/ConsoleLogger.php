@@ -13,7 +13,7 @@ namespace Automate\Logger;
 
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ConsoleLogger implements  LoggerInterface
+class ConsoleLogger implements LoggerInterface
 {
     /**
      * @var SymfonyStyle

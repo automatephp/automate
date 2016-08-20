@@ -12,7 +12,7 @@
 namespace Automate\Model;
 
 /**
- * Project configuration
+ * Project configuration.
  */
 class Project
 {
@@ -61,6 +61,7 @@ class Project
 
     /**
      * @param string $repository
+     *
      * @return Project
      */
     public function setRepository($repository)
@@ -80,6 +81,7 @@ class Project
 
     /**
      * @param array $sharedFiles
+     *
      * @return Project
      */
     public function setSharedFiles(array $sharedFiles)
@@ -99,6 +101,7 @@ class Project
 
     /**
      * @param array $sharedFolders
+     *
      * @return Project
      */
     public function setSharedFolders(array $sharedFolders)
@@ -118,6 +121,7 @@ class Project
 
     /**
      * @param array $preDeploy
+     *
      * @return Project
      */
     public function setPreDeploy(array $preDeploy)
@@ -137,6 +141,7 @@ class Project
 
     /**
      * @param array $onDeploy
+     *
      * @return Project
      */
     public function setOnDeploy(array $onDeploy)
@@ -156,6 +161,7 @@ class Project
 
     /**
      * @param array $postDeploy
+     *
      * @return Project
      */
     public function setPostDeploy(array $postDeploy)
@@ -190,10 +196,10 @@ class Project
      */
     public function getPlatform($name)
     {
-        if(!isset($this->plaforms[$name])) {
+        if (!isset($this->plaforms[$name])) {
             throw new \InvalidArgumentException(sprintf('Missing platform %s', $name));
         }
+
         return $this->plaforms[$name];
     }
-
 }

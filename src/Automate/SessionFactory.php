@@ -11,15 +11,13 @@
 
 namespace Automate;
 
-
 use Automate\Model\Server;
 use phpseclib\Net\SSH2;
 
 class SessionFactory
 {
-
     /**
-     * Create SSH session
+     * Create SSH session.
      *
      * @param Server $server
      *
@@ -29,15 +27,12 @@ class SessionFactory
      */
     public function create(Server $server)
     {
-
         $ssh = new SSH2($server->getHost());
 
         if (!$ssh->login($server->getUser(), $server->getPassword())) {
             throw new \Exception(sprintf('[%s] Invalid user or password', $server->getName()));
         }
 
-
         return new Session($ssh);
     }
-
 }

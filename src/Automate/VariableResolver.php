@@ -11,7 +11,6 @@
 
 namespace Automate;
 
-
 use Automate\Model\Platform;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -37,15 +36,14 @@ class VariableResolver
     }
 
     /**
-     * Resolve platform configuration
+     * Resolve platform configuration.
      *
      * @param Platform $platform
      */
     public function resolve(Platform $platform)
     {
-        foreach($platform->getServers() as $server) {
-
-            if($this->isVariable($server->getPassword())) {
+        foreach ($platform->getServers() as $server) {
+            if ($this->isVariable($server->getPassword())) {
                 $password = $this->resolveVariable($server->getPassword());
                 $server->setPassword($password);
             }
@@ -53,7 +51,7 @@ class VariableResolver
     }
 
     /**
-     * Retourn true if value is a variable
+     * Retourn true if value is a variable.
      *
      * @param $value
      *
@@ -64,11 +62,11 @@ class VariableResolver
         $first = substr($value, -1);
         $last = substr($value, 0, 1);
 
-        return ($first === self::VAR_PREFIX && $last === self::VAR_SUFFIX);
+        return $first === self::VAR_PREFIX && $last === self::VAR_SUFFIX;
     }
 
     /**
-     * Resolve a variable
+     * Resolve a variable.
      *
      * @param $value
      *
@@ -78,7 +76,7 @@ class VariableResolver
     {
         $name = substr($value, 1, strlen($value) - 2);
 
-        if($value = getenv(self::ENV_PREFIX . $name)) {
+        if ($value = getenv(self::ENV_PREFIX.$name)) {
             return $value;
         }
 

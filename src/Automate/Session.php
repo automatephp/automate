@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Automate;
-
 
 use phpseclib\Net\SSH2;
 
@@ -23,11 +21,10 @@ class Session
         $this->ssh = $ssh;
     }
 
-
     /**
-     * Execute e command
+     * Execute e command.
      *
-     * @param  string  $command
+     * @param string $command
      *
      * @return mixed
      */
@@ -35,7 +32,7 @@ class Session
     {
         $rs = $this->ssh->exec($command);
 
-        if(0 !== $this->ssh->getExitStatus()) {
+        if (0 !== $this->ssh->getExitStatus()) {
             throw new \RuntimeException($rs);
         }
 
@@ -43,12 +40,11 @@ class Session
     }
 
     /**
-     * Creates a directory
+     * Creates a directory.
      *
-     * @param  string  $path      The name of the new directory
-     * @param  boolean $recursive Whether to automatically create any required
-     *                            parent directory
-     *
+     * @param string $path      The name of the new directory
+     * @param bool   $recursive Whether to automatically create any required
+     *                          parent directory
      */
     public function mkdir($path, $recursive = false)
     {
@@ -58,14 +54,14 @@ class Session
     }
 
     /**
-     * Move a file or a directory
+     * Move a file or a directory.
      *
-     * @param  string  $from    The current name of the directory or file
-     * @param  string  $to      The new name of the directory or file
+     * @param string $from The current name of the directory or file
+     * @param string $to   The new name of the directory or file
      */
     public function mv($from, $to)
     {
-        if(!$this->exists(dirname($to))) {
+        if (!$this->exists(dirname($to))) {
             $this->run(sprintf('mkdir -p %s', dirname($to)));
         }
 
@@ -73,10 +69,10 @@ class Session
     }
 
     /**
-     * Removes a directory or a file
+     * Removes a directory or a file.
      *
-     * @param  string  $path The directory or file that is being removed
-     * @param  boolean $recursive
+     * @param string $path      The directory or file that is being removed
+     * @param bool   $recursive
      */
     public function rm($path, $recursive = false)
     {
@@ -84,19 +80,19 @@ class Session
     }
 
     /**
-     * Indicates whether the specified distant file or directory exists
+     * Indicates whether the specified distant file or directory exists.
      *
-     * @param  string $path The distant filename ou directory
+     * @param string $path The distant filename ou directory
      *
-     * @return boolean
+     * @return bool
      */
     public function exists($path)
     {
-        if('Y' === trim($this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
+        if ('Y' === trim($this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
             return true;
         }
 
-        if('Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)))) {
+        if ('Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)))) {
             return true;
         }
 
@@ -104,21 +100,20 @@ class Session
     }
 
     /**
-     * Creates a symlink
+     * Creates a symlink.
      *
-     * @param  string $target The target of the symlink
-     * @param  string $link   The path of the link
+     * @param string $target The target of the symlink
+     * @param string $link   The path of the link
      */
     public function symlink($target, $link)
     {
         $this->run(sprintf('ln -sfn %s %s', $target, $link));
     }
 
-
     /**
-     * Touch file
+     * Touch file.
      *
-     * @param  string $path FIle path
+     * @param string $path FIle path
      */
     public function touch($path)
     {
@@ -126,13 +121,10 @@ class Session
         $this->run(sprintf('touch %s', $path));
     }
 
-
-
-
     /**
-     * Lists directories of the specified path
+     * Lists directories of the specified path.
      *
-     * @param  string $path
+     * @param string $path
      *
      * @return array
      */
@@ -142,5 +134,4 @@ class Session
 
         return explode("\n", trim($rs));
     }
-
 }

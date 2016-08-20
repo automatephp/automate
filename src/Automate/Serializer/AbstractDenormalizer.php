@@ -11,7 +11,6 @@
 
 namespace Automate\Serializer;
 
-
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -35,7 +34,7 @@ abstract class AbstractDenormalizer implements DenormalizerInterface, Normalizer
     abstract public function supportsDenormalization($data, $type, $format = null);
 
     /**
-     * Extract a value from a given array
+     * Extract a value from a given array.
      *
      * @param array  $data
      * @param string $key
@@ -55,5 +54,4 @@ abstract class AbstractDenormalizer implements DenormalizerInterface, Normalizer
     {
         $this->normalizer = $normalizer;
     }
-
 }

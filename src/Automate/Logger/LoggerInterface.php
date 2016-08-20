@@ -11,25 +11,24 @@
 
 namespace Automate\Logger;
 
-
 interface LoggerInterface
 {
     /**
-     * Section title
+     * Section title.
      *
      * @param string $title
      */
     public function section($title);
 
     /**
-     * Run command
+     * Run command.
      *
      * @param string $name
      */
     public function command($name);
 
     /**
-     * Remote response
+     * Remote response.
      *
      * @param string $response
      * @param string $server
@@ -37,7 +36,7 @@ interface LoggerInterface
     public function response($response, $server);
 
     /**
-     * Remote error
+     * Remote error.
      *
      * @param string $message
      */

@@ -11,14 +11,13 @@
 
 namespace Automate;
 
-
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
 
 /**
- * Deplyement workflow
+ * Deplyement workflow.
  */
 class Workflow
 {
@@ -52,13 +51,12 @@ class Workflow
      */
     private $sessionFactory;
 
-
     /**
      * Workflow constructor.
      *
-     * @param Project $project
-     * @param Platform $platform
-     * @param LoggerInterface $logger
+     * @param Project             $project
+     * @param Platform            $platform
+     * @param LoggerInterface     $logger
      * @param SessionFactory|null $sessionFactory
      */
     public function __construct(Project $project, Platform $platform, LoggerInterface $logger, SessionFactory $sessionFactory = null)
@@ -70,7 +68,7 @@ class Workflow
     }
 
     /**
-     * Deploy project
+     * Deploy project.
      *
      * @param string $gitRef
      */
@@ -90,9 +88,7 @@ class Workflow
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
         }
-
     }
-
 
     /**
      * connect servers.
@@ -109,7 +105,7 @@ class Workflow
     }
 
     /**
-     * Prepare release
+     * Prepare release.
      *
      * @param string $gitRef
      */
@@ -122,20 +118,19 @@ class Workflow
         $this->run(sprintf(
             'git clone %s -q --recursive -b %s .',
             $this->project->getRepository(),
-            $gitRef ?:$this->platform->getDefaultBranch()
+            $gitRef ?: $this->platform->getDefaultBranch()
         ));
     }
 
     /**
      * Run hook commands.
      *
-     * @param array $commands
-     * @param string $name section name
+     * @param array  $commands
+     * @param string $name     section name
      */
     private function runHooks(array $commands, $name)
     {
-
-        if(count($commands)) {
+        if (count($commands)) {
             $this->logger->section($name);
             foreach ($commands as $command) {
                 $command = trim($command);
@@ -144,12 +139,10 @@ class Workflow
                 }
             }
         }
-
-
     }
 
     /**
-     * Setting up shared items
+     * Setting up shared items.
      */
     private function initShared()
     {
@@ -168,8 +161,8 @@ class Workflow
     }
 
     /**
-     * @param string  $path
-     * @param Server  $server
+     * @param string $path
+     * @param Server $server
      */
     private function doShared($path, Server $server, $isDirectory)
     {
@@ -177,28 +170,28 @@ class Workflow
 
         $path = trim($path);
         $path = ltrim($path, '/');
-        $releasePath = $this->getReleasePath($server) . '/' . $path;
-        $sharedPath  = $this->getSharedPath($server) . '/' . $path;
+        $releasePath = $this->getReleasePath($server).'/'.$path;
+        $sharedPath = $this->getSharedPath($server).'/'.$path;
 
         // For the first deployment : create shared form source
-        if(!$session->exists($sharedPath) && $session->exists($releasePath)) {
+        if (!$session->exists($sharedPath) && $session->exists($releasePath)) {
             $session->mv($releasePath, dirname($sharedPath));
         }
 
         // Remove from source
-        if($session->exists($releasePath)) {
+        if ($session->exists($releasePath)) {
             $session->rm($releasePath, true);
         }
 
         // Create path to shared dir in release dir if it does not exist.
         // (symlink will not create the path and will fail otherwise)
-        if(!$session->exists(dirname($releasePath))) {
+        if (!$session->exists(dirname($releasePath))) {
             $session->mkdir(dirname($releasePath), true);
         }
 
         // ensure shared file or directory exists
-        if(!$session->exists($sharedPath)) {
-            if($isDirectory) {
+        if (!$session->exists($sharedPath)) {
+            if ($isDirectory) {
                 $session->mkdir($sharedPath, true);
             } else {
                 $session->touch($sharedPath);
@@ -210,7 +203,7 @@ class Workflow
     }
 
     /**
-     * deploy
+     * deploy.
      */
     private function activateSymlink()
     {
@@ -226,7 +219,6 @@ class Workflow
         $this->logger->section('Clear olds releases');
 
         foreach ($this->platform->getServers() as $server) {
-
             $session = $this->getSession($server);
 
             $releases = $session->listDirectory($this->getReleasesPath($server));
@@ -272,7 +264,7 @@ class Workflow
      *
      * @param Server $server
      * @param string $command
-     * @param bool $addWorkingDir
+     * @param bool   $addWorkingDir
      *
      * @return string
      */
@@ -281,7 +273,7 @@ class Workflow
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
         $response = $this->getSession($server)->run($realCommand);
 
-        if($response) {
+        if ($response) {
             $this->logger->response($response, $server->getName());
         }
 
@@ -295,7 +287,7 @@ class Workflow
      */
     private function getSession(Server $server)
     {
-        if(!isset($this->sessions[$server->getName()])) {
+        if (!isset($this->sessions[$server->getName()])) {
             throw new \RuntimeException('Unable to find session');
         }
 
@@ -311,7 +303,7 @@ class Workflow
      */
     private function getReleasePath(Server $server)
     {
-        return $this->getReleasesPath($server) . '/' .$this->releaseId;
+        return $this->getReleasesPath($server).'/'.$this->releaseId;
     }
 
     /**
@@ -351,7 +343,7 @@ class Workflow
     }
 
     /**
-     * Generate a release ID
+     * Generate a release ID.
      *
      * @return string
      */

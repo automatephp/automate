@@ -11,12 +11,10 @@
 
 namespace Automate\Serializer;
 
-
-use Automate\Model\Platform;
 use Automate\Model\Server;
 
 /**
- * Server Denormalizer
+ * Server Denormalizer.
  *
  * @see http://symfony.com/doc/current/components/serializer.html
  */

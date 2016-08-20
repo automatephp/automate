@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-
 namespace Automate\Model;
 
 /**
- * Platform configuration
+ * Platform configuration.
  */
 class Platform
 {
@@ -28,7 +27,7 @@ class Platform
     private $defaultBranch;
 
     /**
-     * @var integer
+     * @var int
      */
     private $maxReleases;
 
@@ -47,6 +46,7 @@ class Platform
 
     /**
      * @param string $name
+     *
      * @return Platform
      */
     public function setName($name)
@@ -66,6 +66,7 @@ class Platform
 
     /**
      * @param string $defaultBranch
+     *
      * @return Platform
      */
     public function setDefaultBranch($defaultBranch)
@@ -85,6 +86,7 @@ class Platform
 
     /**
      * @param int $maxReleases
+     *
      * @return Platform
      */
     public function setMaxReleases($maxReleases)
@@ -96,6 +98,7 @@ class Platform
 
     /**
      * @param Server $server
+     *
      * @return $this
      */
     public function addServer(Server $server)
