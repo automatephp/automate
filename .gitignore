@@ -3,3 +3,4 @@ coverage
 vendor
 phpunit.phar
 box.phar
+build

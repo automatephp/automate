@@ -1,23 +1,25 @@
 {
-  "directories": ["src", "vendor"],
+  "chmod": "0755",
+  "directories": ["src"],
+  "files": [
+    "LICENSE",
+    "vendor/romaricdrigon/metayaml/data/MetaSchema.json"
+  ],
   "finder": [
     {
       "name": "*.php",
       "exclude": [
-        "File",
-        "mikey179",
-        "Net",
-        "phpunit",
-        "phpunit-test-case",
+        "sebastian",
+        "phake",
         "Tester",
         "Tests",
-        "tests",
-        "yaml"
+        "tests"
       ],
       "in": "vendor"
     }
   ],
   "main": "bin/automate",
-  "output": "automate.phar",
+  "output": "build/automate.phar",
+  "git-version": "package_version",
   "stub": true
 }

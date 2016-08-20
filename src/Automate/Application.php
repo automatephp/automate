@@ -16,10 +16,10 @@ use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-    const VERSION = 0.1;
+    const VERSION = '@package_version@';
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
@@ -41,5 +41,4 @@ class Application extends BaseApplication
 
         return $defaultCommands;
     }
-
 }
