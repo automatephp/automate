@@ -13,10 +13,9 @@ namespace Automate\Tests;
 
 use Automate\Session;
 use phpseclib\Net\SSH2;
-use PHPUnit\Framework\TestCase;
 use Phake;
 
-class SessionTest extends TestCase
+class SessionTest extends \PHPUnit_Framework_TestCase
 {
 
     private $ssh;

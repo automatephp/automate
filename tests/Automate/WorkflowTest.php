@@ -17,11 +17,10 @@ use Automate\Logger\LoggerInterface;
 use Automate\Session;
 use Automate\SessionFactory;
 use Automate\Workflow;
-use PHPUnit\Framework\TestCase;
 use Phake;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class WorkflowTest extends TestCase
+class WorkflowTest extends \PHPUnit_Framework_TestCase
 {
     public function testDeploy()
     {

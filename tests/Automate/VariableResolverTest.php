@@ -16,11 +16,10 @@ use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Phake;
 
-class VariableResolverTest extends TestCase
+class VariableResolverTest extends \PHPUnit_Framework_TestCase
 {
     public function testAskPassword()
     {

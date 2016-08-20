@@ -15,9 +15,8 @@ namespace Automate\Tests;
 use Automate\Loader;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use PHPUnit\Framework\TestCase;
 
-class LoaderTest extends TestCase
+class LoaderTest extends \PHPUnit_Framework_TestCase
 {
     public function testLoader()
     {
