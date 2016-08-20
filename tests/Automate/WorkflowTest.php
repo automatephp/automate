@@ -12,19 +12,22 @@
 namespace Automate\Tests;
 
 use Automate\Loader;
+use Automate\Logger\ConsoleLogger;
 use Automate\Logger\LoggerInterface;
 use Automate\Session;
 use Automate\SessionFactory;
 use Automate\Workflow;
 use PHPUnit\Framework\TestCase;
 use Phake;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class WorkflowTest extends TestCase
 {
     public function testDeploy()
     {
-        $logger  = Phake::mock(LoggerInterface::class);
+        $io  = Phake::mock(SymfonyStyle::class);
         $session = Phake::mock(Session::class);
+        $logger = Phake::partialMock(ConsoleLogger::class, $io);
 
         $workflow = $this->createWorkflow($session, $logger);
 
