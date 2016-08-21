@@ -1,0 +1,6 @@
+{
+  "name": "Automate",
+  "tagline": "A deployment tool written in PHP",
+  "body": "# Automate\r\n\r\n[![Build Status](https://travis-ci.org/automatephp/automate.svg?branch=master)](https://travis-ci.org/automatephp/automate)\r\n[![SensioLabsInsight](https://insight.sensiolabs.com/projects/d8cbccde-24d4-4909-910f-b7baaaf26f30/mini.png)](https://insight.sensiolabs.com/projects/d8cbccde-24d4-4909-910f-b7baaaf26f30)\r\n[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/automatephp/automate/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/automatephp/automate/?branch=master)\r\n[![Code Coverage](https://scrutinizer-ci.com/g/automatephp/automate/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/automatephp/automate/?branch=master)\r\n\r\nA deployment tool written in PHP\r\n\r\n\r\n\r\nWIP ...\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
