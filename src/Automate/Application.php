@@ -12,33 +12,65 @@
 namespace Automate;
 
 use Automate\Command\DeployCommand;
+use KevinGH\Amend;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-    const VERSION = '@package_version@';
 
     /**
-     * Constructor.
+     * {@inheritdoc}
      */
-    public function __construct()
+    public function __construct($name = 'Automate', $version = '@git-version@')
     {
-        parent::__construct('Automate', self::VERSION);
+        parent::__construct($name, $version);
     }
 
     /**
-     * Gets the default commands that should always be available.
-     *
-     * @return array An array of default Command instances
+     * {@inheritdoc}
+     */
+    public function getLongVersion()
+    {
+        if (('@' . 'git-version@') !== $this->getVersion()) {
+            return sprintf(
+                '<info>%s</info> version <comment>%s</comment> build <comment>%s</comment>',
+                $this->getName(),
+                $this->getVersion(),
+                '@git-commit@'
+            );
+        }
+        return '<info>' . $this->getName() . '</info> <comment>@dev</comment>';
+    }
+
+    /**
+     * {@inheritdoc}
      */
     protected function getDefaultCommands()
     {
         // Keep the core default commands to have the HelpCommand
         // which is used when using the --help option
-        $defaultCommands = parent::getDefaultCommands();
+        $commands = parent::getDefaultCommands();
 
         $defaultCommands[] = new DeployCommand();
 
-        return $defaultCommands;
+        if (('@' . 'git-version@') !== $this->getVersion()) {
+            $updateCommand = new Amend\Command('update');
+            $updateCommand->setManifestUri('@manifest_url@');
+            $commands[] = $updateCommand;
+        }
+
+        return $commands;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefaultHelperSet()
+    {
+        $helperSet = parent::getDefaultHelperSet();
+        if (('@' . 'git-version@') !== $this->getVersion()) {
+            $helperSet->set(new Amend\Helper());
+        }
+        return $helperSet;
     }
 }

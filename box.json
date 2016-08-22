@@ -3,7 +3,8 @@
   "directories": ["src"],
   "files": [
     "LICENSE",
-    "vendor/romaricdrigon/metayaml/data/MetaSchema.json"
+    "vendor/romaricdrigon/metayaml/data/MetaSchema.json",
+    "vendor/herrera-io/phar-update/res/schema.json"
   ],
   "finder": [
     {
@@ -20,6 +21,10 @@
   ],
   "main": "bin/automate",
   "output": "build/automate.phar",
-  "git-version": "package_version",
+  "git-commit": "git-commit",
+  "git-version": "git-version",
+  "replacements": {
+    "manifest_url": "https://automatephp.github.io/automate/manifest.json"
+  },
   "stub": true
 }
