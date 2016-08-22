@@ -3,7 +3,7 @@ repository: git@github.com:julienj/symfony-demo.git
 platforms:
     development:
         default_branch: master
-        max_release: 3
+        max_releases: 3
         servers:
             dddv-exemple-front-01:
                 host: 192.168.1.18

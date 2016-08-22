@@ -51,7 +51,7 @@ class Application extends BaseApplication
         // which is used when using the --help option
         $commands = parent::getDefaultCommands();
 
-        $defaultCommands[] = new DeployCommand();
+        $commands[] = new DeployCommand();
 
         if (('@' . 'git-version@') !== $this->getVersion()) {
             $updateCommand = new Amend\Command('update');

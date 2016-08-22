@@ -101,7 +101,7 @@ class Loader
                                     '_required' => true,
                                     '_not_empty' => true,
                                 ],
-                                'max_release' => [
+                                'max_releases' => [
                                     '_type' => 'number',
                                 ],
                                 'servers' => [
