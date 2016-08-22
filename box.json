@@ -3,7 +3,8 @@
   "directories": ["src"],
   "files": [
     "LICENSE",
-    "vendor/romaricdrigon/metayaml/data/MetaSchema.json"
+    "vendor/romaricdrigon/metayaml/data/MetaSchema.json",
+    "vendor/symfony/console/Resources/bin/hiddeninput.exe"
   ],
   "finder": [
     {
