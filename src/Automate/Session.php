@@ -19,6 +19,7 @@ class Session
     public function __construct(SSH2 $ssh)
     {
         $this->ssh = $ssh;
+        $this->ssh->setTimeout(0);
     }
 
     /**
