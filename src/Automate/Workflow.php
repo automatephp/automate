@@ -118,8 +118,20 @@ class Workflow
         $this->run(sprintf(
             'git clone %s -q --recursive -b %s .',
             $this->project->getRepository(),
-            $gitRef ?: $this->platform->getDefaultBranch()
+            $this->platform->getDefaultBranch()
         ));
+
+        if($gitRef) {
+            foreach ($this->platform->getServers() as $server) {
+                if($gitRef && $this->doRun($server, sprintf('git tag --list \'%s\'', $gitRef))) {
+                    // checkout a tag
+                    $this->doRun($server, sprintf('git checkout tags/%s', $gitRef));
+                } else {
+                    // checkout branch or revision
+                    $this->doRun($server, sprintf('git checkout %s', $gitRef));
+                }
+            }
+        }
     }
 
     /**
