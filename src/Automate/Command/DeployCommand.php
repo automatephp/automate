@@ -13,6 +13,8 @@ namespace Automate\Command;
 
 use Automate\Loader;
 use Automate\Logger\ConsoleLogger;
+use Automate\Logger\LoggerInterface;
+use Automate\Model\Platform;
 use Automate\VariableResolver;
 use Automate\Workflow;
 use Symfony\Component\Console\Command\Command;
@@ -47,11 +49,35 @@ class DeployCommand extends Command
         $variableResolver = new VariableResolver($io);
         $variableResolver->resolve($platform);
 
-        $logger = new ConsoleLogger($io);
+        $verbosity = $output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL
+            ? LoggerInterface::VERBOSITY_DEBUG
+            : LoggerInterface::VERBOSITY_NORMAL;
 
-        $io->title('Start deployment');
+        $logger = new ConsoleLogger($io, $verbosity);
+
+        $logger->section('Start deployment');
+
+        $io->table(array(), array(
+            array('Repository', $project->getRepository()),
+            array('Platform', $platform->getName()),
+            array('Servers', $this->getServersList($platform)),
+            array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
+        ));
 
         $workflow = new Workflow($project, $platform, $logger);
-        $workflow->deploy($input->getArgument('gitRef'));
+
+        if($workflow->deploy($input->getArgument('gitRef'))) {
+            $io->success('All is OK');
+        }
+    }
+
+    private function getServersList(Platform $platform)
+    {
+        $servers = array();
+        foreach($platform->getServers() as $server) {
+            $servers[] = sprintf('%s (%s)', $server->getName(), $server->getHost());
+        }
+
+        return implode("\n", $servers);
     }
 }

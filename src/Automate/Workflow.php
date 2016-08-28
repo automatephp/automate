@@ -71,11 +71,11 @@ class Workflow
      * Deploy project.
      *
      * @param string $gitRef
+     *
+     * @return boolean
      */
     public function deploy($gitRef = null)
     {
-        $this->releaseId = $this->generateReleaseId();
-
         try {
             $this->connect();
             $this->prepareRelease($gitRef);
@@ -85,9 +85,12 @@ class Workflow
             $this->activateSymlink();
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
+            return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
         }
+
+        return false;
     }
 
     /**
@@ -99,7 +102,7 @@ class Workflow
 
         foreach ($this->platform->getServers() as $server) {
             $session = $this->sessionFactory->create($server);
-            $this->logger->response('Connection successful', $server->getName());
+            $this->logger->response('Connection successful', $server->getName(), true);
             $this->sessions[$server->getName()] = $session;
         }
     }
@@ -119,19 +122,26 @@ class Workflow
             'git clone %s -q --recursive -b %s .',
             $this->project->getRepository(),
             $this->platform->getDefaultBranch()
-        ));
+        ), true);
 
         if($gitRef) {
+            $listTagsCommand = sprintf('git tag --list \'%s\'', $gitRef);
+            $this->logger->command($listTagsCommand);
             foreach ($this->platform->getServers() as $server) {
-                if($gitRef && $this->doRun($server, sprintf('git tag --list \'%s\'', $gitRef))) {
+                if($gitRef && $this->doRun($server, $listTagsCommand, true)) {
                     // checkout a tag
-                    $this->doRun($server, sprintf('git checkout tags/%s', $gitRef));
+                    $command = sprintf('git checkout tags/%s', $gitRef);
                 } else {
                     // checkout branch or revision
-                    $this->doRun($server, sprintf('git checkout %s', $gitRef));
+                    $command = sprintf('git checkout %s', $gitRef);
                 }
+
+                $this->logger->command($command, true);
+                $this->doRun($server, $command, true, true);
             }
         }
+
+
     }
 
     /**
@@ -147,7 +157,7 @@ class Workflow
             foreach ($commands as $command) {
                 $command = trim($command);
                 if ('' !== $command && '#' !== substr(trim($command), 0, 1)) {
-                    $this->run($command);
+                    $this->run($command, true);
                 }
             }
         }
@@ -158,23 +168,28 @@ class Workflow
      */
     private function initShared()
     {
-        $this->logger->section('Setting up shared items');
         $folders = $this->project->getSharedFolders();
         $files = $this->project->getSharedFiles();
 
-        foreach ($this->platform->getServers() as $server) {
-            foreach ($folders as $folder) {
-                $this->doShared($folder, $server, true);
-            }
-            foreach ($files as $file) {
-                $this->doShared($file, $server, false);
+        if(count($folders) || count($files)) {
+            $this->logger->section('Setting up shared items');
+            foreach ($this->platform->getServers() as $server) {
+                foreach ($folders as $folder) {
+                    $this->doShared($folder, $server, true);
+                }
+                foreach ($files as $file) {
+                    $this->doShared($file, $server, false);
+                }
             }
         }
+
+
     }
 
     /**
-     * @param string $path
+     * @param $path
      * @param Server $server
+     * @param boolean $isDirectory
      */
     private function doShared($path, Server $server, $isDirectory)
     {
@@ -211,6 +226,7 @@ class Workflow
         }
 
         // create symlink
+        $this->logger->response(sprintf('%s --> %s', $releasePath, $sharedPath), $server->getName(), true);
         $session->symlink($sharedPath, $releasePath);
     }
 
@@ -222,6 +238,7 @@ class Workflow
         $this->logger->section('Publish new release');
 
         foreach ($this->platform->getServers() as $server) {
+            $this->logger->response(sprintf('%s --> %s', $this->getCurrentPath($server), $this->getReleasePath($server)), $server->getName(), true);
             $this->getSession($server)->symlink($this->getReleasePath($server), $this->getCurrentPath($server));
         }
     }
@@ -230,10 +247,13 @@ class Workflow
     {
         $this->logger->section('Clear olds releases');
 
+        $deleted = array();
+
         foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
 
             $releases = $session->listDirectory($this->getReleasesPath($server));
+            $releases = array_map('trim', $releases);
             rsort($releases);
 
             $keep = $this->platform->getMaxReleases();
@@ -243,6 +263,8 @@ class Workflow
                 --$keep;
             }
             foreach ($releases as $release) {
+                $deleted[] = $release;
+                $this->logger->response('rm -R ' . $release, $server->getName(), true);
                 $session->rm($release, true);
             }
         }
@@ -262,12 +284,13 @@ class Workflow
      * Run command.
      *
      * @param string $command
+     * @param bool   $verbose
      */
-    private function run($command)
+    private function run($command, $verbose = false)
     {
-        $this->logger->command($command);
+        $this->logger->command($command, $verbose);
         foreach ($this->platform->getServers() as $server) {
-            $this->doRun($server, $command, true);
+            $this->doRun($server, $command, true, $verbose);
         }
     }
 
@@ -277,16 +300,17 @@ class Workflow
      * @param Server $server
      * @param string $command
      * @param bool   $addWorkingDir
+     * @param bool   $verbose
      *
      * @return string
      */
-    private function doRun(Server $server, $command, $addWorkingDir = true)
+    private function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
         $response = $this->getSession($server)->run($realCommand);
 
         if ($response) {
-            $this->logger->response($response, $server->getName());
+            $this->logger->response($response, $server->getName(), $verbose);
         }
 
         return $response;
@@ -315,7 +339,7 @@ class Workflow
      */
     private function getReleasePath(Server $server)
     {
-        return $this->getReleasesPath($server).'/'.$this->releaseId;
+        return $this->getReleasesPath($server).'/'.$this->getReleaseId();
     }
 
     /**
@@ -355,22 +379,27 @@ class Workflow
     }
 
     /**
-     * Generate a release ID.
+     * Get a release ID.
      *
      * @return string
      */
-    private function generateReleaseId()
+    public function getReleaseId()
     {
-        $date = new \DateTime();
+        if(!$this->releaseId) {
 
-        return sprintf(
-            '%s.%s.%s-%s%s.%s',
-            $date->format('Y'),
-            $date->format('m'),
-            $date->format('d'),
-            $date->format('H'),
-            $date->format('i'),
-            rand(1, 999)
-        );
+            $date = new \DateTime();
+
+            $this->releaseId = sprintf(
+                '%s.%s.%s-%s%s.%s',
+                $date->format('Y'),
+                $date->format('m'),
+                $date->format('d'),
+                $date->format('H'),
+                $date->format('i'),
+                rand(1, 999)
+            );
+        }
+
+        return $this->releaseId;
     }
 }

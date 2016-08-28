@@ -13,6 +13,10 @@ namespace Automate\Logger;
 
 interface LoggerInterface
 {
+
+    const VERBOSITY_NORMAL = 1;
+    const VERBOSITY_DEBUG  = 10;
+
     /**
      * Section title.
      *
@@ -24,16 +28,18 @@ interface LoggerInterface
      * Run command.
      *
      * @param string $name
+     * @param bool   $verbose
      */
-    public function command($name);
+    public function command($name, $verbose = false);
 
     /**
      * Remote response.
      *
      * @param string $response
      * @param string $server
+     * @param bool   $verbose
      */
-    public function response($response, $server);
+    public function response($response, $server, $verbose = false);
 
     /**
      * Remote error.
