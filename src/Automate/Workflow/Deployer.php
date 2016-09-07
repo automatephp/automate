@@ -18,13 +18,12 @@ use Automate\Model\Server;
  */
 class Deployer extends BaseWorkflow
 {
-
     /**
      * Deploy project.
      *
      * @param string $gitRef
      *
-     * @return boolean
+     * @return bool
      */
     public function deploy($gitRef = null)
     {
@@ -37,6 +36,7 @@ class Deployer extends BaseWorkflow
             $this->activateSymlink();
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
+
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -62,11 +62,11 @@ class Deployer extends BaseWorkflow
             $this->platform->getDefaultBranch()
         ), true);
 
-        if($gitRef) {
+        if ($gitRef) {
             $listTagsCommand = sprintf('git tag --list \'%s\'', $gitRef);
             $this->logger->command($listTagsCommand);
             foreach ($this->platform->getServers() as $server) {
-                if($gitRef && $this->doRun($server, $listTagsCommand, true)) {
+                if ($gitRef && $this->doRun($server, $listTagsCommand, true)) {
                     // checkout a tag
                     $command = sprintf('git checkout tags/%s', $gitRef);
                 } else {
@@ -78,8 +78,6 @@ class Deployer extends BaseWorkflow
                 $this->doRun($server, $command, true, true);
             }
         }
-
-
     }
 
     /**
@@ -109,7 +107,7 @@ class Deployer extends BaseWorkflow
         $folders = $this->project->getSharedFolders();
         $files = $this->project->getSharedFiles();
 
-        if(count($folders) || count($files)) {
+        if (count($folders) || count($files)) {
             $this->logger->section('Setting up shared items');
             foreach ($this->platform->getServers() as $server) {
                 foreach ($folders as $folder) {
@@ -120,14 +118,12 @@ class Deployer extends BaseWorkflow
                 }
             }
         }
-
-
     }
 
     /**
      * @param $path
      * @param Server $server
-     * @param boolean $isDirectory
+     * @param bool   $isDirectory
      */
     private function doShared($path, Server $server, $isDirectory)
     {
@@ -202,7 +198,7 @@ class Deployer extends BaseWorkflow
             }
             foreach ($releases as $release) {
                 $deleted[] = $release;
-                $this->logger->response('rm -R ' . $release, $server->getName(), true);
+                $this->logger->response('rm -R '.$release, $server->getName(), true);
                 $session->rm($release, true);
             }
         }

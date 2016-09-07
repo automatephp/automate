@@ -54,7 +54,6 @@ class DeployTest extends \PHPUnit_Framework_TestCase
         $io = Phake::mock(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
-
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(1);
 
@@ -99,11 +98,10 @@ class DeployTest extends \PHPUnit_Framework_TestCase
 
         $rs = $workflow->deploy('1.0.0');
 
-        Phake::verify($ssh)->exec("rm -R 2016.08.27-0032.62");
+        Phake::verify($ssh)->exec('rm -R 2016.08.27-0032.62');
 
         $this->assertTrue($rs);
     }
-
 
     private function createWorkflow(Session $session, LoggerInterface $logger)
     {

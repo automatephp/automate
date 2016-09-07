@@ -11,23 +11,22 @@
 
 namespace Automate\Workflow;
 
-
 /**
  * Inspector workflow.
  */
 class Inspector extends BaseWorkflow
 {
-
     /**
      * inspect project.
      *
-     * @return boolean
+     * @return bool
      */
     public function inspect()
     {
         try {
             $this->connect();
             $this->gitConnect();
+
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -38,7 +37,6 @@ class Inspector extends BaseWorkflow
 
     private function gitConnect()
     {
-
         $this->logger->section('Check Git connection from remotes');
 
         $domain = $this->getGitRepositoryDomain($this->project->getRepository());
@@ -49,12 +47,11 @@ class Inspector extends BaseWorkflow
             $domain
         ));
 
-        foreach($this->platform->getServers() as $server) {
+        foreach ($this->platform->getServers() as $server) {
             $this->doRun($server, sprintf('git ls-remote %s', $this->project->getRepository()), false);
             $this->logger->response(sprintf('Git Access (%s) [OK]', $this->project->getRepository()), $server->getName(), true);
         }
     }
-
 
     /**
      * @return string
@@ -63,11 +60,10 @@ class Inspector extends BaseWorkflow
     {
         preg_match('/@(.*):/', $url, $match);
 
-        if(isset($match[1])) {
+        if (isset($match[1])) {
             return $match[1];
         }
 
         throw new \LogicException('Invalid repository name');
     }
-
 }

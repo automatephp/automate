@@ -11,16 +11,9 @@
 
 namespace Automate\Command;
 
-use Automate\Loader;
 use Automate\Logger\ConsoleLogger;
 use Automate\Logger\LoggerInterface;
-use Automate\Model\Platform;
-use Automate\VariableResolver;
-use Automate\Workflow;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -29,7 +22,7 @@ abstract class BaseCommand extends Command
     const CONFIG_FILE = '.automate.yml';
 
     /**
-     * Get Logger
+     * Get Logger.
      *
      * @param SymfonyStyle $io
      *

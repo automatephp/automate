@@ -17,7 +17,6 @@ use Phake;
 
 class SessionTest extends \PHPUnit_Framework_TestCase
 {
-
     private $ssh;
 
     public function setUp()
@@ -160,5 +159,4 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         Phake::verify($this->ssh)->exec('find /data -maxdepth 1 -mindepth 1 -type d');
     }
-
 }

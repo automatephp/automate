@@ -57,7 +57,7 @@ class DeployCommand extends BaseCommand
 
         $workflow = new Deployer($project, $platform, $logger);
 
-        if($workflow->deploy($input->getArgument('gitRef'))) {
+        if ($workflow->deploy($input->getArgument('gitRef'))) {
             $io->success('All is OK');
         }
     }
@@ -65,7 +65,7 @@ class DeployCommand extends BaseCommand
     private function getServersList(Platform $platform)
     {
         $servers = array();
-        foreach($platform->getServers() as $server) {
+        foreach ($platform->getServers() as $server) {
             $servers[] = sprintf('%s (%s)', $server->getName(), $server->getHost());
         }
 

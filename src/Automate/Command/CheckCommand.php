@@ -44,19 +44,17 @@ class CheckCommand extends BaseCommand
 
         $logger = $this->getLogger($io);
 
-        $logger->section('Ckeck ' . $platform->getName());
+        $logger->section('Ckeck '.$platform->getName());
 
         $io->table(array(), array(
             array('Repository', $project->getRepository()),
-            array('Platform', $platform->getName())
+            array('Platform', $platform->getName()),
         ));
-
 
         $inspector = new Inspector($project, $platform, $logger);
 
-        if($inspector->inspect()) {
+        if ($inspector->inspect()) {
             $io->success('All is OK');
         }
     }
-
 }

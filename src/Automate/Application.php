@@ -18,7 +18,6 @@ use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-
     /**
      * {@inheritdoc}
      */
@@ -32,7 +31,7 @@ class Application extends BaseApplication
      */
     public function getLongVersion()
     {
-        if (('@' . 'git-version@') !== $this->getVersion()) {
+        if (('@'.'git-version@') !== $this->getVersion()) {
             return sprintf(
                 '<info>%s</info> version <comment>%s</comment> build <comment>%s</comment>',
                 $this->getName(),
@@ -40,7 +39,8 @@ class Application extends BaseApplication
                 '@git-commit@'
             );
         }
-        return '<info>' . $this->getName() . '</info> <comment>@dev</comment>';
+
+        return '<info>'.$this->getName().'</info> <comment>@dev</comment>';
     }
 
     /**
@@ -55,7 +55,7 @@ class Application extends BaseApplication
         $commands[] = new DeployCommand();
         $commands[] = new CheckCommand();
 
-        if (('@' . 'git-version@') !== $this->getVersion()) {
+        if (('@'.'git-version@') !== $this->getVersion()) {
             $updateCommand = new Amend\Command('update');
             $updateCommand->setManifestUri('@manifest_url@');
             $commands[] = $updateCommand;
@@ -70,9 +70,10 @@ class Application extends BaseApplication
     protected function getDefaultHelperSet()
     {
         $helperSet = parent::getDefaultHelperSet();
-        if (('@' . 'git-version@') !== $this->getVersion()) {
+        if (('@'.'git-version@') !== $this->getVersion()) {
             $helperSet->set(new Amend\Helper());
         }
+
         return $helperSet;
     }
 }

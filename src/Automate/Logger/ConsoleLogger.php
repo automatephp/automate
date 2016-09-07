@@ -30,7 +30,7 @@ class ConsoleLogger implements LoggerInterface
      * ConsoleLogger constructor.
      *
      * @param SymfonyStyle $io
-     * @param int $verbosity
+     * @param int          $verbosity
      */
     public function __construct(SymfonyStyle $io, $verbosity = self::VERBOSITY_NORMAL)
     {
@@ -51,10 +51,9 @@ class ConsoleLogger implements LoggerInterface
      */
     public function command($name, $verbose = false)
     {
-        if($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
-            $this->io->text(sprintf("<info>%s</info>", $name));
+        if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
+            $this->io->text(sprintf('<info>%s</info>', $name));
         }
-
     }
 
     /**
@@ -62,16 +61,13 @@ class ConsoleLogger implements LoggerInterface
      */
     public function response($response, $server, $verbose = false)
     {
-        if($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
-
-            if(substr_count($response, "\n") > 0) {
-                $this->io->text(sprintf("<comment>[%s]</comment>", $server));
+        if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
+            if (substr_count($response, "\n") > 0) {
+                $this->io->text(sprintf('<comment>[%s]</comment>', $server));
                 $this->io->text($response);
             } else {
-                $this->io->text(sprintf("<comment>[%s]</comment> %s", $server, $response));
+                $this->io->text(sprintf('<comment>[%s]</comment> %s', $server, $response));
             }
-
-
         }
     }
 

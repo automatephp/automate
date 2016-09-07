@@ -11,7 +11,6 @@
 
 namespace Automate\Workflow;
 
-
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
@@ -21,7 +20,6 @@ use Automate\SessionFactory;
 
 class BaseWorkflow
 {
-
     /**
      * @var string
      */
@@ -187,8 +185,7 @@ class BaseWorkflow
      */
     public function getReleaseId()
     {
-        if(!$this->releaseId) {
-
+        if (!$this->releaseId) {
             $date = new \DateTime();
 
             $this->releaseId = sprintf(

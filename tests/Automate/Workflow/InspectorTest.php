@@ -40,7 +40,7 @@ class InspectorTest extends \PHPUnit_Framework_TestCase
 
         Phake::inOrder(
             Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; if [ ! -n \"$(grep \"^github.com \" ~/.ssh/known_hosts)\" ]; then ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null; fi"),
-            Phake::verify($ssh)->exec("git ls-remote git@github.com:julienj/symfony-demo.git")
+            Phake::verify($ssh)->exec('git ls-remote git@github.com:julienj/symfony-demo.git')
         );
     }
 

@@ -11,7 +11,6 @@
 
 namespace Automate\Tests;
 
-
 use Automate\Loader;
 use Automate\Model\Project;
 use Automate\Model\Server;
@@ -32,7 +31,7 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             'composer install',
             'setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var',
-            'setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var'
+            'setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var',
         ), $project->getOnDeploy());
         $this->assertEquals(array('php bin/console doctrine:schema:update --force'), $project->getPostDeploy());
 

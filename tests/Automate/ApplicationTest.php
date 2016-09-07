@@ -11,7 +11,6 @@
 
 namespace Automate\Tests;
 
-
 use Automate\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -32,7 +31,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             array(
                 '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
                 '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
-                '/[\x03|\x1a]/'
+                '/[\x03|\x1a]/',
             ),
             array('', '', ''),
             $string
@@ -48,7 +47,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             array(
                 '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
                 '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
-                '/[\x03|\x1a]/'
+                '/[\x03|\x1a]/',
             ),
             array('', '', ''),
             $string

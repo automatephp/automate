@@ -11,8 +11,6 @@
 
 namespace Automate\Tests;
 
-
-use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
@@ -54,6 +52,5 @@ class VariableResolverTest extends \PHPUnit_Framework_TestCase
         $resolver->resolve($platform);
 
         $this->assertEquals('sessionPassword', $server->getPassword());
-
     }
 }

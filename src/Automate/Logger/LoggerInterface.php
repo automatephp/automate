@@ -13,9 +13,8 @@ namespace Automate\Logger;
 
 interface LoggerInterface
 {
-
     const VERBOSITY_NORMAL = 1;
-    const VERBOSITY_DEBUG  = 10;
+    const VERBOSITY_DEBUG = 10;
 
     /**
      * Section title.
