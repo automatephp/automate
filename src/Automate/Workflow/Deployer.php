@@ -181,8 +181,6 @@ class Deployer extends BaseWorkflow
     {
         $this->logger->section('Clear olds releases');
 
-        $deleted = array();
-
         foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
 
@@ -197,7 +195,6 @@ class Deployer extends BaseWorkflow
                 --$keep;
             }
             foreach ($releases as $release) {
-                $deleted[] = $release;
                 $this->logger->response('rm -R '.$release, $server->getName(), true);
                 $session->rm($release, true);
             }
