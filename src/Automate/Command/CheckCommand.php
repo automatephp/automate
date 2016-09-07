@@ -12,24 +12,22 @@
 namespace Automate\Command;
 
 use Automate\Loader;
-use Automate\Model\Platform;
 use Automate\VariableResolver;
-use Automate\Workflow\Deployer;
+use Automate\Workflow\Inspector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class DeployCommand extends BaseCommand
+class CheckCommand extends BaseCommand
 {
     protected function configure()
     {
         $this
-            ->setName('deploy')
-            ->setDescription('Start deployment.')
+            ->setName('check')
+            ->setDescription('check platform.')
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
-            ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
         ;
     }
@@ -46,29 +44,19 @@ class DeployCommand extends BaseCommand
 
         $logger = $this->getLogger($io);
 
-        $logger->section('Start deployment');
+        $logger->section('Ckeck ' . $platform->getName());
 
         $io->table(array(), array(
             array('Repository', $project->getRepository()),
-            array('Platform', $platform->getName()),
-            array('Servers', $this->getServersList($platform)),
-            array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
+            array('Platform', $platform->getName())
         ));
 
-        $workflow = new Deployer($project, $platform, $logger);
 
-        if($workflow->deploy($input->getArgument('gitRef'))) {
+        $inspector = new Inspector($project, $platform, $logger);
+
+        if($inspector->inspect()) {
             $io->success('All is OK');
         }
     }
 
-    private function getServersList(Platform $platform)
-    {
-        $servers = array();
-        foreach($platform->getServers() as $server) {
-            $servers[] = sprintf('%s (%s)', $server->getName(), $server->getHost());
-        }
-
-        return implode("\n", $servers);
-    }
 }

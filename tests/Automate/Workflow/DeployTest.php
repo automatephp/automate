@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\Tests;
+namespace Automate\Tests\Workflow;
 
 use Automate\Loader;
 use Automate\Logger\ConsoleLogger;
@@ -21,7 +21,7 @@ use Phake;
 use phpseclib\Net\SSH2;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class WorkflowTest extends \PHPUnit_Framework_TestCase
+class DeployTest extends \PHPUnit_Framework_TestCase
 {
     public function testDeploy()
     {
@@ -108,13 +108,13 @@ class WorkflowTest extends \PHPUnit_Framework_TestCase
     private function createWorkflow(Session $session, LoggerInterface $logger)
     {
         $loader = new Loader();
-        $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
+        $project = $loader->load(__DIR__.'/../../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $workflow = new Workflow($project, $platform, $logger, $sessionFactory);
+        $workflow = new Workflow\Deployer($project, $platform, $logger, $sessionFactory);
 
         return $workflow;
     }
