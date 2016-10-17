@@ -12,6 +12,7 @@
 namespace Automate;
 
 use Automate\Model\Platform;
+use Automate\Model\Project;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class VariableResolver
@@ -40,13 +41,29 @@ class VariableResolver
      *
      * @param Platform $platform
      */
-    public function resolve(Platform $platform)
+    public function resolvePlatform(Platform $platform)
     {
         foreach ($platform->getServers() as $server) {
             if ($this->isVariable($server->getPassword())) {
                 $password = $this->resolveVariable($server->getPassword());
                 $server->setPassword($password);
             }
+        }
+    }
+
+    /**
+     * Resolve repository configuration.
+     *
+     * @param Project $project
+     */
+    public function resolveRepository(Project $project)
+    {
+
+        if(preg_match('/http[s]?:\/\/(?P<user>.*):(?P<variable>%.*%)@(.*)/i', $project->getRepository(), $match)) {
+            $password = $this->resolveVariable($match['variable']);
+            $repository = str_replace($match['variable'], $password, $project->getRepository());
+
+            $project->setRepository($repository);
         }
     }
 

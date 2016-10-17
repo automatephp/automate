@@ -40,7 +40,8 @@ class CheckCommand extends BaseCommand
         $io = new SymfonyStyle($input, $output);
 
         $variableResolver = new VariableResolver($io);
-        $variableResolver->resolve($platform);
+        $variableResolver->resolvePlatform($platform);
+        $variableResolver->resolveRepository($project);
 
         $logger = $this->getLogger($io);
 
