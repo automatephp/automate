@@ -3,12 +3,12 @@
     "description": "Deployment Tool",
     "type": "project",
     "require": {
-        "symfony/console": "^3.1",
-        "symfony/yaml": "^3.1",
+        "symfony/console": "^3.2",
+        "symfony/yaml": "^3.2",
         "romaricdrigon/metayaml": "^1.1",
-        "symfony/serializer": "3.1",
+        "symfony/serializer": "3.2",
         "phpseclib/phpseclib": "~2.0",
-        "kherge/amend": "@dev"
+        "kherge/amend": "3.0.5"
     },
     "require-dev": {
         "phake/phake": "@stable"
