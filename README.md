@@ -10,7 +10,7 @@ You can use Automate from your workstation or through an integration server like
 
 ## Installation
 
-> curl -LSs https://automate.github.io/automate/installer.php | php
+> curl -LSs https://automatephp.github.io/automate/installer.php | php
 
 ## Usage
 
