@@ -28,30 +28,238 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h1>
-<a id="automate" class="anchor" href="#automate" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Automate</h1>
+          <h1><a id="automate" class="anchor" href="#automate" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Automate</h1>
 
-<p><a href="https://travis-ci.org/automatephp/automate"><img src="https://travis-ci.org/automatephp/automate.svg?branch=master" alt="Build Status"></a>
-<a href="https://insight.sensiolabs.com/projects/d8cbccde-24d4-4909-910f-b7baaaf26f30"><img src="https://insight.sensiolabs.com/projects/d8cbccde-24d4-4909-910f-b7baaaf26f30/mini.png" alt="SensioLabsInsight"></a>
-<a href="https://scrutinizer-ci.com/g/automatephp/automate/?branch=master"><img src="https://scrutinizer-ci.com/g/automatephp/automate/badges/quality-score.png?b=master" alt="Scrutinizer Code Quality"></a>
-<a href="https://scrutinizer-ci.com/g/automatephp/automate/?branch=master"><img src="https://scrutinizer-ci.com/g/automatephp/automate/badges/coverage.png?b=master" alt="Code Coverage"></a></p>
+          <p>
+            <b>Automate</b> allows you to automate your deployments to remote Linux servers simply.<br/>
+            You can use Automate from your workstation or through an integration server like Travis or Gitlab-ci
+          </p>
 
-<p>A deployment tool written in PHP</p>
+          <h2>Installing Automate</h2>
 
-<p>WIP ...</p>
+
+          <p>You can download the latest version of Automate with the following command:</p>
+
+          <pre>curl -LSs https://automate.github.io/automate/installer.php | php</pre>
+
+          <p>The command will verify your PHP settings and launch the download in the current directory.</p>
+
+          <p>You will then be able to update Automate simply with the following command:</p>
+
+          <pre>php automate.phar update</pre>
+
+          <h2>Creating Your Configuration File</h2>
+
+          <p>
+            First and foremost, you have to create a configuration file for Automate.<br/>
+            This file is generally located at the root of your project.
+            The name of this file must be ".automate.yml".
+          </p>
+
+          <p>Here is an example file:</p>
+
+          <pre>
+repository: git@github.com:symfony/symfony-demo.git
+platforms:
+    development:
+        default_branch: master
+        max_release: 3
+        servers:
+            dev-exemple-front-01:
+                host: dev.exemple.com
+                user: automate
+                password: % dev_password%
+                path: /home/wwwroot/
+    production:
+        default_branch: master
+        max_release: 3
+        servers:
+            prod-exemple-front-01:
+                host: prod-1.exemple.com
+                user: automate
+                password: %prod_password%
+                path: /home/wwwroot/
+            prod-exemple-front-02:
+                host: prod-2.exemple.com
+                user: automate
+                password: %prod_password%
+                path: /home/wwwroot/
+shared_files:
+    - app/config/parameters.yml
+shared_folders:
+    - app/data
+pre_deploy:
+    - "php -v"
+on_deploy:
+    - "composer install"
+    - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
+    - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
+post_deploy:
+    - "php bin/console doctrine:schema:update --force"
+          </pre>
+
+          <b>Configuration</b>
+
+          <dl>
+              <dt>repository</dt>
+              <dd>
+                    The Git repository URL to be deployed.
+                    If you use a repository in https you can use a variable
+                    with the notation %variable_name% for the password
+                    <br />
+                    Example : https://user:%git_password%@exemple.com
+              </dd>
+
+              <dt>platforms</dt>
+              <dd>
+                The list of platforms.<br />
+                You can configure several platforms.<br/>
+                A project must have at least one platform.
+              </dd>
+
+              <dt>shared_files</dt>
+              <dd>The list of folders to be shared with releases. For example, uploaded images, logs,…</dd>
+
+              <dt>shared_folders</dt>
+              <dd>The list of files to be shared between releases.</dd>
+
+              <dt>pre_deploy</dt>
+              <dd>
+                  The list of commands to be launched on remote servers right
+                  after downloading sources and before setting up shared
+                  folders and files
+              </dd>
+
+              <dt>on_deploy</dt>
+              <dd>
+                  The list of commands to be launched on remote servers right
+                  before deployment.
+              </dd>
+
+              <dt>post_deploy</dt>
+              <dd>
+                  The list of commands to be launched on remote servers after
+                  deployment.
+              </dd>
+
+          </dl>
+
+       
+          <b>Platform</b>
+
+          <dl>
+            <dt>default_branch</dt>
+            <dd>
+                The default branch to be launched if no branch is specified
+                during deployed.
+            </dd>
+
+            <dt>max_releases</dt>
+            <dd>
+                The number of releases to be kept on remote servers.
+            </dd>
+
+
+            <dt>servers</dt>
+            <dd>
+                The list of servers. If the platform contains several
+                servers, the deployment will be carried out simultaneously
+                on the all the servers.
+                <br/>
+                A platform must have at least one server.
+            </dd>
+
+            <dt>pre_deploy</dt>
+            <dd>
+                The list of commands to be launched on remote servers right
+                after downloading sources and before setting up shared
+                folders and files
+            </dd>
+
+            <dt>pre_deploy</dt>
+            <dd>
+                The list of commands to be launched on remote servers right
+                after downloading sources and before setting up shared
+                folders and files
+            </dd>
+          </dl>
+
+          <b>Server</b>
+
+          <dl>
+            <dt>host</dt>
+            <dd>
+                The domain name or the server's IP
+            </dd>
+
+            <dt>user</dt>
+            <dd>
+                The SSH user to be used for the deployment
+            </dd>
+
+            <dt>password</dt>
+            <dd>
+                The SSH password. <br/>
+                You can use a variable with the notation %variable_name% <br/>
+                If one variable is detected Automate will search for the
+                value in an environment variable « AUTOMATE__variable_name » <br />
+
+                If the environment variable does not exist, Automate will
+                ask you to provide your password upon each deployment
+                through the console.
+            </dd>
+
+            <dt>path</dt>
+            <dd>
+                The path on the remote server
+            </dd>
+          </dl>
+
+
+          <h2>Server Configuration</h2>
+
+          <p>Automate will create the following directory structure on the remote server:</p>
+
+          <pre>
+/your/project/path
+|--releases
+|  |--20160513120631
+|--shared
+|  |--...
+|--current -> /your/project/path/releases/20150513120631
+          </pre>
+
+          <p>
+            Each deployment will create a new subdirectory in the releases directory. Once the deployment is finished, a symlink named "current" will indicate the new version.
+          </p>
+
+          <h2>Launching a Deployment</h2>
+
+          <p>The following command allows you to launch the deployment on the remote server(s)</p>
+
+          <pre>php automate.phar deploy <platform> [gitref]</pre>
+
+          <dl>
+            <dt>platform</dt>
+            <dd>
+                The target platform name (e.g. development)
+            </dd>
+
+            <dt>gitref (optional)</dt>
+            <dd>
+               The branch, the tag, or the commit to be deployed.
+               By default Automate will use the « default_branch » in the configuration file
+            </dd>
+          </dl>
+
+          <p>
+            By default, Automate will search for the file « .automate.yml »  in the current directory. You can specify it with the option « -c /path/to/.automate.yml »
+          </p>
+
         </section>
 
         <aside id="sidebar">
-          <a href="https://github.com/automatephp/automate/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/automatephp/automate/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/automatephp/automate"></a> is maintained by <a href="https://github.com/automatephp">automatephp</a>.</p>
+          <p class="repo-owner"><a href="https://github.com/automatephp/automate"></a> is maintained by <a href="https://github.com/automatephp">Julien Jacottet</a>.</p>
 
           <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
         </aside>
