@@ -33,6 +33,7 @@ class ServerDenormalizer extends AbstractDenormalizer
             ->setUser($this->extractValue($data,     'user'))
             ->setPassword($this->extractValue($data, 'password'))
             ->setPath($this->extractValue($data,     'path'))
+            ->setPort($this->extractValue($data,     'port', 22))
         ;
 
         return $server;

@@ -27,7 +27,7 @@ class SessionFactory
      */
     public function create(Server $server)
     {
-        $ssh = new SSH2($server->getHost());
+        $ssh = new SSH2($server->getHost(), $server->getPort());
 
         if (!$ssh->login($server->getUser(), $server->getPassword())) {
             throw new \Exception(sprintf('[%s] Invalid user or password', $server->getName()));

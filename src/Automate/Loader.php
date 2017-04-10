@@ -131,6 +131,9 @@ class Loader
                                                 '_required' => true,
                                                 '_not_empty' => true,
                                             ],
+                                            'port' => [
+                                                '_type' => 'number'
+                                            ],
                                         ],
                                     ],
                                 ],

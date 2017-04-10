@@ -42,6 +42,11 @@ class Server
     private $path;
 
     /**
+     * @var int
+     */
+    private $port;
+
+    /**
      * @return string
      */
     public function getName()
@@ -140,4 +145,26 @@ class Server
 
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @param int $port
+     *
+     * @return Server
+     */
+    public function setPort($port)
+    {
+        $this->port = $port;
+
+        return $this;
+    }
+
+
 }
