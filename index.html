@@ -70,6 +70,7 @@ platforms:
                 user: automate
                 password: % dev_password%
                 path: /home/wwwroot/
+                port: 22
     production:
         default_branch: master
         max_release: 3
@@ -212,6 +213,10 @@ post_deploy:
             <dt>path</dt>
             <dd>
                 The path on the remote server
+            </dd>
+            <dt>port</dt>
+            <dd>
+                The SSH port (defaul 22)
             </dd>
           </dl>
 
