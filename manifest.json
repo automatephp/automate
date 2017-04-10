@@ -1,6 +1,12 @@
 [
     {
         "name": "automate.phar",
+        "sha1": "8d6db296be5fb439e54d05b7ac9aad06669ab92c",
+        "url": "https://github.com/automatephp/automate/releases/download/1.0.1/automate.phar",
+        "version": "1.0.1"
+    },
+    {
+        "name": "automate.phar",
         "sha1": "c0abf8ada40333b8b6091983d95ec81305ea551f",
         "url": "https://github.com/automatephp/automate/releases/download/1.0.0/automate.phar",
         "version": "1.0.0"
