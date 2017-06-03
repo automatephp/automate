@@ -63,7 +63,7 @@ repository: git@github.com:symfony/symfony-demo.git
 platforms:
     development:
         default_branch: master
-        max_release: 3
+        max_releases: 3
         servers:
             dev-exemple-front-01:
                 host: dev.exemple.com
@@ -73,7 +73,7 @@ platforms:
                 port: 22
     production:
         default_branch: master
-        max_release: 3
+        max_releases: 3
         servers:
             prod-exemple-front-01:
                 host: prod-1.exemple.com
@@ -168,20 +168,6 @@ post_deploy:
                 on the all the servers.
                 <br/>
                 A platform must have at least one server.
-            </dd>
-
-            <dt>pre_deploy</dt>
-            <dd>
-                The list of commands to be launched on remote servers right
-                after downloading sources and before setting up shared
-                folders and files
-            </dd>
-
-            <dt>pre_deploy</dt>
-            <dd>
-                The list of commands to be launched on remote servers right
-                after downloading sources and before setting up shared
-                folders and files
             </dd>
           </dl>
 
