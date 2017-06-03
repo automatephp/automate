@@ -88,8 +88,11 @@ class DeployTest extends \PHPUnit_Framework_TestCase
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
         Phake::when($ssh)->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->thenReturn('
             2016.08.30-0032.62
+            ab
             2016.08.28-0032.62
+            999
             2016.08.27-0032.62
+            test
             2016.08.29-0032.62
         ');
 
@@ -98,7 +101,14 @@ class DeployTest extends \PHPUnit_Framework_TestCase
 
         $rs = $workflow->deploy('1.0.0');
 
-        Phake::verify($ssh)->exec('rm -R 2016.08.27-0032.62');
+        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.27-0032.62');
+
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.30-0032.62');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0032.62');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.28-0032.62');
+        Phake::verify($ssh, Phake::never(0))->exec('rm -R ab');
+        Phake::verify($ssh, Phake::never(0))->exec('rm -R 999');
+        Phake::verify($ssh, Phake::never(0))->exec('rm -R test');
 
         $this->assertTrue($rs);
     }

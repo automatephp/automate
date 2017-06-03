@@ -188,6 +188,11 @@ class Deployer extends BaseWorkflow
             $releases = array_map('trim', $releases);
             rsort($releases);
 
+            // ignore others folders
+            $releases = array_filter($releases, function ($release) {
+                return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\./', $release);
+            });
+
             $keep = $this->platform->getMaxReleases();
 
             while ($keep > 0) {
