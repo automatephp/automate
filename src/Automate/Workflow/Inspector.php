@@ -39,13 +39,15 @@ class Inspector extends BaseWorkflow
     {
         $this->logger->section('Check Git connection from remotes');
 
-        $domain = $this->getGitRepositoryDomain($this->project->getRepository());
+        if(substr($this->project->getRepository(), 0, 4 ) === "git@") {
+            $domain = $this->getGitRepositoryDomain($this->project->getRepository());
 
-        $this->run(sprintf(
-            'if [ ! -n "$(grep "^%s " ~/.ssh/known_hosts)" ]; then ssh-keyscan %s >> ~/.ssh/known_hosts 2>/dev/null; fi',
-            $domain,
-            $domain
-        ));
+            $this->run(sprintf(
+                'if [ ! -n "$(grep "^%s " ~/.ssh/known_hosts)" ]; then ssh-keyscan %s >> ~/.ssh/known_hosts 2>/dev/null; fi',
+                $domain,
+                $domain
+            ));
+        }
 
         foreach ($this->platform->getServers() as $server) {
             $this->doRun($server, sprintf('git ls-remote %s', $this->project->getRepository()), false);
