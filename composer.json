@@ -25,7 +25,7 @@
     "autoload": {
         "psr-4": {
             "Automate\\": "src/Automate",
-            "Automate\\Tests": "tests/Automate"
+            "Automate\\Tests\\": "tests/Automate"
 
         }
     }
