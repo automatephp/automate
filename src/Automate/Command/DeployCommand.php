@@ -58,9 +58,11 @@ class DeployCommand extends BaseCommand
 
         $workflow = new Deployer($project, $platform, $logger);
 
-        if ($workflow->deploy($input->getArgument('gitRef'))) {
-            $io->success('All is OK');
+        if (!$workflow->deploy($input->getArgument('gitRef'))) {
+            throw new \RuntimeException('Deployment failed');
         }
+
+        $io->success('All is OK');
     }
 
     private function getServersList(Platform $platform)
