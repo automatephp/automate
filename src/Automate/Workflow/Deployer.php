@@ -91,9 +91,8 @@ class Deployer extends BaseWorkflow
         if (count($commands)) {
             $this->logger->section($name);
             foreach ($commands as $command) {
-                $command = trim($command);
-                if ('' !== $command && '#' !== substr(trim($command), 0, 1)) {
-                    $this->run($command, true);
+                if ('' !== $command->getCmd() && '#' !== substr(trim($command->getCmd()), 0, 1)) {
+                    $this->run($command->getCmd(), true, $command->getOnly());
                 }
             }
         }

@@ -27,9 +27,9 @@ class VariableResolverTest extends \PHPUnit_Framework_TestCase
         Phake::when($io)->askHidden('Enter a value for password "server_password"')->thenReturn('mypassword');
 
         $resolver = new VariableResolver($io);
-
         $platform = new Platform();
         $server = new Server();
+
         $server->setPassword('%server_password%');
         $platform->addServer($server);
 
@@ -43,9 +43,9 @@ class VariableResolverTest extends \PHPUnit_Framework_TestCase
         $io = Phake::mock(SymfonyStyle::class);
 
         $resolver = new VariableResolver($io);
-
         $platform = new Platform();
         $server = new Server();
+
         $server->setPassword('%server_password%');
         $platform->addServer($server);
 

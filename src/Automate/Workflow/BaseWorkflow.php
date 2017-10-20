@@ -12,6 +12,7 @@
 namespace Automate\Workflow;
 
 use Automate\Logger\LoggerInterface;
+use Automate\Model\Command;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
@@ -100,10 +101,17 @@ class BaseWorkflow
      * @param string $command
      * @param bool   $verbose
      */
-    protected function run($command, $verbose = false)
+    protected function run($command, $verbose = false, $specificServer = null)
     {
         $this->logger->command($command, $verbose);
-        foreach ($this->platform->getServers() as $server) {
+
+        $servers = $this->platform->getServers();
+
+        foreach ($servers as $server) {
+            if($specificServer && $server->getName() != $specificServer) {
+                continue;
+            }
+
             $this->doRun($server, $command, true, $verbose);
         }
     }
