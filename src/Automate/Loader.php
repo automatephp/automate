@@ -89,26 +89,8 @@ class Loader
                         '_prototype' => ['_type' => 'text'],
                     ],
                     'post_deploy' => [
-                        '_type' => 'prototype',
-                        '_prototype' => [
-                            '_type' => 'choice',
-                            '_choices' => [
-                                [
-                                    '_type' => 'array',
-                                    '_children' => [
-                                        'cmd' => [
-                                            '_type' => 'text',
-                                        ],
-                                        'only' => [
-                                            '_type' => 'text',
-                                        ],
-                                    ]
-                                ],
-                                [
-                                    '_type' => 'text',
-                                ]
-                            ]
-                        ],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'platforms' => [
                         '_type' => 'prototype',
@@ -160,6 +142,30 @@ class Loader
                                 ],
                             ],
                         ],
+                    ],
+                ],
+            ],
+            'partials' => [
+                'command' => [
+                    '_type' => 'prototype',
+                    '_prototype' => [
+                        '_type' => 'choice',
+                        '_choices' => [
+                            [
+                                '_type' => 'array',
+                                '_children' => [
+                                    'cmd' => [
+                                        '_type' => 'text',
+                                    ],
+                                    'only' => [
+                                        '_type' => 'text',
+                                    ],
+                                ]
+                            ],
+                            [
+                                '_type' => 'text',
+                            ]
+                        ]
                     ],
                 ],
             ],

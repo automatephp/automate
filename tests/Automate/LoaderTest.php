@@ -29,10 +29,10 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('app/data'), $project->getSharedFolders());
         $this->assertEquals(array('app/config/parameters.yml'), $project->getSharedFiles());
 
-        foreach ($project->getPreDeploy() as $preDeploy){
-            $this->assertInstanceOf(Command::class, $preDeploy);
-            $this->assertEquals('php -v', $preDeploy->getCmd());
-        }
+        $this->assertcount(1, $project->getPreDeploy());
+        $preDeploy = current($project->getPreDeploy());
+        $this->assertInstanceOf(Command::class, $preDeploy);
+        $this->assertEquals('php -v', $preDeploy->getCmd());
 
         foreach ($project->getOnDeploy() as $onDeploy){
             $this->assertInstanceOf(Command::class, $onDeploy);
