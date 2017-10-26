@@ -77,12 +77,12 @@ class Loader
                         '_prototype' => ['_type' => 'text'],
                     ],
                     'shared_folders' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'pre_deploy' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'on_deploy' => [
                         '_type'    => 'partial',

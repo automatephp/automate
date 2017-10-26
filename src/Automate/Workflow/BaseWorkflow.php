@@ -103,15 +103,13 @@ class BaseWorkflow
      */
     protected function run($command, $verbose = false, $specificServer = null)
     {
-        $this->logger->command($command, $verbose);
-
         $servers = $this->platform->getServers();
 
         foreach ($servers as $server) {
             if($specificServer && $server->getName() != $specificServer) {
                 continue;
             }
-
+            $this->logger->command($command, $verbose);
             $this->doRun($server, $command, true, $verbose);
         }
     }
