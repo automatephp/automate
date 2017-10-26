@@ -11,10 +11,12 @@
 
 namespace Automate;
 
+use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
 use Automate\Serializer\ServerDenormalizer;
+use Automate\Serializer\CommandDenormalizer;
 use RomaricDrigon\MetaYaml\MetaYaml;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
@@ -46,6 +48,7 @@ class Loader
             new ProjectDenormalizer(),
             new PlatformDenormalizer(),
             new ServerDenormalizer(),
+            new CommandDenormalizer(),
         ]);
 
         return $serializer->denormalize($data, Project::class);
@@ -74,20 +77,20 @@ class Loader
                         '_prototype' => ['_type' => 'text'],
                     ],
                     'shared_folders' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'pre_deploy' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'on_deploy' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'post_deploy' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'platforms' => [
                         '_type' => 'prototype',
@@ -137,6 +140,30 @@ class Loader
                                         ],
                                     ],
                                 ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'partials' => [
+                'command' => [
+                    '_type' => 'prototype',
+                    '_prototype' => [
+                        '_type' => 'choice',
+                        '_choices' => [
+                            [
+                                '_type' => 'array',
+                                '_children' => [
+                                    'cmd' => [
+                                        '_type' => 'text',
+                                    ],
+                                    'only' => [
+                                        '_type' => 'text',
+                                    ],
+                                ]
+                            ],
+                            [
+                                '_type' => 'text',
                             ],
                         ],
                     ],
