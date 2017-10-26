@@ -13,6 +13,7 @@ namespace Automate\Serializer;
 
 use Automate\Model\Platform;
 use Automate\Model\Project;
+use Automate\Model\Command;
 
 /**
  * Project Denormalizer.
@@ -32,9 +33,9 @@ class ProjectDenormalizer extends AbstractDenormalizer
             ->setRepository($this->extractValue($data,    'repository'))
             ->setSharedFiles($this->extractValue($data,   'shared_files', array()))
             ->setSharedFolders($this->extractValue($data, 'shared_folders', array()))
-            ->setPreDeploy($this->extractValue($data,     'pre_deploy', array()))
-            ->setOnDeploy($this->extractValue($data,      'on_deploy', array()))
-            ->setPostDeploy($this->extractValue($data,    'post_deploy', array()))
+            ->setPreDeploy($this->extractCommands($data,  'pre_deploy', array()))
+            ->setOnDeploy($this->extractCommands($data,   'on_deploy', array()))
+            ->setPostDeploy($this->extractCommands($data, 'post_deploy', array()))
         ;
 
         $platforms = $this->extractValue($data, 'platforms', array());
@@ -47,6 +48,18 @@ class ProjectDenormalizer extends AbstractDenormalizer
         }
 
         return $project;
+    }
+
+    public function extractCommands($data, $hookName)
+    {
+        $commands = [];
+
+        $data = $this->extractValue($data, $hookName, array());
+        foreach ($data as $item) {
+            $commands[] = $this->normalizer->denormalize($item, Command::class);
+        }
+
+        return $commands;
     }
 
     /**

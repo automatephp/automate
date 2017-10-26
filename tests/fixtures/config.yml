@@ -32,9 +32,14 @@ shared_folders:
 
 pre_deploy:
     - "php -v"
+
 on_deploy:
     - "composer install"
     - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
     - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
+
 post_deploy:
-    - "php bin/console doctrine:schema:update --force"
+    - "php bin/console doctrine:cache:clear-metadata"
+    - cmd: "php bin/console doctrine:schema:update --force"
+      only: eddv-exemple-front-01
+    - "php bin/console doctrine:cache:clear-result"
