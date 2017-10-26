@@ -85,8 +85,8 @@ class Loader
                         '_prototype' => ['_type' => 'text'],
                     ],
                     'on_deploy' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_type'    => 'partial',
+                        '_partial' => 'command',
                     ],
                     'post_deploy' => [
                         '_type'    => 'partial',
@@ -164,8 +164,8 @@ class Loader
                             ],
                             [
                                 '_type' => 'text',
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                 ],
             ],
