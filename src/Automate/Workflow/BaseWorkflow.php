@@ -161,6 +161,18 @@ class BaseWorkflow
     }
 
     /**
+     * Get lock file path.
+     *
+     * @param Server $server
+     *
+     * @return string
+     */
+    protected function getLockFilePath(Server $server)
+    {
+        return $server->getPath().'/automate.lock';
+    }
+
+    /**
      * Get shared path.
      *
      * @param Server $server

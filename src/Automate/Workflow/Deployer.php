@@ -29,6 +29,7 @@ class Deployer extends BaseWorkflow
     {
         try {
             $this->connect();
+            $this->initLockFile();
             $this->prepareRelease($gitRef);
             $this->runHooks($this->project->getPreDeploy(), 'Pre deploy');
             $this->initShared();
@@ -36,13 +37,47 @@ class Deployer extends BaseWorkflow
             $this->activateSymlink();
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
+            $this->clearLockFile();
 
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
+            try {
+                $this->clearLockFile();
+            } catch (\Exception $e) {}
         }
 
         return false;
+    }
+
+    /**
+     * Check if a deployment is already in progress
+     * and create lock file
+     */
+    public function initLockFile()
+    {
+        foreach($this->platform->getServers() as $server) {
+            $session = $this->getSession($server);
+            if($session->exists($this->getLockFilePath($server))) {
+                throw new \RuntimeException('A deployment is already in progress');
+            }
+        }
+
+        foreach($this->platform->getServers() as $server) {
+            $session = $this->getSession($server);
+            $session->touch($this->getLockFilePath($server));
+        }
+    }
+
+    /**
+     * remove lock file
+     */
+    public function clearLockFile()
+    {
+        foreach($this->platform->getServers() as $server) {
+            $session = $this->getSession($server);
+            $session->rm($this->getLockFilePath($server));
+        }
     }
 
     /**
