@@ -1,4 +1,4 @@
-repository: git@gitlab.eolas.fr:responsage/digitalisation-rc.git
+repository: git@github.com:julienj/symfony-demo.git
 
 platforms:
     development:
@@ -6,10 +6,10 @@ platforms:
         max_releases: 3
         servers:
             dddv-exemple-front-01:
-                host: 10.66.236.233
-                user: responsage
+                host: 192.168.1.18
+                user: root
                 password: %dev_password%
-                path: /home/wwwroot/responsage/romaricp
+                path: /home/wwwroot/automate/demo
     production:
         default_branch: production
         servers:

@@ -207,13 +207,14 @@ class BaseWorkflow
             $date = new \DateTime();
 
             $this->releaseId = sprintf(
-                '%s.%s.%s-%s%s.%s',
+                '%s.%s.%s-%s%s.%s-%s',
                 $date->format('Y'),
                 $date->format('m'),
                 $date->format('d'),
                 $date->format('H'),
                 $date->format('i'),
-                rand(1, 999)
+                rand(100, 999),
+                "successed"
             );
         }
 

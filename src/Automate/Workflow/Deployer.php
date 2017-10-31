@@ -45,12 +45,12 @@ class Deployer extends BaseWorkflow
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            if ($this->isDeployed){
-                $this->clearReleases(true);
-            }
             try {
+                if (!$this->isDeployed){
+                    $this->moveToFailedReleases();
+                }
                 $this->clearLockFile();
-            } catch (\Exception $e) {}
+           } catch (\Exception $e) {}
         }
 
         return false;
@@ -217,44 +217,55 @@ class Deployer extends BaseWorkflow
         }
     }
 
+    private function moveToFailedReleases(){
+        $this->logger->section('Move this release to a failedRelease and clear olds failed releases');
+        foreach ($this->platform->getServers() as $server) {
+            $session = $this->getSession($server);
+
+            $release = $this->getReleasePath($server);
+            $this->logger->response('mv '.$release. ' '.str_replace("successed", "failed", $release), $server->getName(), true);
+
+            $session->mv($release, str_replace("successed", "failed", $release));
+        }
+
+        $this->clearReleases(true);
+    }
+
     private function clearReleases($failed = false)
     {
         if ($failed){
-            $this->logger->section('Move this release to a failedRelease');
-
-            foreach ($this->platform->getServers() as $server) {
-                $release = $this->getReleasePath($server);
-                $this->logger->response('mv '.$release, 'failed_'.$release, true);
-
-                $session = $this->getSession($server);
-                $session->mv($release, 'failed_'.$release);
-            }
-
+            $this->logger->section('Clear olds failed releases');
         }else{
             $this->logger->section('Clear olds releases');
+        }
 
-            foreach ($this->platform->getServers() as $server) {
-                $session = $this->getSession($server);
+        foreach ($this->platform->getServers() as $server) {
+            $session = $this->getSession($server);
 
-                $releases = $session->listDirectory($this->getReleasesPath($server));
-                $releases = array_map('trim', $releases);
-                rsort($releases);
+            $releases = $session->listDirectory($this->getReleasesPath($server));
+            $releases = array_map('trim', $releases);
+            rsort($releases);
 
-                // ignore others folders
+            if ($failed){
                 $releases = array_filter($releases, function ($release) {
-                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\./', $release);
+                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
                 });
-
+                $keep = 1;
+            }else{
+                $releases = array_filter($releases, function ($release) {
+                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-successed/', $release);
+                });
                 $keep = $this->platform->getMaxReleases();
+            }
 
-                while ($keep > 0) {
-                    array_shift($releases);
-                    --$keep;
-                }
-                foreach ($releases as $release) {
-                    $this->logger->response('rm -R '.$release, $server->getName(), true);
-                    $session->rm($release, true);
-                }
+            while ($keep > 0) {
+                array_shift($releases);
+                $keep--;
+            }
+
+            foreach ($releases as $release) {
+                $this->logger->response('rm -R '.$release, $server->getName(), true);
+                $session->rm($release, true);
             }
         }
     }
