@@ -86,22 +86,24 @@ class DeployTest extends \PHPUnit_Framework_TestCase
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
         Phake::when($ssh)->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->thenReturn('
-            2016.08.30-0032.620-successed
+            2016.08.30-0032.620
             ab
-            2016.08.28-0032.620-successed
+            2016.08.28-0032.620
             999
-            2016.08.27-0032.620-successed
+            2016.08.27-0032.620
             test
-            2016.08.29-0032.620-successed
+            2016.08.29-0032.620
+            2016.08.22-0032.620-failed
         ');
         $session = new Session($ssh);
         $workflow = $this->createWorkflow($session, $logger);
         $rs = $workflow->deploy('1.0.0');
-        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.27-0032.620-successed');
+        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.27-0032.620');
+        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.22-0032.620-failed');
 
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.28-0032.620-successed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0032.620-successed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.30-0032.620-successed');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.28-0032.620');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0032.620');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.30-0032.620');
         Phake::verify($ssh, Phake::never(0))->exec('rm -R ab');
         Phake::verify($ssh, Phake::never(0))->exec('rm -R 999');
         Phake::verify($ssh, Phake::never(0))->exec('rm -R test');
@@ -112,33 +114,34 @@ class DeployTest extends \PHPUnit_Framework_TestCase
     public function testClearReleasesFailed()
     {
         $logger = Phake::mock(ConsoleLogger::class);
-
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
+
+        Phake::when($ssh)->exec('mkdir -p /home/wwwroot/automate/demo/shared/app/config')->thenThrow(new \RuntimeException());
+
         Phake::when($ssh)->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->thenReturn('
             2016.08.24-0033.620-failed
             2016.08.25-0033.620-failed
-            2016.08.27-0032.620-successed
+            2016.08.27-0032.620
             2016.08.27-0033.620-failed
-            2016.08.28-0032.620-successed
-            2016.08.29-0032.620-successed
+            2016.08.28-0032.620
+            2016.08.29-0032.620
             2016.08.29-0034.620-failed
         ');
-
         $session = new Session($ssh);
         $workflow = $this->createWorkflow($session, $logger);
+        $rs = $workflow->deploy('1.0.1');
 
-        $rs = $workflow->deploy('1.0.0');
-
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.24-0033.620-failed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.25-0033.620-failed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.27-0032.620-successed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.27-0033.620-failed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.28-0032.620-successed');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0032.620-successed');
+        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.24-0033.620-failed');
+        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.25-0033.620-failed');
+        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.27-0033.620-failed');
+        
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.27-0032.620');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.28-0032.620');
+        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0032.620');
         Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0034.620-failed');
 
-        $this->assertTrue($rs);
+        $this->assertFalse($rs);
     }
 
 

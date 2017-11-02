@@ -41,7 +41,6 @@ class Deployer extends BaseWorkflow
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
             $this->clearLockFile();
-
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -223,9 +222,9 @@ class Deployer extends BaseWorkflow
             $session = $this->getSession($server);
 
             $release = $this->getReleasePath($server);
-            $this->logger->response('mv '.$release. ' '.str_replace("successed", "failed", $release), $server->getName(), true);
+            $this->logger->response('mv '.$release. ' '.$release."-failed", $server->getName(), true);
 
-            $session->mv($release, str_replace("successed", "failed", $release));
+            $session->mv($release, $release."-failed");
         }
 
         $this->clearReleases(true);
@@ -242,18 +241,18 @@ class Deployer extends BaseWorkflow
         foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
 
-            $releases = $session->listDirectory($this->getReleasesPath($server));
-            $releases = array_map('trim', $releases);
-            rsort($releases);
+            $releasesList = $session->listDirectory($this->getReleasesPath($server));
+            $releasesList = array_map('trim', $releasesList);
+            rsort($releasesList);
 
             if ($failed){
-                $releases = array_filter($releases, function ($release) {
+                $releases = array_filter($releasesList, function ($release) {
                     return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
                 });
                 $keep = 1;
             }else{
-                $releases = array_filter($releases, function ($release) {
-                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-successed/', $release);
+                $releases = array_filter($releasesList, function ($release) {
+                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}$/', $release);
                 });
                 $keep = $this->platform->getMaxReleases();
             }
@@ -263,11 +262,22 @@ class Deployer extends BaseWorkflow
                 $keep--;
             }
 
+            //Clear all Failed Releases if deployment is OK.
+            if (!$failed){
+                $releasesFailed = array_filter($releasesList, function ($release) {
+                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
+                });
+
+                foreach ($releasesFailed as $releaseFailed){
+                    array_push($releases, $releaseFailed);
+                }
+            }
+
             foreach ($releases as $release) {
                 $this->logger->response('rm -R '.$release, $server->getName(), true);
                 $session->rm($release, true);
             }
-        }
+         }
     }
 
     /**
