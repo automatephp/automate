@@ -213,7 +213,7 @@ class BaseWorkflow
                 $date->format('d'),
                 $date->format('H'),
                 $date->format('i'),
-                rand(1, 999)
+                rand(100, 999)
             );
         }
 
