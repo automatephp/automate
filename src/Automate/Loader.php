@@ -72,6 +72,59 @@ class Loader
                         '_required' => true,
                         '_not_empty' => true,
                     ],
+                    'gitlab' => [
+                        '_type' => 'prototype',
+                        '_required' => false,
+                        '_prototype' => [
+                            '_type' => 'array',
+                            '_children' => [
+                                'uri' => [
+                                    '_type' => 'text',
+                                    '_required' => true,
+                                    '_not_empty' => true,
+                                ],
+                                'variables' => [
+                                    '_type' => 'prototype',
+                                    '_required' => true,
+                                    '_prototype' => [
+                                        '_type' => 'array',
+                                        '_children' => [
+                                            'id_project' => [
+                                                '_type' => 'int',
+                                                '_required' => true,
+                                                '_not_empty' => true,
+                                            ],
+                                            'token_trigger' => [
+                                                '_type' => 'text',
+                                                '_required' => true,
+                                                '_not_empty' => true,
+                                            ],
+                                            'environment' => [
+                                                '_type' => 'text',
+                                                '_required' => true,
+                                                '_not_empty' => true,
+                                            ],
+                                            'ref' => [
+                                                '_type' => 'text',
+                                                '_required' => true,
+                                                '_not_empty' => true,
+                                            ],
+                                            'deploy_successed_msg' => [
+                                                '_type' => 'text',
+                                                '_required' => true,
+                                                '_not_empty' => true,
+                                            ],
+                                            'deploy_failed_msg' => [
+                                                '_type' => 'text',
+                                                '_required' => true,
+                                                '_not_empty' => true,
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'shared_files' => [
                         '_type' => 'prototype',
                         '_prototype' => ['_type' => 'text'],

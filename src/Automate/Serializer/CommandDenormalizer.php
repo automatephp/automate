@@ -36,7 +36,7 @@ class CommandDenormalizer extends AbstractDenormalizer
         }
 
         $command
-            ->setCmd($this->extractValue($data, 'cmd'))
+            ->setCmd($this->extractValue($data,  'cmd'))
             ->setOnly($this->extractValue($data, 'only'))
         ;
 
