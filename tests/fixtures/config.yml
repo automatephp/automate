@@ -3,7 +3,7 @@ gitlab:
     uri: gitlab.eolas.fr
     variables:
         id_project: 302
-        token_trigger: 4502af4576a877e020e383d9eeacbc
+        token_trigger: "4502af4576a877e020e383d9eeacbc"
         environment: "environment"
         ref: "master"
         deploy_successed_msg: "Big Up Bro!"
@@ -42,13 +42,13 @@ shared_folders:
 pre_deploy:
     - "php -v"
 
-on_deploy:
-    - "composer install"
-    - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
-    - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
-
-post_deploy:
-    - "php bin/console doctrine:cache:clear-metadata"
-    - cmd: "php bin/console doctrine:schema:update --force"
-      only: eddv-exemple-front-01
-    - "php bin/console doctrine:cache:clear-result"
+#on_deploy:
+#    - "composer install"
+#    - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
+#    - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
+#
+#post_deploy:
+#    - "php bin/console doctrine:cache:clear-metadata"
+#    - cmd: "php bin/console doctrine:schema:update --force"
+#      only: eddv-exemple-front-01
+#    - "php bin/console doctrine:cache:clear-result"

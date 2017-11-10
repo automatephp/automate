@@ -11,7 +11,6 @@
 
 namespace Automate;
 
-use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
@@ -74,7 +73,6 @@ class Loader
                     ],
                     'gitlab' => [
                         '_type' => 'prototype',
-                        '_required' => false,
                         '_prototype' => [
                             '_type' => 'array',
                             '_children' => [
@@ -85,12 +83,11 @@ class Loader
                                 ],
                                 'variables' => [
                                     '_type' => 'prototype',
-                                    '_required' => true,
                                     '_prototype' => [
                                         '_type' => 'array',
                                         '_children' => [
                                             'id_project' => [
-                                                '_type' => 'int',
+                                                '_type' => 'number',
                                                 '_required' => true,
                                                 '_not_empty' => true,
                                             ],
@@ -127,7 +124,9 @@ class Loader
                     ],
                     'shared_files' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_prototype' => [
+                            '_type' => 'text'
+                        ],
                     ],
                     'shared_folders' => [
                         '_type'    => 'partial',

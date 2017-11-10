@@ -13,6 +13,7 @@ namespace Automate\Workflow;
 
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Command;
+use Automate\Model\Gitlab;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
@@ -42,6 +43,11 @@ class BaseWorkflow
     protected $logger;
 
     /**
+     * @var GitlabInterface
+     */
+    protected $gitlab;
+
+    /**
      * @var Session[]
      */
     protected $sessions = array();
@@ -54,15 +60,23 @@ class BaseWorkflow
     /**
      * Workflow constructor.
      *
-     * @param Project             $project
-     * @param Platform            $platform
-     * @param LoggerInterface     $logger
+     * @param Project $project
+     * @param Platform $platform
+     * @param Gitlab $gitlab
+     * @param LoggerInterface $logger
      * @param SessionFactory|null $sessionFactory
      */
-    public function __construct(Project $project, Platform $platform, LoggerInterface $logger, SessionFactory $sessionFactory = null)
+    public function __construct(
+        Project $project,
+        Platform $platform,
+        Gitlab $gitlab,
+        LoggerInterface $logger,
+        SessionFactory $sessionFactory = null
+    )
     {
         $this->project = $project;
         $this->platform = $platform;
+        $this->gitlab = $gitlab;
         $this->logger = $logger;
         $this->sessionFactory = $sessionFactory ?: new SessionFactory();
     }
