@@ -65,23 +65,34 @@ class Deployer extends BaseWorkflow
     public function sendTriggerJobSuccess($success)
     {
         if (getenv('GITLAB_CI') === false ) {
-            var_dump($this->gitlab); exit;
+            $gitlabUri = $this->project->getGitlab()["uri"];
+            $gitlabVariables = $this->project->getGitlab()["variables"];
+            $client = new \GuzzleHttp\Client();
+
+            if ($success){
+               $client->request(
+                    'POST',
+                    $gitlabUri . "/api/v4/projects/"
+                    . $gitlabVariables["id_project"]
+                    . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
+                    . '&token=' . $gitlabVariables["token_trigger"]
+                    . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
+                    . '&variables[DEPLOY_SUCCESS_MSG]=' . $gitlabVariables["deploy_successed_msg"]
+                    , ['verify' => false]
+                );
+            }else{
+                $client->request(
+                    'POST',
+                    $gitlabUri . "/api/v4/projects/"
+                    . $gitlabVariables["id_project"]
+                    . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
+                    . '&token=' . $gitlabVariables["token_trigger"]
+                    . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
+                    . '&variables[DEPLOY_FAILED_MSG]=' . $gitlabVariables["deploy_failed_msg"]
+                    , ['verify' => false]
+                );
+            }
         }
-
-//            $msg = "$deploy_git_ref_msg réalisé avec succès par $username au sein du dossier \"$release_path\" de l'hôte \"$host\".";
-//            runLocally('curl -X POST -F ' . escapeshellarg('token=' . get('TRIGGER_TOKEN'))
-//                . ' -F ' . escapeshellarg('ref=' . $ref)
-//                . ' -F ' . escapeshellarg('variables[ENVIRONMENT_NAME]=' . $environment)
-//                . ' -F ' . escapeshellarg('variables[ENVIRONMENT_URL]=http://' . $host)
-//                . ' -F ' . escapeshellarg('variables[DEPLOY_SUCCESS_MSG]=' . $msg)
-//                . ' ' . get('GITLAB_API_URL') . 'projects/' . get('PROJECT_ID') . '/trigger/pipeline')->toString();
-//        })->desc("Exécute un trigger GitLab afin d'enregistrer le succés du déploiement");
-//
-//        before('deploy:prepare', 'gitlab:check_access');
-//            after('gitlab:check_access', 'gitlab:check_triggertoken');
-//            after('gitlab:check_triggertoken', 'gitlab:check_environment');
-//            after('gitlab:check_environment', 'repository:init');
-
     }
 
     /**

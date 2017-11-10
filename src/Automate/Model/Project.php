@@ -24,6 +24,11 @@ class Project
     /**
      * @var array
      */
+    private $gitlab = array();
+
+    /**
+     * @var array
+     */
     private $sharedFiles = array();
 
     /**
@@ -67,6 +72,26 @@ class Project
     public function setRepository($repository)
     {
         $this->repository = $repository;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGitlab()
+    {
+        return $this->gitlab;
+    }
+
+    /**
+     * @param array $gitlab
+     *
+     * @return Project
+     */
+    public function setGitlab(array $gitlab)
+    {
+        $this->gitlab = $gitlab;
 
         return $this;
     }

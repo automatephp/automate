@@ -12,6 +12,7 @@
 namespace Automate\Command;
 
 use Automate\Loader;
+use Automate\Model\Gitlab;
 use Automate\Model\Platform;
 use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
@@ -42,9 +43,9 @@ class DeployCommand extends BaseCommand
         $io = new SymfonyStyle($input, $output);
 
         $variableResolver = new VariableResolver($io);
-        $variableResolver->resolvePlatform($platform);
         $variableResolver->resolveRepository($project);
-        
+        $variableResolver->resolvePlatform($platform);
+
         $logger = $this->getLogger($io);
 
         $logger->section('Start deployment');

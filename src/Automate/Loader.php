@@ -11,7 +11,9 @@
 
 namespace Automate;
 
+use Automate\Model\Gitlab;
 use Automate\Model\Project;
+use Automate\Serializer\GitlabDenormalizer;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
 use Automate\Serializer\ServerDenormalizer;
@@ -46,6 +48,7 @@ class Loader
         $serializer = new Serializer([
             new ProjectDenormalizer(),
             new PlatformDenormalizer(),
+            new GitlabDenormalizer(),
             new ServerDenormalizer(),
             new CommandDenormalizer(),
         ]);
@@ -72,51 +75,45 @@ class Loader
                         '_not_empty' => true,
                     ],
                     'gitlab' => [
-                        '_type' => 'prototype',
-                        '_prototype' => [
-                            '_type' => 'array',
-                            '_children' => [
-                                'uri' => [
-                                    '_type' => 'text',
-                                    '_required' => true,
-                                    '_not_empty' => true,
-                                ],
-                                'variables' => [
-                                    '_type' => 'prototype',
-                                    '_prototype' => [
-                                        '_type' => 'array',
-                                        '_children' => [
-                                            'id_project' => [
-                                                '_type' => 'number',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'token_trigger' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'environment' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'ref' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'deploy_successed_msg' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'deploy_failed_msg' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                        ],
+                        '_type' => 'array',
+                        '_children' => [
+                            'uri' => [
+                                '_type' => 'text',
+                                '_required' => true,
+                                '_not_empty' => true,
+                            ],
+                            'variables' => [
+                                '_type' => 'array',
+                                '_children' => [
+                                    'id_project' => [
+                                        '_type' => 'number',
+                                        '_required' => true,
+                                        '_not_empty' => true,
+                                    ],
+                                    'token_trigger' => [
+                                        '_type' => 'text',
+                                        '_required' => true,
+                                        '_not_empty' => true,
+                                    ],
+                                    'environment' => [
+                                        '_type' => 'text',
+                                        '_required' => true,
+                                        '_not_empty' => true,
+                                    ],
+                                    'ref' => [
+                                        '_type' => 'text',
+                                        '_required' => true,
+                                        '_not_empty' => true,
+                                    ],
+                                    'deploy_successed_msg' => [
+                                        '_type' => 'text',
+                                        '_required' => true,
+                                        '_not_empty' => true,
+                                    ],
+                                    'deploy_failed_msg' => [
+                                        '_type' => 'text',
+                                        '_required' => true,
+                                        '_not_empty' => true,
                                     ],
                                 ],
                             ],
