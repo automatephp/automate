@@ -41,11 +41,15 @@ class Deployer extends BaseWorkflow
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
             $this->clearLockFile();
-            $this->sendTriggerJobSuccess(true);
+            if (count($this->project->getGitlab())){
+                $this->sendTriggerJobSuccess(true);
+            }
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            $this->sendTriggerJobSuccess(false);
+            if (count($this->project->getGitlab())){
+                $this->sendTriggerJobSuccess(false);
+            }
             try {
                 if (!$this->isDeployed){
                     $this->moveToFailedReleases();
