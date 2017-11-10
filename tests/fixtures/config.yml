@@ -1,4 +1,4 @@
-repository: git@gitlab.eolas.fr:romaric.paul/trigger-automate.git
+repository: git@github.com:julienj/symfony-demo.git
 gitlab:
     uri: gitlab.com
     variables:
