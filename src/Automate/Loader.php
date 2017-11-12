@@ -77,8 +77,8 @@ class Loader
                         '_prototype' => ['_type' => 'text'],
                     ],
                     'shared_folders' => [
-                        '_type'    => 'partial',
-                        '_partial' => 'command',
+                        '_type' => 'prototype',
+                        '_prototype' => ['_type' => 'text'],
                     ],
                     'pre_deploy' => [
                         '_type'    => 'partial',
