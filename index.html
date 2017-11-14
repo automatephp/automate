@@ -98,7 +98,7 @@ on_deploy:
 post_deploy:
     - "php bin/console doctrine:schema:update --force"
     only: eddv-exemple-front-01                     # Option to execute,
-    - "php bin/console doctrine:cache:clear-result" # the next command to one server remote
+    - "php bin/console doctrine:cache:clear-result" # the next command to one server remote 
           </pre>
 
           <b>Configuration</b>
