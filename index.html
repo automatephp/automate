@@ -97,6 +97,8 @@ on_deploy:
     - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
 post_deploy:
     - "php bin/console doctrine:schema:update --force"
+    only: eddv-exemple-front-01                     # Option to execute,
+    - "php bin/console doctrine:cache:clear-result" # the next command to one server remote
           </pre>
 
           <b>Configuration</b>
@@ -141,6 +143,13 @@ post_deploy:
               <dd>
                   The list of commands to be launched on remote servers after
                   deployment.
+              </dd>
+              <dd>
+                  Option : Possibility to execute only one command just to one remote server with :
+                  <pre>
+only: eddv-exemple-front-01
+- "php bin/console doctrine:cache:clear-result"
+                  </pre>
               </dd>
 
           </dl>
