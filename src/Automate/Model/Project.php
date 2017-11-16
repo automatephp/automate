@@ -29,6 +29,11 @@ class Project
     /**
      * @var array
      */
+    private $slack = array();
+
+    /**
+     * @var array
+     */
     private $sharedFiles = array();
 
     /**
@@ -92,6 +97,26 @@ class Project
     public function setGitlab(array $gitlab)
     {
         $this->gitlab = $gitlab;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSlack()
+    {
+        return $this->slack;
+    }
+
+    /**
+     * @param array $slack
+     *
+     * @return Project
+     */
+    public function setSlack(array $slack)
+    {
+        $this->gitlab = $slack;
 
         return $this;
     }

@@ -1,13 +1,13 @@
-repository: git@github.com:julienj/symfony-demo.git
+repository: git@gitlab.eolas.fr:romaric.paul/trigger-automate.git
 gitlab:
-    uri: gitlab.com
+    uri: https://gitlab.eolas.fr
     variables:
         id_project: 302
         token_trigger: "4502af4576a877e020e383d9eeacbc"
         environment: "environment"
         ref: "master"
-        deploy_successed_msg: "Big Up Bro' !"
-        deploy_failed_msg: "Not ok, try again !"
+        deploy_successed_msg: "Big Up Bro!"
+        deploy_failed_msg: "Shit!"
 
 platforms:
     development:
@@ -15,10 +15,10 @@ platforms:
         max_releases: 3
         servers:
             dddv-exemple-front-01:
-                host: 192.168.1.18
-                user: root
-                password: %dev_password%
-                path: /home/wwwroot/automate/demo
+                host: 10.66.236.233
+                user: responsage
+                password: Taef4que
+                path: /home/wwwroot/responsage/romaricp
     production:
         default_branch: production
         servers:
@@ -41,14 +41,14 @@ shared_folders:
 
 pre_deploy:
     - "php -v"
-
-on_deploy:
-    - "composer install"
-    - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
-    - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
-
-post_deploy:
-    - "php bin/console doctrine:cache:clear-metadata"
-    - cmd: "php bin/console doctrine:schema:update --force"
-      only: eddv-exemple-front-01
-    - "php bin/console doctrine:cache:clear-result"
+#
+#on_deploy:
+#    - "composer install"
+#    - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
+#    - "setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var"
+#
+#post_deploy:
+#    - "php bin/console doctrine:cache:clear-metadata"
+#    - cmd: "php bin/console doctrine:schema:update --force"
+#      only: eddv-exemple-front-01
+#    - "php bin/console doctrine:cache:clear-result"

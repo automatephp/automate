@@ -11,7 +11,15 @@
 
 namespace Automate\Workflow;
 
+use Automate\DispatcherFactory;
+use Automate\Event\DeployEvent;
+use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
+use Automate\Event\StartDeployEvent;
+use Automate\Event\SuccessDeployEvent;
 use Automate\Model\Server;
+use Automate\Plugin\SlackPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Deployment workflow.
@@ -29,7 +37,10 @@ class Deployer extends BaseWorkflow
      */
     public function deploy($gitRef = null)
     {
+        $dispatcher = (new DispatcherFactory())->create($this->project);
+
         try {
+            $dispatcher->dispatch(DeployEvents::DEPLOY_START, new StartDeployEvent());
             $this->connect();
             $this->initLockFile();
             $this->prepareRelease($gitRef);
@@ -41,62 +52,20 @@ class Deployer extends BaseWorkflow
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
             $this->clearLockFile();
-            if (count($this->project->getGitlab())){
-                $this->sendTriggerJobSuccess(true);
-            }
+            $dispatcher->dispatch(DeployEvents::DEPLOY_SUCCESS, new SuccessDeployEvent());
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            if (count($this->project->getGitlab())){
-                $this->sendTriggerJobSuccess(false);
-            }
             try {
                 if (!$this->isDeployed){
                     $this->moveToFailedReleases();
                 }
                 $this->clearLockFile();
            } catch (\Exception $e) {}
+            $dispatcher->dispatch(DeployEvents::DEPLOY_FAILED, new FailedDeployEvent($e));
         }
 
         return false;
-    }
-
-    /**
-     * Allow to send a trigger job to Gitlab
-     * if the deployment is success or failed
-     * only if you're deploying from your remote (not gitlab)
-     */
-    public function sendTriggerJobSuccess($success)
-    {
-        if (getenv('GITLAB_CI') === false ) {
-            $gitlabUri = $this->project->getGitlab()["uri"];
-            $gitlabVariables = $this->project->getGitlab()["variables"];
-            $client = new \GuzzleHttp\Client();
-
-            if ($success){
-               $client->request(
-                    'POST',
-                    $gitlabUri . "/api/v4/projects/"
-                    . $gitlabVariables["id_project"]
-                    . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
-                    . '&token=' . $gitlabVariables["token_trigger"]
-                    . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
-                    . '&variables[DEPLOY_SUCCESS_MSG]=' . $gitlabVariables["deploy_successed_msg"]
-                    , ['verify' => false]
-                );
-            }else{
-                $client->request(
-                    'POST',
-                    $gitlabUri . "/api/v4/projects/"
-                    . $gitlabVariables["id_project"]
-                    . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
-                    . '&token=' . $gitlabVariables["token_trigger"]
-                    . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
-                    . '&variables[DEPLOY_FAILED_MSG]=' . $gitlabVariables["deploy_failed_msg"]
-                    , ['verify' => false]
-                );
-            }
-        }
     }
 
     /**
