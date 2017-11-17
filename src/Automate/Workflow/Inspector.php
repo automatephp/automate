@@ -39,7 +39,7 @@ class Inspector extends BaseWorkflow
     {
         $this->logger->section('Check Git connection from remotes');
 
-        if(substr($this->project->getRepository(), 0, 4 ) === "git@") {
+        if (substr($this->project->getRepository(), 0, 4) === "git@") {
             $domain = $this->getGitRepositoryDomain($this->project->getRepository());
 
             $this->run(sprintf(

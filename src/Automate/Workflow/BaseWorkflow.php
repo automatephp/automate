@@ -71,8 +71,7 @@ class BaseWorkflow
         LoggerInterface $logger,
         PluginManager $pluginManager,
         SessionFactory $sessionFactory = null
-    )
-    {
+    ) {
         $this->project = $project;
         $this->platform = $platform;
         $this->logger = $logger;
@@ -119,7 +118,7 @@ class BaseWorkflow
         $servers = $this->platform->getServers();
 
         foreach ($servers as $server) {
-            if($specificServer && $server->getName() != $specificServer) {
+            if ($specificServer && $server->getName() != $specificServer) {
                 continue;
             }
             $this->logger->command($command, $verbose);

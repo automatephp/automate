@@ -33,23 +33,17 @@ class SlackPlugin implements PluginInterface
     }
     public function register(Project $project)
     {
-
     }
 
     public function getConfigurationSchema()
     {
-
     }
 
     public function onSuccess(StartDeployEvent $event)
     {
-
     }
 
     public function onFailed(FailedDeployEvent $event)
     {
     }
-
-
-
 }

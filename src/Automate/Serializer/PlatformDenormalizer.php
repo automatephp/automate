@@ -29,9 +29,9 @@ class PlatformDenormalizer extends AbstractDenormalizer
         $platform = new Platform();
 
         $platform
-            ->setName($this->extractValue($data,          'name'))
+            ->setName($this->extractValue($data, 'name'))
             ->setDefaultBranch($this->extractValue($data, 'default_branch'))
-            ->setMaxReleases($this->extractValue($data,   'max_releases', 5))
+            ->setMaxReleases($this->extractValue($data, 'max_releases', 5))
         ;
 
         $servers = $this->extractValue($data, 'servers', array());

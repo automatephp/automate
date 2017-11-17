@@ -12,13 +12,15 @@ namespace Automate\Plugin;
 
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
-use Automate\Event\SuccessDeployEvent;
 use Automate\Model\Project;
 
 /**
  * Allow to send a trigger job to Gitlab
  * if the deployment is success or failed
  * only if you're deploying from your remote (not from gitlab)
+ *
+ * @author Julien Jacottet <jjacottet@gmail.com>
+ * @author Romaric Paul <romaric.paul@gmail.com>
  */
 
 class GitlabPlugin implements PluginInterface
@@ -45,48 +47,40 @@ class GitlabPlugin implements PluginInterface
         $this->project = $project;
     }
 
-    public function onSuccess(SuccessDeployEvent $event)
+    public function onSuccess()
     {
-        $configuration = $this->project->getPlugin('gitlab');
-        var_dump($configuration);
-        var_dump('success'); exit;
-        if (getenv('GITLAB_CI') === false ) {
-            $gitlabUri = $this->project->getGitlab()["uri"];
-            $gitlabVariables = $this->project->getGitlab()["variables"];
+        if (getenv('GITLAB_CI') === false) {
+            $configuration = $this->project->getPlugin('gitlab');
+            $gitlabVariables = $configuration["variables"];
             $client = new \GuzzleHttp\Client();
 
             $client->request(
                 'POST',
-                $gitlabUri . "/api/v4/projects/"
+                $configuration['uri'] . "/api/v4/projects/"
                 . $gitlabVariables["id_project"]
                 . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
                 . '&token=' . $gitlabVariables["token_trigger"]
                 . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
-                . '&variables[DEPLOY_SUCCESS_MSG]=' . $gitlabVariables["deploy_successed_msg"]
-                , ['verify' => false]
+                . '&variables[DEPLOY_SUCCESS_MSG]=' . $gitlabVariables["deploy_successed_msg"], ['verify' => false]
             );
         }
     }
 
     public function onFailed(FailedDeployEvent $event)
     {
-        $configuration = $this->project->getPlugin('gitlab');
-        var_dump($configuration);
-        var_dump('failed'); exit;
-        if (getenv('GITLAB_CI') === false ) {
-            $gitlabUri = $this->project->getGitlab()["uri"];
-            $gitlabVariables = $this->project->getGitlab()["variables"];
+        if (getenv('GITLAB_CI') === false) {
+            $configuration = $this->project->getPlugin('gitlab');
+            $gitlabVariables = $configuration["variables"];
             $client = new \GuzzleHttp\Client();
 
             $client->request(
                 'POST',
-                $gitlabUri . "/api/v4/projects/"
+                $configuration['uri'] . "/api/v4/projects/"
                 . $gitlabVariables["id_project"]
                 . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
                 . '&token=' . $gitlabVariables["token_trigger"]
                 . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
-                . '&variables[DEPLOY_FAILED_MSG]=' . $gitlabVariables["deploy_failed_msg"] . $event->getException()
-                , ['verify' => false]
+                . '&variables[DEPLOY_FAILED_MSG]=' . $gitlabVariables["deploy_failed_msg"] . $event->getException(), ['verify' => false]
             );
         }
     }

@@ -58,8 +58,7 @@ class VariableResolver
      */
     public function resolveRepository(Project $project)
     {
-
-        if(preg_match('/http[s]?:\/\/(?P<user>.*):(?P<variable>%.*%)@(.*)/i', $project->getRepository(), $match)) {
+        if (preg_match('/http[s]?:\/\/(?P<user>.*):(?P<variable>%.*%)@(.*)/i', $project->getRepository(), $match)) {
             $password = $this->resolveVariable($match['variable']);
             $repository = str_replace($match['variable'], $password, $project->getRepository());
 
