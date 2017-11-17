@@ -11,8 +11,33 @@
 
 namespace Automate\Event;
 
+use Automate\Model\Platform;
 use Symfony\Component\EventDispatcher\Event;
 
 class SuccessDeployEvent extends Event
 {
+    private $platform;
+    private $gitRef;
+
+    public function __construct(Platform $platform, $gitRef)
+    {
+        $this->platform = $platform;
+        $this->gitRef = $gitRef;
+    }
+
+    /**
+     * @return Platform
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @return String
+     */
+    public function getGitRef()
+    {
+        return $this->gitRef;
+    }
 }

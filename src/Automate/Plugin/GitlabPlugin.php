@@ -18,11 +18,21 @@ use Automate\Model\Project;
 /**
  * Allow to send a trigger job to Gitlab
  * if the deployment is success or failed
- * only if you're deploying from your remote (not gitlab)
+ * only if you're deploying from your remote (not from gitlab)
  */
 
 class GitlabPlugin implements PluginInterface
 {
+    /**
+     * @var Project
+     */
+    private $project;
+
+    public function getName()
+    {
+        return 'gitlab';
+    }
+
     public static function getSubscribedEvents()
     {
         return array(
@@ -32,16 +42,14 @@ class GitlabPlugin implements PluginInterface
     }
     public function register(Project $project)
     {
-
+        $this->project = $project;
     }
 
-    public function getConfigurationSchema()
+    public function onSuccess(SuccessDeployEvent $event)
     {
-
-    }
-
-    public function onSuccess()
-    {
+        $configuration = $this->project->getPlugin('gitlab');
+        var_dump($configuration);
+        var_dump('success'); exit;
         if (getenv('GITLAB_CI') === false ) {
             $gitlabUri = $this->project->getGitlab()["uri"];
             $gitlabVariables = $this->project->getGitlab()["variables"];
@@ -62,7 +70,9 @@ class GitlabPlugin implements PluginInterface
 
     public function onFailed(FailedDeployEvent $event)
     {
-        var_dump("failed"); exit;
+        $configuration = $this->project->getPlugin('gitlab');
+        var_dump($configuration);
+        var_dump('failed'); exit;
         if (getenv('GITLAB_CI') === false ) {
             $gitlabUri = $this->project->getGitlab()["uri"];
             $gitlabVariables = $this->project->getGitlab()["variables"];
@@ -79,5 +89,54 @@ class GitlabPlugin implements PluginInterface
                 , ['verify' => false]
             );
         }
+    }
+
+    public function getConfigurationSchema()
+    {
+        return [
+            '_type' => 'array',
+            '_children' => [
+                'uri' => [
+                    '_type' => 'text',
+                    '_required' => true,
+                    '_not_empty' => true,
+                ],
+                'variables' => [
+                    '_type' => 'array',
+                    '_children' => [
+                        'id_project' => [
+                            '_type' => 'number',
+                            '_required' => true,
+                            '_not_empty' => true,
+                        ],
+                        'token_trigger' => [
+                            '_type' => 'text',
+                            '_required' => true,
+                            '_not_empty' => true,
+                        ],
+                        'environment' => [
+                            '_type' => 'text',
+                            '_required' => true,
+                            '_not_empty' => true,
+                        ],
+                        'ref' => [
+                            '_type' => 'text',
+                            '_required' => true,
+                            '_not_empty' => true,
+                        ],
+                        'deploy_successed_msg' => [
+                            '_type' => 'text',
+                            '_required' => true,
+                            '_not_empty' => true,
+                        ],
+                        'deploy_failed_msg' => [
+                            '_type' => 'text',
+                            '_required' => true,
+                            '_not_empty' => true,
+                        ],
+                    ],
+                ]
+            ]
+        ];
     }
 }

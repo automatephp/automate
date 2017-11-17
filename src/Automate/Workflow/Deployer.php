@@ -12,14 +12,11 @@
 namespace Automate\Workflow;
 
 use Automate\DispatcherFactory;
-use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Event\StartDeployEvent;
 use Automate\Event\SuccessDeployEvent;
 use Automate\Model\Server;
-use Automate\Plugin\SlackPlugin;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Deployment workflow.
@@ -37,10 +34,10 @@ class Deployer extends BaseWorkflow
      */
     public function deploy($gitRef = null)
     {
-        $dispatcher = (new DispatcherFactory())->create($this->project);
+        $dispatcher = (new DispatcherFactory($this->pluginManager))->create($this->project);
 
         try {
-            $dispatcher->dispatch(DeployEvents::DEPLOY_START, new StartDeployEvent());
+            $dispatcher->dispatch(DeployEvents::DEPLOY_START, new StartDeployEvent($this->platform, $gitRef));
             $this->connect();
             $this->initLockFile();
             $this->prepareRelease($gitRef);
@@ -52,7 +49,7 @@ class Deployer extends BaseWorkflow
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
             $this->clearLockFile();
-            $dispatcher->dispatch(DeployEvents::DEPLOY_SUCCESS, new SuccessDeployEvent());
+            $dispatcher->dispatch(DeployEvents::DEPLOY_SUCCESS, new SuccessDeployEvent($this->platform, $gitRef));
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -62,7 +59,7 @@ class Deployer extends BaseWorkflow
                 }
                 $this->clearLockFile();
            } catch (\Exception $e) {}
-            $dispatcher->dispatch(DeployEvents::DEPLOY_FAILED, new FailedDeployEvent($e));
+            $dispatcher->dispatch(DeployEvents::DEPLOY_FAILED, new FailedDeployEvent($this->platform, $gitRef, $e));
         }
 
         return false;

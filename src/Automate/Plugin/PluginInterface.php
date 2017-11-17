@@ -15,6 +15,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 interface PluginInterface extends EventSubscriberInterface
 {
+    public function getName();
+
     public function register(Project $project);
 
     public function getConfigurationSchema();

@@ -24,12 +24,7 @@ class Project
     /**
      * @var array
      */
-    private $gitlab = array();
-
-    /**
-     * @var array
-     */
-    private $slack = array();
+    private $plugins = array();
 
     /**
      * @var array
@@ -84,39 +79,27 @@ class Project
     /**
      * @return array
      */
-    public function getGitlab()
+    public function getPlugins()
     {
-        return $this->gitlab;
-    }
-
-    /**
-     * @param array $gitlab
-     *
-     * @return Project
-     */
-    public function setGitlab(array $gitlab)
-    {
-        $this->gitlab = $gitlab;
-
-        return $this;
+        return $this->plugins;
     }
 
     /**
      * @return array
      */
-    public function getSlack()
+    public function getPlugin($name)
     {
-        return $this->slack;
+        return $this->plugins[$name];
     }
 
     /**
-     * @param array $slack
+     * @param $plugins
      *
      * @return Project
      */
-    public function setSlack(array $slack)
+    public function setPlugins($plugins)
     {
-        $this->gitlab = $slack;
+        $this->plugins = $plugins;
 
         return $this;
     }

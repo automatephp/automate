@@ -13,7 +13,7 @@ namespace Automate\Event;
 
 final class DeployEvents
 {
-    const DEPLOY_START = 'start';
+    const DEPLOY_START   = 'start';
     const DEPLOY_SUCCESS = 'success';
-    const DEPLOY_FAILED = 'failed';
+    const DEPLOY_FAILED  = 'failed';
 }

@@ -12,14 +12,21 @@
 namespace Automate;
 
 use Automate\Model\Project;
-use Automate\Model\Server;
 use Automate\Plugin\PluginInterface;
-use Automate\Plugin\SlackPlugin;
-use phpseclib\Net\SSH2;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class DispatcherFactory
 {
+    /**
+     * @var PluginManager
+     */
+    private $pluginManager;
+
+    public function __construct(PluginManager $pluginManager)
+    {
+        $this->pluginManager = $pluginManager;
+    }
+
     /**
      * @param Project $project
      * @return EventDispatcher
@@ -29,18 +36,11 @@ class DispatcherFactory
         $dispatcher = new EventDispatcher();
 
         /** @var PluginInterface $plugin */
-        foreach ($this->getPlugins() as $plugin) {
+        foreach ($this->pluginManager->getPlugins() as $plugin) {
             $plugin->register($project);
             $dispatcher->addSubscriber($plugin);
         }
 
-        return new $dispatcher();
-    }
-
-    private function getPlugins()
-    {
-        return array(
-            new SlackPlugin()
-        );
+        return $dispatcher;
     }
 }

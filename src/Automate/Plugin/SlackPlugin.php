@@ -18,6 +18,12 @@ use Automate\Model\Project;
 
 class SlackPlugin implements PluginInterface
 {
+    public function getName()
+    {
+        return 'slack';
+    }
+
+
     public static function getSubscribedEvents()
     {
         return array(

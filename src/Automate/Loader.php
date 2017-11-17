@@ -13,7 +13,6 @@ namespace Automate;
 
 use Automate\Model\Gitlab;
 use Automate\Model\Project;
-use Automate\Serializer\GitlabDenormalizer;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
 use Automate\Serializer\ServerDenormalizer;
@@ -28,6 +27,16 @@ use Symfony\Component\Yaml\Yaml;
 class Loader
 {
     /**
+     * @var PluginManager
+     */
+    private $pluginManager;
+
+    public function __construct(PluginManager $pluginManager)
+    {
+        $this->pluginManager = $pluginManager;
+    }
+
+    /**
      * Load project configuration.
      *
      * @param string|null $path
@@ -36,7 +45,13 @@ class Loader
      */
     public function load($path)
     {
-        $schema = new MetaYaml($this->getSchema(), true);
+        $schemaDescription = $this->getSchema();
+
+        foreach ($this->pluginManager->getPlugins() as $plugin) {
+            $schemaDescription['root']['_children']['plugins']['_children'][$plugin->getName()] = $plugin->getConfigurationSchema();
+        }
+
+        $schema = new MetaYaml($schemaDescription, true);
 
         if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
@@ -48,7 +63,6 @@ class Loader
         $serializer = new Serializer([
             new ProjectDenormalizer(),
             new PlatformDenormalizer(),
-            new GitlabDenormalizer(),
             new ServerDenormalizer(),
             new CommandDenormalizer(),
         ]);
@@ -74,51 +88,6 @@ class Loader
                         '_required' => true,
                         '_not_empty' => true,
                     ],
-                    'gitlab' => [
-                        '_type' => 'array',
-                        '_children' => [
-                            'uri' => [
-                                '_type' => 'text',
-                                '_required' => true,
-                                '_not_empty' => true,
-                            ],
-                            'variables' => [
-                                '_type' => 'array',
-                                '_children' => [
-                                    'id_project' => [
-                                        '_type' => 'number',
-                                        '_required' => true,
-                                        '_not_empty' => true,
-                                    ],
-                                    'token_trigger' => [
-                                        '_type' => 'text',
-                                        '_required' => true,
-                                        '_not_empty' => true,
-                                    ],
-                                    'environment' => [
-                                        '_type' => 'text',
-                                        '_required' => true,
-                                        '_not_empty' => true,
-                                    ],
-                                    'ref' => [
-                                        '_type' => 'text',
-                                        '_required' => true,
-                                        '_not_empty' => true,
-                                    ],
-                                    'deploy_successed_msg' => [
-                                        '_type' => 'text',
-                                        '_required' => true,
-                                        '_not_empty' => true,
-                                    ],
-                                    'deploy_failed_msg' => [
-                                        '_type' => 'text',
-                                        '_required' => true,
-                                        '_not_empty' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
                     'shared_files' => [
                         '_type' => 'prototype',
                         '_prototype' => [
@@ -140,6 +109,10 @@ class Loader
                     'post_deploy' => [
                         '_type'    => 'partial',
                         '_partial' => 'command',
+                    ],
+                    'plugins' => [
+                        '_type' => 'array',
+                        '_children' => []
                     ],
                     'platforms' => [
                         '_type' => 'prototype',

@@ -31,7 +31,7 @@ class ProjectDenormalizer extends AbstractDenormalizer
 
         $project
             ->setRepository($this->extractValue($data,    'repository'))
-            ->setGitlab($this->extractValue($data,        'gitlab', array()))
+            ->setPlugins($this->extractValue($data,       'plugins', array()))
             ->setSharedFiles($this->extractValue($data,   'shared_files', array()))
             ->setSharedFolders($this->extractValue($data, 'shared_folders', array()))
             ->setPreDeploy($this->extractCommands($data,  'pre_deploy'))
