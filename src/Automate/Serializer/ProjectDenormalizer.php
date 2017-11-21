@@ -30,11 +30,12 @@ class ProjectDenormalizer extends AbstractDenormalizer
         $project = new Project();
 
         $project
-            ->setRepository($this->extractValue($data,    'repository'))
-            ->setSharedFiles($this->extractValue($data,   'shared_files', array()))
+            ->setRepository($this->extractValue($data, 'repository'))
+            ->setPlugins($this->extractValue($data, 'plugins', array()))
+            ->setSharedFiles($this->extractValue($data, 'shared_files', array()))
             ->setSharedFolders($this->extractValue($data, 'shared_folders', array()))
-            ->setPreDeploy($this->extractCommands($data,  'pre_deploy'))
-            ->setOnDeploy($this->extractCommands($data,   'on_deploy'))
+            ->setPreDeploy($this->extractCommands($data, 'pre_deploy'))
+            ->setOnDeploy($this->extractCommands($data, 'on_deploy'))
             ->setPostDeploy($this->extractCommands($data, 'post_deploy'))
         ;
 

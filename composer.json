@@ -9,7 +9,9 @@
         "symfony/serializer": "3.2",
         "phpseclib/phpseclib": "~2.0",
         "kherge/amend": "3.0.5",
-        "phpunit/phpunit": "5.*"
+        "phpunit/phpunit": "5.*",
+        "guzzlehttp/guzzle": "^6.3",
+        "symfony/event-dispatcher": "^3.3"
     },
     "require-dev": {
         "phake/phake": "@stable"

@@ -13,6 +13,7 @@ namespace Automate\Command;
 
 use Automate\Loader;
 use Automate\Model\Platform;
+use Automate\PluginManager;
 use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,15 +37,17 @@ class DeployCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $loader = new Loader();
+        $pluginManger = new PluginManager();
+
+        $loader = new Loader($pluginManger);
         $project = $loader->load($input->getOption('config'));
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
 
         $variableResolver = new VariableResolver($io);
-        $variableResolver->resolvePlatform($platform);
         $variableResolver->resolveRepository($project);
-        
+        $variableResolver->resolvePlatform($platform);
+
         $logger = $this->getLogger($io);
 
         $logger->section('Start deployment');
@@ -56,7 +59,7 @@ class DeployCommand extends BaseCommand
             array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
         ));
 
-        $workflow = new Deployer($project, $platform, $logger);
+        $workflow = new Deployer($project, $platform, $logger, $pluginManger);
 
         if (!$workflow->deploy($input->getArgument('gitRef'))) {
             throw new \RuntimeException('Deployment failed');

@@ -11,6 +11,11 @@
 
 namespace Automate\Workflow;
 
+use Automate\DispatcherFactory;
+use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
+use Automate\Event\StartDeployEvent;
+use Automate\Event\SuccessDeployEvent;
 use Automate\Model\Server;
 
 /**
@@ -29,7 +34,10 @@ class Deployer extends BaseWorkflow
      */
     public function deploy($gitRef = null)
     {
+        $dispatcher = (new DispatcherFactory($this->pluginManager))->create($this->project);
+
         try {
+            $dispatcher->dispatch(DeployEvents::DEPLOY_START, new StartDeployEvent($this->platform));
             $this->connect();
             $this->initLockFile();
             $this->prepareRelease($gitRef);
@@ -41,15 +49,18 @@ class Deployer extends BaseWorkflow
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
             $this->clearLockFile();
+            $dispatcher->dispatch(DeployEvents::DEPLOY_SUCCESS, new SuccessDeployEvent($this->platform));
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             try {
-                if (!$this->isDeployed){
+                if (!$this->isDeployed) {
                     $this->moveToFailedReleases();
                 }
                 $this->clearLockFile();
-           } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
+            $dispatcher->dispatch(DeployEvents::DEPLOY_FAILED, new FailedDeployEvent($this->platform, $e));
         }
 
         return false;
@@ -61,14 +72,14 @@ class Deployer extends BaseWorkflow
      */
     public function initLockFile()
     {
-        foreach($this->platform->getServers() as $server) {
+        foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
-            if($session->exists($this->getLockFilePath($server))) {
+            if ($session->exists($this->getLockFilePath($server))) {
                 throw new \RuntimeException('A deployment is already in progress');
             }
         }
 
-        foreach($this->platform->getServers() as $server) {
+        foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
             $session->touch($this->getLockFilePath($server));
         }
@@ -79,7 +90,7 @@ class Deployer extends BaseWorkflow
      */
     public function clearLockFile()
     {
-        foreach($this->platform->getServers() as $server) {
+        foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
             $session->rm($this->getLockFilePath($server));
         }
@@ -216,7 +227,8 @@ class Deployer extends BaseWorkflow
         }
     }
 
-    private function moveToFailedReleases(){
+    private function moveToFailedReleases()
+    {
         $this->logger->section('Move this release to a failedRelease and clear olds failed releases');
         foreach ($this->platform->getServers() as $server) {
             $session = $this->getSession($server);
@@ -232,9 +244,9 @@ class Deployer extends BaseWorkflow
 
     private function clearReleases($failed = false)
     {
-        if ($failed){
+        if ($failed) {
             $this->logger->section('Clear olds failed releases');
-        }else{
+        } else {
             $this->logger->section('Clear olds releases');
         }
 
@@ -245,12 +257,12 @@ class Deployer extends BaseWorkflow
             $releasesList = array_map('trim', $releasesList);
             rsort($releasesList);
 
-            if ($failed){
+            if ($failed) {
                 $releases = array_filter($releasesList, function ($release) {
                     return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
                 });
                 $keep = 1;
-            }else{
+            } else {
                 $releases = array_filter($releasesList, function ($release) {
                     return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}$/', $release);
                 });
@@ -263,12 +275,12 @@ class Deployer extends BaseWorkflow
             }
 
             //Clear all Failed Releases if deployment is OK.
-            if (!$failed){
+            if (!$failed) {
                 $releasesFailed = array_filter($releasesList, function ($release) {
                     return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
                 });
 
-                foreach ($releasesFailed as $releaseFailed){
+                foreach ($releasesFailed as $releaseFailed) {
                     array_push($releases, $releaseFailed);
                 }
             }
@@ -277,7 +289,7 @@ class Deployer extends BaseWorkflow
                 $this->logger->response('rm -R '.$release, $server->getName(), true);
                 $session->rm($release, true);
             }
-         }
+        }
     }
 
     /**

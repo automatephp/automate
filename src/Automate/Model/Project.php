@@ -24,6 +24,11 @@ class Project
     /**
      * @var array
      */
+    private $plugins = array();
+
+    /**
+     * @var array
+     */
     private $sharedFiles = array();
 
     /**
@@ -67,6 +72,34 @@ class Project
     public function setRepository($repository)
     {
         $this->repository = $repository;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlugins()
+    {
+        return $this->plugins;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlugin($name)
+    {
+        return $this->plugins[$name];
+    }
+
+    /**
+     * @param $plugins
+     *
+     * @return Project
+     */
+    public function setPlugins($plugins)
+    {
+        $this->plugins = $plugins;
 
         return $this;
     }

@@ -34,7 +34,9 @@ class CheckCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $loader = new Loader();
+        $pluginManger = new PluginManager();
+
+        $loader = new Loader($pluginManger);
         $project = $loader->load($input->getOption('config'));
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
@@ -52,7 +54,7 @@ class CheckCommand extends BaseCommand
             array('Platform', $platform->getName()),
         ));
 
-        $inspector = new Inspector($project, $platform, $logger);
+        $inspector = new Inspector($project, $platform, $logger, $pluginManger);
 
         if ($inspector->inspect()) {
             $io->success('All is OK');

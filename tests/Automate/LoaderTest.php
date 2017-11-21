@@ -15,14 +15,16 @@ use Automate\Loader;
 use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\PluginManager;
 
 class LoaderTest extends \PHPUnit_Framework_TestCase
 {
     public function testLoader()
     {
-        $loder = new Loader();
+        $pluginManger = new PluginManager();
+        $loader = new Loader($pluginManger);
 
-        $project = $loder->load(__DIR__.'/../fixtures/config.yml');
+        $project = $loader->load(__DIR__.'/../fixtures/config.yml');
 
         $this->assertInstanceOf(Project::class, $project);
         $this->assertEquals('git@github.com:julienj/symfony-demo.git', $project->getRepository());

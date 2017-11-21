@@ -20,6 +20,7 @@ use Automate\Workflow;
 use Phake;
 use phpseclib\Net\SSH2;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Automate\PluginManager;
 
 class DeployTest extends \PHPUnit_Framework_TestCase
 {
@@ -144,17 +145,18 @@ class DeployTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($rs);
     }
 
-
     private function createWorkflow(Session $session, LoggerInterface $logger)
     {
-        $loader = new Loader();
+        $pluginManger = new PluginManager();
+        $loader = new Loader($pluginManger);
+
         $project = $loader->load(__DIR__.'/../../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $workflow = new Workflow\Deployer($project, $platform, $logger, $sessionFactory);
+        $workflow = new Workflow\Deployer($project, $platform, $logger, $pluginManger, $sessionFactory);
 
         return $workflow;
     }

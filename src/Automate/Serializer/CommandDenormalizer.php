@@ -29,7 +29,7 @@ class CommandDenormalizer extends AbstractDenormalizer
     {
         $command = new Command();
 
-        if(is_string($data)) {
+        if (is_string($data)) {
             $command->setCmd($data);
 
             return $command;

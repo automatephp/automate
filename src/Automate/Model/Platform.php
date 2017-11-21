@@ -32,17 +32,17 @@ class Platform
     private $maxReleases;
 
     /**
+     * @var Server[]
+     */
+    private $servers;
+
+    /**
      * @return string
      */
     public function getName()
     {
         return $this->name;
     }
-
-    /**
-     * @var Server[]
-     */
-    private $servers;
 
     /**
      * @param string $name

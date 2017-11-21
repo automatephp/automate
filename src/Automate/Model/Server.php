@@ -165,6 +165,4 @@ class Server
 
         return $this;
     }
-
-
 }

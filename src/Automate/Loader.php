@@ -11,7 +11,6 @@
 
 namespace Automate;
 
-use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
@@ -27,6 +26,16 @@ use Symfony\Component\Yaml\Yaml;
 class Loader
 {
     /**
+     * @var PluginManager
+     */
+    private $pluginManager;
+
+    public function __construct(PluginManager $pluginManager)
+    {
+        $this->pluginManager = $pluginManager;
+    }
+
+    /**
      * Load project configuration.
      *
      * @param string|null $path
@@ -35,7 +44,13 @@ class Loader
      */
     public function load($path)
     {
-        $schema = new MetaYaml($this->getSchema(), true);
+        $schemaDescription = $this->getSchema();
+
+        foreach ($this->pluginManager->getPlugins() as $plugin) {
+            $schemaDescription['root']['_children']['plugins']['_children'][$plugin->getName()] = $plugin->getConfigurationSchema();
+        }
+
+        $schema = new MetaYaml($schemaDescription, true);
 
         if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
@@ -74,7 +89,9 @@ class Loader
                     ],
                     'shared_files' => [
                         '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
+                        '_prototype' => [
+                            '_type' => 'text'
+                        ],
                     ],
                     'shared_folders' => [
                         '_type' => 'prototype',
@@ -91,6 +108,10 @@ class Loader
                     'post_deploy' => [
                         '_type'    => 'partial',
                         '_partial' => 'command',
+                    ],
+                    'plugins' => [
+                        '_type' => 'array',
+                        '_children' => []
                     ],
                     'platforms' => [
                         '_type' => 'prototype',

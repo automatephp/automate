@@ -12,10 +12,10 @@
 namespace Automate\Workflow;
 
 use Automate\Logger\LoggerInterface;
-use Automate\Model\Command;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\PluginManager;
 use Automate\Session;
 use Automate\SessionFactory;
 
@@ -42,6 +42,11 @@ class BaseWorkflow
     protected $logger;
 
     /**
+     * @var PluginManager
+     */
+    protected $pluginManager;
+
+    /**
      * @var Session[]
      */
     protected $sessions = array();
@@ -52,18 +57,25 @@ class BaseWorkflow
     protected $sessionFactory;
 
     /**
-     * Workflow constructor.
+     * BaseWorkflow constructor.
      *
-     * @param Project             $project
-     * @param Platform            $platform
-     * @param LoggerInterface     $logger
+     * @param Project $project
+     * @param Platform $platform
+     * @param LoggerInterface $logger
+     * @param PluginManager $pluginManager
      * @param SessionFactory|null $sessionFactory
      */
-    public function __construct(Project $project, Platform $platform, LoggerInterface $logger, SessionFactory $sessionFactory = null)
-    {
+    public function __construct(
+        Project $project,
+        Platform $platform,
+        LoggerInterface $logger,
+        PluginManager $pluginManager,
+        SessionFactory $sessionFactory = null
+    ) {
         $this->project = $project;
         $this->platform = $platform;
         $this->logger = $logger;
+        $this->pluginManager = $pluginManager;
         $this->sessionFactory = $sessionFactory ?: new SessionFactory();
     }
 
@@ -106,7 +118,7 @@ class BaseWorkflow
         $servers = $this->platform->getServers();
 
         foreach ($servers as $server) {
-            if($specificServer && $server->getName() != $specificServer) {
+            if ($specificServer && $server->getName() != $specificServer) {
                 continue;
             }
             $this->logger->command($command, $verbose);
