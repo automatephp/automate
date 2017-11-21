@@ -14,6 +14,7 @@ namespace Automate;
 use Automate\Plugin\PluginInterface;
 
 use Automate\Plugin\GitlabPlugin;
+use Automate\Plugin\SlackPlugin;
 
 class PluginManager
 {
@@ -27,6 +28,7 @@ class PluginManager
     {
         $this->plugins = array(
             new GitlabPlugin(),
+            new SlackPlugin(),
         );
     }
 

@@ -17,12 +17,10 @@ use Symfony\Component\EventDispatcher\Event;
 class SuccessDeployEvent extends Event
 {
     private $platform;
-    private $gitRef;
 
-    public function __construct(Platform $platform, $gitRef)
+    public function __construct(Platform $platform)
     {
         $this->platform = $platform;
-        $this->gitRef = $gitRef;
     }
 
     /**
@@ -31,13 +29,5 @@ class SuccessDeployEvent extends Event
     public function getPlatform()
     {
         return $this->platform;
-    }
-
-    /**
-     * @return String
-     */
-    public function getGitRef()
-    {
-        return $this->gitRef;
     }
 }

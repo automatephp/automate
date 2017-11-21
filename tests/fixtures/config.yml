@@ -1,4 +1,4 @@
-repository: git@gitlab.eolas.fr:romaric.paul/trigger-automate.git
+repository: git@gitlab.eolas.fr:responsage/digitalisation-rc.git
 plugins:
     gitlab:
         uri: https://gitlab.eolas.fr
@@ -7,9 +7,13 @@ plugins:
             token_trigger: "4502af4576a877e020e383d9eeacbc"
             environment: "environment"
             ref: "master"
-            deploy_successed_msg: "Big Up Bro!"
-            deploy_failed_msg: "Shit!"
-
+            deploy_successed_msg: "Success deployment of '%branch%' on server remote '%server%' at %date% :)"
+            deploy_failed_msg: "Failed deployment of '%branch%' on server remote '%server%' at %date% :("
+    slack:
+        hook_uri: https://hooks.slack.com/services/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
+        variables:
+            deploy_successed_msg: "Success deployment of '%branch%' on server remote '%server%' at %date% :)"
+            deploy_failed_msg: "Failed deployment of '%branch%' on server remote '%server%' at %date% :("
 platforms:
     development:
         default_branch: master

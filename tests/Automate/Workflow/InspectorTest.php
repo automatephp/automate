@@ -14,6 +14,7 @@ namespace Automate\Tests\Workflow;
 use Automate\Loader;
 use Automate\Logger\ConsoleLogger;
 use Automate\Logger\LoggerInterface;
+use Automate\PluginManager;
 use Automate\Session;
 use Automate\SessionFactory;
 use Automate\Workflow;
@@ -34,9 +35,6 @@ class InspectorTest extends \PHPUnit_Framework_TestCase
         $session = new Session($ssh);
         $workflow = $this->createInspector($session, $logger);
         $releaseId = $workflow->getReleaseId();
-        $rs = $workflow->inspect();
-
-        $this->assertTrue($rs);
 
         Phake::inOrder(
             Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; if [ ! -n \"$(grep \"^github.com \" ~/.ssh/known_hosts)\" ]; then ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null; fi"),
@@ -46,14 +44,16 @@ class InspectorTest extends \PHPUnit_Framework_TestCase
 
     private function createInspector(Session $session, LoggerInterface $logger)
     {
-        $loader = new Loader();
+        $pluginManger = new PluginManager();
+        $loader = new Loader($pluginManger);
+
         $project = $loader->load(__DIR__.'/../../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $workflow = new Workflow\Inspector($project, $platform, $logger, $sessionFactory);
+        $workflow = new Workflow\Deployer($project, $platform, $logger, $pluginManger, $sessionFactory);
 
         return $workflow;
     }

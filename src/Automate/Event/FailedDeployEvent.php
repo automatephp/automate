@@ -17,13 +17,11 @@ use Automate\Model\Platform;
 class FailedDeployEvent extends Event
 {
     private $platform;
-    private $gitRef;
     private $exception;
 
-    public function __construct(Platform $platform, $gitRef, \Exception $exception)
+    public function __construct(Platform $platform, \Exception $exception)
     {
         $this->platform = $platform;
-        $this->gitRef = $gitRef;
         $this->exception = $exception;
     }
 
@@ -41,13 +39,5 @@ class FailedDeployEvent extends Event
     public function getPlatform()
     {
         return $this->platform;
-    }
-
-    /**
-     * @return String
-     */
-    public function getGitRef()
-    {
-        return $this->gitRef;
     }
 }

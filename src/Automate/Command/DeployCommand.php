@@ -12,7 +12,6 @@
 namespace Automate\Command;
 
 use Automate\Loader;
-use Automate\Model\Gitlab;
 use Automate\Model\Platform;
 use Automate\PluginManager;
 use Automate\VariableResolver;

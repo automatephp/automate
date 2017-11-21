@@ -12,6 +12,7 @@ namespace Automate\Plugin;
 
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
+use Automate\Event\SuccessDeployEvent;
 use Automate\Model\Project;
 
 /**
@@ -44,15 +45,21 @@ class GitlabPlugin implements PluginInterface
     }
     public function register(Project $project)
     {
-        $this->project = $project;
+        if (isset($project->getPlugins()['gitlab'])){
+            $this->project = $project;
+        }
     }
 
-    public function onSuccess()
+    public function onSuccess(SuccessDeployEvent $event)
     {
-        if (getenv('GITLAB_CI') === false) {
+        if (getenv('GITLAB_CI') === false && isset($this->project)) {
             $configuration = $this->project->getPlugin('gitlab');
             $gitlabVariables = $configuration["variables"];
             $client = new \GuzzleHttp\Client();
+
+            $msg = str_replace("%branch%", $event->getPlatform()->getDefaultBranch(), $gitlabVariables["deploy_successed_msg"]);
+            $msg = str_replace("%server%", $event->getPlatform()->getName(), $msg);
+            $msg = str_replace("%date%", date("d-m-Y H:i:s"), $msg);
 
             $client->request(
                 'POST',
@@ -61,17 +68,21 @@ class GitlabPlugin implements PluginInterface
                 . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
                 . '&token=' . $gitlabVariables["token_trigger"]
                 . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
-                . '&variables[DEPLOY_SUCCESS_MSG]=' . $gitlabVariables["deploy_successed_msg"], ['verify' => false]
+                . '&variables[DEPLOY_SUCCESS_MSG]=' . $msg, ['verify' => false]
             );
         }
     }
 
     public function onFailed(FailedDeployEvent $event)
     {
-        if (getenv('GITLAB_CI') === false) {
+        if (getenv('GITLAB_CI') === false && isset($this->project)) {
             $configuration = $this->project->getPlugin('gitlab');
             $gitlabVariables = $configuration["variables"];
             $client = new \GuzzleHttp\Client();
+
+            $msg = str_replace("%branch%", $event->getPlatform()->getDefaultBranch(), $gitlabVariables["deploy_failed_msg"]);
+            $msg = str_replace("%server%", $event->getPlatform()->getName(), $msg);
+            $msg = str_replace("%date%", date("d-m-Y H:i:s"), $msg);
 
             $client->request(
                 'POST',
@@ -80,7 +91,7 @@ class GitlabPlugin implements PluginInterface
                 . '/trigger/pipeline?ref=' . $gitlabVariables["ref"]
                 . '&token=' . $gitlabVariables["token_trigger"]
                 . '&variables[ENVIRONMENT_NAME]=' . $gitlabVariables["environment"]
-                . '&variables[DEPLOY_FAILED_MSG]=' . $gitlabVariables["deploy_failed_msg"] . $event->getException(), ['verify' => false]
+                . '&variables[DEPLOY_FAILED_MSG]=' . $msg . ' ' .$event->getException(), ['verify' => false]
             );
         }
     }

@@ -11,7 +11,6 @@
 
 namespace Automate;
 
-use Automate\Model\Gitlab;
 use Automate\Model\Project;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;

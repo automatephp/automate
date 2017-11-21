@@ -37,7 +37,7 @@ class Deployer extends BaseWorkflow
         $dispatcher = (new DispatcherFactory($this->pluginManager))->create($this->project);
 
         try {
-            $dispatcher->dispatch(DeployEvents::DEPLOY_START, new StartDeployEvent($this->platform, $gitRef));
+            $dispatcher->dispatch(DeployEvents::DEPLOY_START, new StartDeployEvent($this->platform));
             $this->connect();
             $this->initLockFile();
             $this->prepareRelease($gitRef);
@@ -49,7 +49,7 @@ class Deployer extends BaseWorkflow
             $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
             $this->clearReleases();
             $this->clearLockFile();
-            $dispatcher->dispatch(DeployEvents::DEPLOY_SUCCESS, new SuccessDeployEvent($this->platform, $gitRef));
+            $dispatcher->dispatch(DeployEvents::DEPLOY_SUCCESS, new SuccessDeployEvent($this->platform));
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -60,7 +60,7 @@ class Deployer extends BaseWorkflow
                 $this->clearLockFile();
             } catch (\Exception $e) {
             }
-            $dispatcher->dispatch(DeployEvents::DEPLOY_FAILED, new FailedDeployEvent($this->platform, $gitRef, $e));
+            $dispatcher->dispatch(DeployEvents::DEPLOY_FAILED, new FailedDeployEvent($this->platform, $e));
         }
 
         return false;
