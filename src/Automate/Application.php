@@ -11,7 +11,6 @@
 
 namespace Automate;
 
-use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
 use KevinGH\Amend;
 use Symfony\Component\Console\Application as BaseApplication;
@@ -53,7 +52,6 @@ class Application extends BaseApplication
         $commands = parent::getDefaultCommands();
 
         $commands[] = new DeployCommand();
-        $commands[] = new CheckCommand();
 
         if (('@'.'git-version@') !== $this->getVersion()) {
             $updateCommand = new Amend\Command('update');
