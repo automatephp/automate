@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Automate package.
  *
@@ -9,22 +8,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\Workflow;
+namespace Automate;
+
 
 use Automate\Logger\LoggerInterface;
-use Automate\Model\Command;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Session;
-use Automate\SessionFactory;
 
-class BaseWorkflow
+class Context
 {
     /**
      * @var string
      */
     private $releaseId;
+
+    /**
+     * @var string
+     */
+    private $gitRef;
 
     /**
      * @var Project
@@ -42,6 +44,11 @@ class BaseWorkflow
     protected $logger;
 
     /**
+     * @var boolean
+     */
+    protected $isDeployed;
+
+    /**
      * @var Session[]
      */
     protected $sessions = array();
@@ -52,25 +59,77 @@ class BaseWorkflow
     protected $sessionFactory;
 
     /**
-     * Workflow constructor.
-     *
      * @param Project             $project
      * @param Platform            $platform
+     * @param string              $gitRef
      * @param LoggerInterface     $logger
      * @param SessionFactory|null $sessionFactory
      */
-    public function __construct(Project $project, Platform $platform, LoggerInterface $logger, SessionFactory $sessionFactory = null)
+    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, SessionFactory $sessionFactory = null)
     {
         $this->project = $project;
         $this->platform = $platform;
+        $this->gitRef = $gitRef;
         $this->logger = $logger;
         $this->sessionFactory = $sessionFactory ?: new SessionFactory();
     }
 
     /**
+     * @return string
+     */
+    public function getGitRef()
+    {
+        return $this->gitRef;
+    }
+
+    /**
+     * @return Project
+     */
+    public function getProject()
+    {
+        return $this->project;
+    }
+
+    /**
+     * @return Platform
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeployed()
+    {
+        return $this->isDeployed;
+    }
+
+    /**
+     * @param bool $isDeployed
+     *
+     * @return Context
+     */
+    public function setIsDeployed($isDeployed)
+    {
+        $this->isDeployed = $isDeployed;
+
+        return $this;
+    }
+
+    /**
      * connect servers.
      */
-    protected function connect()
+    public function connect()
     {
         $this->logger->section('Remote servers connection');
 
@@ -86,7 +145,7 @@ class BaseWorkflow
      *
      * @return Session
      */
-    protected function getSession(Server $server)
+    public function getSession(Server $server)
     {
         if (!isset($this->sessions[$server->getName()])) {
             throw new \RuntimeException('Unable to find session');
@@ -101,7 +160,7 @@ class BaseWorkflow
      * @param string $command
      * @param bool   $verbose
      */
-    protected function run($command, $verbose = false, $specificServer = null)
+    public function run($command, $verbose = false, $specificServer = null)
     {
         $servers = $this->platform->getServers();
 
@@ -124,7 +183,7 @@ class BaseWorkflow
      *
      * @return string
      */
-    protected function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
+    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
         $response = $this->getSession($server)->run($realCommand);
@@ -143,7 +202,7 @@ class BaseWorkflow
      *
      * @return string
      */
-    protected function getReleasePath(Server $server)
+    public function getReleasePath(Server $server)
     {
         return $this->getReleasesPath($server).'/'.$this->getReleaseId();
     }
@@ -155,22 +214,11 @@ class BaseWorkflow
      *
      * @return string
      */
-    protected function getReleasesPath(Server $server)
+    public function getReleasesPath(Server $server)
     {
         return $server->getPath().'/releases';
     }
 
-    /**
-     * Get lock file path.
-     *
-     * @param Server $server
-     *
-     * @return string
-     */
-    protected function getLockFilePath(Server $server)
-    {
-        return $server->getPath().'/automate.lock';
-    }
 
     /**
      * Get shared path.
@@ -179,7 +227,7 @@ class BaseWorkflow
      *
      * @return string
      */
-    protected function getSharedPath(Server $server)
+    public function getSharedPath(Server $server)
     {
         return $server->getPath().'/shared';
     }
@@ -191,7 +239,7 @@ class BaseWorkflow
      *
      * @return string
      */
-    protected function getCurrentPath(Server $server)
+    public function getCurrentPath(Server $server)
     {
         return $server->getPath().'/current';
     }

@@ -11,102 +11,99 @@
 
 namespace Automate\Workflow;
 
+use Automate\Context;
+use Automate\DispatcherFactory;
+use Automate\Event\DeployEvent;
+use Automate\Event\DeployEvents;
 use Automate\Model\Server;
+use Automate\PluginManager;
 
 /**
  * Deployment workflow.
  */
-class Deployer extends BaseWorkflow
+class Deployer
 {
-    private $isDeployed = false;
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @param Context $context
+     */
+    public function __construct(Context $context)
+    {
+        $this->context = $context;
+    }
 
     /**
      * Deploy project.
      *
-     * @param string $gitRef
-     *
      * @return bool
      */
-    public function deploy($gitRef = null)
+    public function deploy()
     {
+
+        $dispatcher = (new DispatcherFactory(new PluginManager()))->create($this->context->getProject());
+
         try {
-            $this->connect();
-            $this->initLockFile();
-            $this->prepareRelease($gitRef);
-            $this->runHooks($this->project->getPreDeploy(), 'Pre deploy');
+
+            $this->context->connect();
+
+            $dispatcher->dispatch(DeployEvents::INIT, new DeployEvent($this->context));
+            $this->createReleaseDirectory();
+
+            $dispatcher->dispatch(DeployEvents::BUILD, new DeployEvent($this->context));
+            $this->deployWithGit();
+            $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
             $this->initShared();
-            $this->runHooks($this->project->getOnDeploy(), 'On deploy');
+            $this->runHooks($this->context->getProject()->getOnDeploy(), 'On deploy');
+
+            $dispatcher->dispatch(DeployEvents::DEPLOY, new DeployEvent($this->context));
             $this->activateSymlink();
-            $this->isDeployed = true;
-            $this->runHooks($this->project->getPostDeploy(), 'Post deploy');
-            $this->clearReleases();
-            $this->clearLockFile();
+            $this->context->setIsDeployed(true);
+
+            $dispatcher->dispatch(DeployEvents::FINISH, new DeployEvent($this->context));
+            $this->runHooks($this->context->getProject()->getPostDeploy(), 'Post deploy');
+
+            $dispatcher->dispatch(DeployEvents::TERMINATE, new DeployEvent($this->context));
+
             return true;
+
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
+            $this->context->getLogger()->error($e->getMessage());
             try {
-                if (!$this->isDeployed){
-                    $this->moveToFailedReleases();
-                }
-                $this->clearLockFile();
-           } catch (\Exception $e) {}
+                $dispatcher->dispatch(DeployEvents::FAILED, new DeployEvent($this->context));
+                $dispatcher->dispatch(DeployEvents::TERMINATE, new DeployEvent($this->context));
+            } catch (\Exception $e) {
+                // ignore exception
+            }
         }
 
         return false;
     }
 
-    /**
-     * Check if a deployment is already in progress
-     * and create lock file
-     */
-    public function initLockFile()
-    {
-        foreach($this->platform->getServers() as $server) {
-            $session = $this->getSession($server);
-            if($session->exists($this->getLockFilePath($server))) {
-                throw new \RuntimeException('A deployment is already in progress');
-            }
-        }
-
-        foreach($this->platform->getServers() as $server) {
-            $session = $this->getSession($server);
-            $session->touch($this->getLockFilePath($server));
-        }
-    }
-
-    /**
-     * remove lock file
-     */
-    public function clearLockFile()
-    {
-        foreach($this->platform->getServers() as $server) {
-            $session = $this->getSession($server);
-            $session->rm($this->getLockFilePath($server));
-        }
-    }
 
     /**
      * Prepare release.
-     *
-     * @param string $gitRef
      */
-    private function prepareRelease($gitRef = null)
+    private function deployWithGit()
     {
-        $this->logger->section('Prepare Release');
+        $this->context->getLogger()->section('Prepare Release');
 
-        $this->createReleaseDirectory();
-
-        $this->run(sprintf(
+        $this->context->run(sprintf(
             'git clone %s -q --recursive -b %s .',
-            $this->project->getRepository(),
-            $this->platform->getDefaultBranch()
+            $this->context->getProject()->getRepository(),
+            $this->context->getPlatform()->getDefaultBranch()
         ), true);
+
+        $gitRef = $this->context->getGitRef();
 
         if ($gitRef) {
             $listTagsCommand = sprintf('git tag --list \'%s\'', $gitRef);
-            $this->logger->command($listTagsCommand);
-            foreach ($this->platform->getServers() as $server) {
-                if ($gitRef && $this->doRun($server, $listTagsCommand, true)) {
+            $this->context->getLogger()->command($listTagsCommand);
+            foreach ($this->context->getPlatform()->getServers() as $server) {
+                if ($gitRef && $this->context->doRun($server, $listTagsCommand, true)) {
                     // checkout a tag
                     $command = sprintf('git checkout tags/%s', $gitRef);
                 } else {
@@ -114,8 +111,8 @@ class Deployer extends BaseWorkflow
                     $command = sprintf('git checkout %s', $gitRef);
                 }
 
-                $this->logger->command($command, true);
-                $this->doRun($server, $command, true, true);
+                $this->context->getLogger()->command($command, true);
+                $this->context->doRun($server, $command, true, true);
             }
         }
     }
@@ -129,10 +126,10 @@ class Deployer extends BaseWorkflow
     private function runHooks(array $commands, $name)
     {
         if (count($commands)) {
-            $this->logger->section($name);
+            $this->context->getLogger()->section($name);
             foreach ($commands as $command) {
                 if ('' !== $command->getCmd() && '#' !== substr(trim($command->getCmd()), 0, 1)) {
-                    $this->run($command->getCmd(), true, $command->getOnly());
+                    $this->context->run($command->getCmd(), true, $command->getOnly());
                 }
             }
         }
@@ -143,12 +140,12 @@ class Deployer extends BaseWorkflow
      */
     private function initShared()
     {
-        $folders = $this->project->getSharedFolders();
-        $files = $this->project->getSharedFiles();
+        $folders = $this->context->getProject()->getSharedFolders();
+        $files = $this->context->getProject()->getSharedFiles();
 
         if (count($folders) || count($files)) {
-            $this->logger->section('Setting up shared items');
-            foreach ($this->platform->getServers() as $server) {
+            $this->context->getLogger()->section('Setting up shared items');
+            foreach ($this->context->getPlatform()->getServers() as $server) {
                 foreach ($folders as $folder) {
                     $this->doShared($folder, $server, true);
                 }
@@ -166,12 +163,12 @@ class Deployer extends BaseWorkflow
      */
     private function doShared($path, Server $server, $isDirectory)
     {
-        $session = $this->getSession($server);
+        $session = $this->context->getSession($server);
 
         $path = trim($path);
         $path = ltrim($path, '/');
-        $releasePath = $this->getReleasePath($server).'/'.$path;
-        $sharedPath = $this->getSharedPath($server).'/'.$path;
+        $releasePath = $this->context->getReleasePath($server).'/'.$path;
+        $sharedPath = $this->context->getSharedPath($server).'/'.$path;
 
         // For the first deployment : create shared form source
         if (!$session->exists($sharedPath) && $session->exists($releasePath)) {
@@ -199,7 +196,7 @@ class Deployer extends BaseWorkflow
         }
 
         // create symlink
-        $this->logger->response(sprintf('%s --> %s', $releasePath, $sharedPath), $server->getName(), true);
+        $this->context->getLogger()->response(sprintf('%s --> %s', $releasePath, $sharedPath), $server->getName(), true);
         $session->symlink($sharedPath, $releasePath);
     }
 
@@ -208,85 +205,26 @@ class Deployer extends BaseWorkflow
      */
     private function activateSymlink()
     {
-        $this->logger->section('Publish new release');
+        $this->context->getLogger()->section('Publish new release');
 
-        foreach ($this->platform->getServers() as $server) {
-            $this->logger->response(sprintf('%s --> %s', $this->getCurrentPath($server), $this->getReleasePath($server)), $server->getName(), true);
-            $this->getSession($server)->symlink($this->getReleasePath($server), $this->getCurrentPath($server));
+        foreach ($this->context->getPlatform()->getServers() as $server) {
+
+            $currentPath = $this->context->getCurrentPath($server);
+            $releasePath = $this->context->getReleasePath($server);
+
+            $this->context->getLogger()->response(sprintf('%s --> %s', $currentPath, $releasePath), $server->getName(), true);
+            $this->context->getSession($server)->symlink($releasePath, $currentPath);
         }
     }
 
-    private function moveToFailedReleases(){
-        $this->logger->section('Move this release to a failedRelease and clear olds failed releases');
-        foreach ($this->platform->getServers() as $server) {
-            $session = $this->getSession($server);
-
-            $release = $this->getReleasePath($server);
-            $this->logger->response('mv '.$release. ' '.$release."-failed", $server->getName(), true);
-
-            $session->mv($release, $release."-failed");
-        }
-
-        $this->clearReleases(true);
-    }
-
-    private function clearReleases($failed = false)
-    {
-        if ($failed){
-            $this->logger->section('Clear olds failed releases');
-        }else{
-            $this->logger->section('Clear olds releases');
-        }
-
-        foreach ($this->platform->getServers() as $server) {
-            $session = $this->getSession($server);
-
-            $releasesList = $session->listDirectory($this->getReleasesPath($server));
-            $releasesList = array_map('trim', $releasesList);
-            rsort($releasesList);
-
-            if ($failed){
-                $releases = array_filter($releasesList, function ($release) {
-                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
-                });
-                $keep = 1;
-            }else{
-                $releases = array_filter($releasesList, function ($release) {
-                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}$/', $release);
-                });
-                $keep = $this->platform->getMaxReleases();
-            }
-
-            while ($keep > 0) {
-                array_shift($releases);
-                $keep--;
-            }
-
-            //Clear all Failed Releases if deployment is OK.
-            if (!$failed){
-                $releasesFailed = array_filter($releasesList, function ($release) {
-                    return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\.[0-9]{3}-failed/', $release);
-                });
-
-                foreach ($releasesFailed as $releaseFailed){
-                    array_push($releases, $releaseFailed);
-                }
-            }
-
-            foreach ($releases as $release) {
-                $this->logger->response('rm -R '.$release, $server->getName(), true);
-                $session->rm($release, true);
-            }
-         }
-    }
 
     /**
      * Create release directory.
      */
     private function createReleaseDirectory()
     {
-        foreach ($this->platform->getServers() as $server) {
-            $this->getSession($server)->mkdir($this->getReleasePath($server), true);
+        foreach ($this->context->getPlatform()->getServers() as $server) {
+            $this->context->getSession($server)->mkdir($this->context->getReleasePath($server), true);
         }
     }
 }
