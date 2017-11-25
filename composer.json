@@ -3,10 +3,10 @@
     "description": "Deployment Tool",
     "type": "project",
     "require": {
-        "symfony/console": "^3.2",
-        "symfony/yaml": "^3.2",
+        "symfony/console": "^3.3",
+        "symfony/yaml": "^3.3",
         "romaricdrigon/metayaml": "^1.1",
-        "symfony/serializer": "3.2",
+        "symfony/serializer": "3.3",
         "phpseclib/phpseclib": "~2.0",
         "kherge/amend": "3.0.5",
         "phpunit/phpunit": "5.*",
