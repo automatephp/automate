@@ -119,7 +119,7 @@ class Context
      *
      * @return Context
      */
-    public function setIsDeployed($isDeployed)
+    public function setDeployed($isDeployed)
     {
         $this->isDeployed = $isDeployed;
 

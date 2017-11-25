@@ -61,7 +61,7 @@ class Deployer
 
             $dispatcher->dispatch(DeployEvents::DEPLOY, new DeployEvent($this->context));
             $this->activateSymlink();
-            $this->context->setIsDeployed(true);
+            $this->context->setDeployed(true);
 
             $dispatcher->dispatch(DeployEvents::FINISH, new DeployEvent($this->context));
             $this->runHooks($this->context->getProject()->getPostDeploy(), 'Post deploy');

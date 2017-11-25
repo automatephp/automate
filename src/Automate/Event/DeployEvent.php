@@ -36,6 +36,4 @@ class DeployEvent extends Event
     {
         return $this->context;
     }
-
-
 }

@@ -67,6 +67,8 @@ class ClearListenerTest extends AbstractContextTest
         $session = new Session($ssh);
         $context = $this->createContext($session, $logger);
 
+        Phake::when($ssh)->exec('if test -f "/home/wwwroot/automate/demo/releases/failed"; then echo "Y";fi')->thenReturn('Y');
+
         $event = new DeployEvent($context);
         $listener = new ClearListener();
         $listener->removeFailedRelease($event);
