@@ -172,7 +172,7 @@ class Deployer
 
         // For the first deployment : create shared form source
         if (!$session->exists($sharedPath) && $session->exists($releasePath)) {
-            $session->mv($releasePath, dirname($sharedPath));
+            $session->mv($releasePath, $sharedPath);
         }
 
         // Remove from source

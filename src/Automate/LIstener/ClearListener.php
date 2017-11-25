@@ -49,7 +49,7 @@ class ClearListener implements EventSubscriberInterface
                 $release = $context->getReleasePath($server);
                 $failed = $this->getFailedPath($server);
 
-                $context->getLogger()->response(sprintf('move release to %s', $failed), true);
+                $context->getLogger()->response(sprintf('move release to %s', $failed), $server->getName(), true);
 
                 $session->mv($release, $failed);
             }
