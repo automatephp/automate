@@ -36,6 +36,7 @@ class ProjectDenormalizer extends AbstractDenormalizer
             ->setPreDeploy($this->extractCommands($data,  'pre_deploy'))
             ->setOnDeploy($this->extractCommands($data,   'on_deploy'))
             ->setPostDeploy($this->extractCommands($data, 'post_deploy'))
+            ->setPlugins($this->extractValue($data,  'plugins', array()))
         ;
 
         $platforms = $this->extractValue($data, 'platforms', array());

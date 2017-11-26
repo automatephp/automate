@@ -74,7 +74,6 @@ class Deployer
             $this->context->getLogger()->error($e->getMessage());
             try {
                 $dispatcher->dispatch(DeployEvents::FAILED, new DeployEvent($this->context));
-                $dispatcher->dispatch(DeployEvents::TERMINATE, new DeployEvent($this->context));
             } catch (\Exception $e) {
                 // ignore exception
             }

@@ -30,6 +30,7 @@ class LockListener implements EventSubscriberInterface
         return array(
             DeployEvents::INIT => 'initLockFile',
             DeployEvents::TERMINATE => 'clearLockFile',
+            DeployEvents::FAILED => 'clearLockFile',
         );
     }
 

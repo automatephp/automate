@@ -20,12 +20,19 @@ class PluginManager
     /**
      * @var PluginInterface[]
      */
-    private $plugins;
+    private $plugins = array();
 
     public function __construct()
     {
-        // @todo
-        $this->plugins = [];
+        foreach (glob(__DIR__ .'/Plugin/*Plugin.php') as $filename) {
+            $file = new \SplFileInfo($filename);
+            $class = 'Automate\\Plugin\\' . substr($file->getFilename(), 0, -4);
+
+            $ref = new \ReflectionClass($class);
+            if(!$ref->isAbstract() && $ref->implementsInterface(PluginInterface::class)) {
+                $this->plugins[] = new $class;
+            }
+        }
     }
 
     /**
