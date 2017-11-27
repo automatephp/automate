@@ -10,6 +10,12 @@ plugins:
             deploy_successed_msg: "Success deployment of '%branch%' on server remote '%server%' at %date% :)"
             deploy_failed_msg: "Failed deployment of '%branch%' on server remote '%server%' at %date% :("
 
+    slack:
+        hook_uri: https://hooks.slack.com/services/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
+        variables:
+            deploy_successed_msg: "Success deployment of '%branch%' on server remote '%server%' at %date% :)"
+            deploy_failed_msg: "Failed deployment of '%branch%' on server remote '%server%' at %date% :("
+
 platforms:
     development:
         default_branch: master
