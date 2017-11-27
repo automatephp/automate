@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\LIstener;
+namespace Automate\Listener;
 
 
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -35,9 +36,9 @@ class ClearListener implements EventSubscriberInterface
     /**
      * Move current release to /releases/failed
      *
-     * @param DeployEvent $event
+     * @param FailedDeployEvent $event
      */
-    public function moveFailedRelease(DeployEvent $event)
+    public function moveFailedRelease(FailedDeployEvent $event)
     {
         $context = $event->getContext();
 

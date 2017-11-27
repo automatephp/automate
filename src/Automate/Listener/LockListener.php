@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\LIstener;
+namespace Automate\Listener;
 
 
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -28,9 +29,9 @@ class LockListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            DeployEvents::INIT => 'initLockFile',
+            DeployEvents::INIT =>      'initLockFile',
             DeployEvents::TERMINATE => 'clearLockFile',
-            DeployEvents::FAILED => 'clearLockFile',
+            DeployEvents::FAILED =>    'clearLockFileByFailed',
         );
     }
 
@@ -65,6 +66,23 @@ class LockListener implements EventSubscriberInterface
      * @param DeployEvent $event
      */
     public function clearLockFile(DeployEvent $event)
+    {
+        $context = $event->getContext();
+
+        if($this->hasLock) {
+            foreach($context->getPlatform()->getServers() as $server) {
+                $session = $context->getSession($server);
+                $session->rm($this->getLockFilePath($server));
+            }
+        }
+    }
+
+    /**
+     * Remove lock file
+     *
+     * @param FailedDeployEvent $event
+     */
+    public function clearLockFileByFailed(FailedDeployEvent $event)
     {
         $context = $event->getContext();
 

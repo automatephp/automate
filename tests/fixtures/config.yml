@@ -1,4 +1,14 @@
 repository: git@github.com:julienj/symfony-demo.git
+plugins:
+    gitlab:
+        uri: https://gitlab.eolas.fr
+        variables:
+            id_project: 302
+            token_trigger: "4502af4576a877e020e383d9eeacbc"
+            environment: "environment"
+            ref: "master"
+            deploy_successed_msg: "Success deployment of '%branch%' on server remote '%server%' at %date% :)"
+            deploy_failed_msg: "Failed deployment of '%branch%' on server remote '%server%' at %date% :("
 
 platforms:
     development:

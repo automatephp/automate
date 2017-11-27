@@ -12,8 +12,9 @@
 namespace Automate\Tests\Listener;
 
 use Automate\Event\DeployEvent;
-use Automate\LIstener\ClearListener;
-use Automate\LIstener\LockListener;
+use Automate\Event\FailedDeployEvent;
+use Automate\Listener\ClearListener;
+use Automate\Listener\LockListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session;
 use Automate\Tests\AbstractContextTest;
