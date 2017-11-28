@@ -14,12 +14,8 @@ namespace Automate\Event;
 use Automate\Context;
 use Symfony\Component\EventDispatcher\Event;
 
-class FailedDeployEvent extends Event
+class FailedDeployEvent extends DeployEvent
 {
-    /**
-     * @var Context
-     */
-    private $context;
     /**
      * @var \Exception
      */
@@ -27,8 +23,9 @@ class FailedDeployEvent extends Event
 
     public function __construct(Context $context, \Exception $exception)
     {
-        $this->context = $context;
         $this->exception = $exception;
+
+        parent::__construct($context);
     }
 
     /**
@@ -39,11 +36,4 @@ class FailedDeployEvent extends Event
         return $this->exception;
     }
 
-    /**
-     * @return Context
-     */
-    public function getContext()
-    {
-        return $this->context;
-    }
 }

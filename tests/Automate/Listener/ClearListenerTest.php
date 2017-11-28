@@ -85,8 +85,7 @@ class ClearListenerTest extends AbstractContextTest
         $session = new Session($ssh);
         $context = $this->createContext($session, $logger);
 
-        $e = new \Exception();
-        $event = new FailedDeployEvent($context, $e);
+        $event = new FailedDeployEvent($context, new \Exception());
         $listener = new ClearListener();
         $listener->moveFailedRelease($event);
 

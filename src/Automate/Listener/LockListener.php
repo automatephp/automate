@@ -31,7 +31,7 @@ class LockListener implements EventSubscriberInterface
         return array(
             DeployEvents::INIT =>      'initLockFile',
             DeployEvents::TERMINATE => 'clearLockFile',
-            DeployEvents::FAILED =>    'clearLockFileByFailed',
+            DeployEvents::FAILED =>    'clearLockFile',
         );
     }
 
@@ -66,23 +66,6 @@ class LockListener implements EventSubscriberInterface
      * @param DeployEvent $event
      */
     public function clearLockFile(DeployEvent $event)
-    {
-        $context = $event->getContext();
-
-        if($this->hasLock) {
-            foreach($context->getPlatform()->getServers() as $server) {
-                $session = $context->getSession($server);
-                $session->rm($this->getLockFilePath($server));
-            }
-        }
-    }
-
-    /**
-     * Remove lock file
-     *
-     * @param FailedDeployEvent $event
-     */
-    public function clearLockFileByFailed(FailedDeployEvent $event)
     {
         $context = $event->getContext();
 
