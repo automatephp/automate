@@ -128,9 +128,9 @@ class GitlabPlugin implements PluginInterface
 
             $client->request('POST', $uri, [
                 'query'=> [
-                    'ref' => $configuration['ref'],
+                    'ref' => $context->getPlatform()->getDefaultBranch(),
                     'token' => $configuration['token_trigger'],
-                    'variables[ENVIRONMENT_NAME]' => $configuration['environment'],
+                    'variables[ENVIRONMENT_NAME]' => $context->getPlatform()->getName(),
                     'variables['.$envName.']' => $message
                 ],
                 'verify' => false
@@ -157,16 +157,6 @@ class GitlabPlugin implements PluginInterface
                     '_not_empty' => true,
                 ],
                 'token_trigger' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'environment' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'ref' => [
                     '_type' => 'text',
                     '_required' => true,
                     '_not_empty' => true,
