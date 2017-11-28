@@ -13,8 +13,9 @@ namespace Automate\Tests\Plugin;
 
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
-use Automate\LIstener\ClearListener;
-use Automate\LIstener\LockListener;
+use Automate\Event\FailedDeployEvent;
+use Automate\Listener\ClearListener;
+use Automate\Listener\LockListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Logger\LoggerInterface;
 use Automate\Plugin\GitterPlugin;
@@ -55,7 +56,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $gitter->onInit(new DeployEvent($context));
         $gitter->onFinish(new DeployEvent($context));
-        $gitter->onFailed(new DeployEvent($context));
+        $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
 
         Phake::verify($gitter, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Start deployment');
         Phake::verify($gitter, Phake::times(1))->sendMessage(':sunny: [Automate] [development] Finish deployment with success');
@@ -83,7 +84,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $gitter->onInit(new DeployEvent($context));
         $gitter->onFinish(new DeployEvent($context));
-        $gitter->onFailed(new DeployEvent($context));
+        $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
 
         Phake::verify($gitter, Phake::times(1))->sendMessage('[development] start');
         Phake::verify($gitter, Phake::times(1))->sendMessage('[development] success');

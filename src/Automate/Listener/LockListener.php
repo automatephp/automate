@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\LIstener;
+namespace Automate\Listener;
 
 
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -28,9 +29,9 @@ class LockListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            DeployEvents::INIT => 'initLockFile',
+            DeployEvents::INIT =>      'initLockFile',
             DeployEvents::TERMINATE => 'clearLockFile',
-            DeployEvents::FAILED => 'clearLockFile',
+            DeployEvents::FAILED =>    'clearLockFile',
         );
     }
 

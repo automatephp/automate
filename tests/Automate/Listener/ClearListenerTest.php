@@ -12,7 +12,8 @@
 namespace Automate\Tests\Listener;
 
 use Automate\Event\DeployEvent;
-use Automate\LIstener\ClearListener;
+use Automate\Event\FailedDeployEvent;
+use Automate\Listener\ClearListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session;
 use Automate\Tests\AbstractContextTest;
@@ -84,7 +85,7 @@ class ClearListenerTest extends AbstractContextTest
         $session = new Session($ssh);
         $context = $this->createContext($session, $logger);
 
-        $event = new DeployEvent($context);
+        $event = new FailedDeployEvent($context, new \Exception());
         $listener = new ClearListener();
         $listener->moveFailedRelease($event);
 

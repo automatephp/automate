@@ -10,8 +10,8 @@
 
 namespace Automate;
 
-use Automate\LIstener\ClearListener;
-use Automate\LIstener\LockListener;
+use Automate\Listener\ClearListener;
+use Automate\Listener\LockListener;
 use Automate\Model\Project;
 use Automate\Plugin\PluginInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;

@@ -15,6 +15,7 @@ use Automate\Context;
 use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Automate\PluginManager;
 
@@ -73,7 +74,7 @@ class Deployer
         } catch (\Exception $e) {
             $this->context->getLogger()->error($e->getMessage());
             try {
-                $dispatcher->dispatch(DeployEvents::FAILED, new DeployEvent($this->context));
+                $dispatcher->dispatch(DeployEvents::FAILED, new FailedDeployEvent($this->context, $e));
             } catch (\Exception $e) {
                 // ignore exception
             }

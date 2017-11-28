@@ -14,6 +14,7 @@ namespace Automate\Plugin;
 use Automate\Context;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
+use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
 
 abstract class AbstractChatPlugin implements PluginInterface
@@ -21,7 +22,6 @@ abstract class AbstractChatPlugin implements PluginInterface
     const MESSAGE_START   = ':hourglass: [Automate] [%platform%] Start deployment';
     const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] Finish deployment with success';
     const MESSAGE_FAILED  = ':exclamation: [Automate] [%platform%] Finish deployment with error';
-
 
     /**
      * @var array
@@ -96,10 +96,10 @@ abstract class AbstractChatPlugin implements PluginInterface
      *
      * @param DeployEvent $event
      */
-    public function onFailed(DeployEvent $event)
+    public function onFailed(FailedDeployEvent $event)
     {
         if($this->configuration) {
-            $this->sendMessage($this->getMessage('failed', self::MESSAGE_FAILED, $event->getContext()));
+            $this->sendMessage($this->getMessage('failed', self::MESSAGE_FAILED, $event->getContext(), $event->getException()));
         }
     }
 
@@ -124,11 +124,15 @@ abstract class AbstractChatPlugin implements PluginInterface
      * @param Context $context
      * @return mixed|string
      */
-    private function getMessage($name, $defaut, Context $context)
+    private function getMessage($name, $defaut, Context $context, \Exception $exception = null)
     {
         $message = isset($this->configuration['messages'][$name]) ? $this->configuration['messages'][$name] : $defaut;
 
         $message = str_replace("%platform%", $context->getPlatform()->getName(), $message);
+
+        if($exception) {
+            $message = str_replace("%error%", $exception->getMessage(), $message);
+        }
 
         return $message;
     }
