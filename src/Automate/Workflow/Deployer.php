@@ -83,7 +83,6 @@ class Deployer
         return false;
     }
 
-
     /**
      * Prepare release.
      */

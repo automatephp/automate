@@ -12,7 +12,6 @@
 namespace Automate\Event;
 
 use Automate\Context;
-use Symfony\Component\EventDispatcher\Event;
 
 class FailedDeployEvent extends DeployEvent
 {

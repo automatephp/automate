@@ -63,15 +63,15 @@ class CacheToolPlugin implements PluginInterface
 
             $context->run('curl -sO ' . self::PHAR_URL);
 
-            if(isset($this->configuration['opcache']) and $this->configuration['opcache']) {
+            if(isset($this->configuration['opcache']) && $this->configuration['opcache']) {
                 $context->run('php cachetool.phar opcache:reset ' . $fastcgi, true);
             }
 
-            if(isset($this->configuration['apcu']) and $this->configuration['apcu']) {
+            if(isset($this->configuration['apcu']) && $this->configuration['apcu']) {
                 $context->run('php cachetool.phar apcu:cache:clear ' . $fastcgi, true);
             }
 
-            if(isset($this->configuration['apc']) and $this->configuration['apc']) {
+            if(isset($this->configuration['apc']) && $this->configuration['apc']) {
                 $context->run('php cachetool.phar apc:cache:clear ' . $fastcgi, true);
             }
 
