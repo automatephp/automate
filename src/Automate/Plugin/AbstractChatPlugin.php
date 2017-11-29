@@ -10,7 +10,6 @@
 
 namespace Automate\Plugin;
 
-
 use Automate\Context;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
@@ -78,7 +77,6 @@ abstract class AbstractChatPlugin implements PluginInterface
         }
     }
 
-
     /**
      * Send success deploy message
      *
@@ -94,7 +92,7 @@ abstract class AbstractChatPlugin implements PluginInterface
     /**
      * Send failed deploy message
      *
-     * @param DeployEvent $event
+     * @param FailedDeployEvent $event
      */
     public function onFailed(FailedDeployEvent $event)
     {
