@@ -74,20 +74,14 @@ class Deployer
         } catch (\Exception $e) {
             $this->context->getLogger()->error($e->getMessage());
             try {
-
                 $dispatcher->dispatch(DeployEvents::FAILED, new FailedDeployEvent($this->context, $e));
-
-
             } catch (\Exception $e) {
-                $this->context->getLogger()->section("catch");
-
-                $this->context->getLogger()->error($e);
+                // ignore exception
             }
         }
 
         return false;
     }
-
 
     /**
      * Prepare release.
