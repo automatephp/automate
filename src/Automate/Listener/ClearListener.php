@@ -45,14 +45,16 @@ class ClearListener implements EventSubscriberInterface
         // not move if deploy
         if(!$context->isDeployed()) {
             foreach ($context->getPlatform()->getServers() as $server) {
-                $session = $context->getSession($server);
+                if ($context->getReleasePath($server) !== null){
+                    $session = $context->getSession($server);
 
-                $release = $context->getReleasePath($server);
-                $failed = $this->getFailedPath($server);
+                    $release = $context->getReleasePath($server);
+                    $failed = $this->getFailedPath($server);
 
-                $context->getLogger()->response(sprintf('move release to %s', $failed), $server->getName(), true);
+                    $context->getLogger()->response(sprintf('move release to %s', $failed), $server->getName(), true);
 
-                $session->mv($release, $failed);
+                    $session->mv($release, $failed);
+                }
             }
         }
     }
