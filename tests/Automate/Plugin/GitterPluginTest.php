@@ -12,19 +12,12 @@
 namespace Automate\Tests\Plugin;
 
 use Automate\Event\DeployEvent;
-use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
-use Automate\Listener\ClearListener;
-use Automate\Listener\LockListener;
-use Automate\Logger\ConsoleLogger;
 use Automate\Logger\LoggerInterface;
 use Automate\Plugin\GitterPlugin;
-use Automate\PluginManager;
 use Automate\Session;
 use Automate\Tests\AbstractContextTest;
 use Phake;
-use phpseclib\Net\SSH2;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class GitterPluginTest extends AbstractContextTest
 {
@@ -58,9 +51,9 @@ class GitterPluginTest extends AbstractContextTest
         $gitter->onFinish(new DeployEvent($context));
         $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($gitter, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Start deployment');
-        Phake::verify($gitter, Phake::times(1))->sendMessage(':sunny: [Automate] [development] Finish deployment with success');
-        Phake::verify($gitter, Phake::times(1))->sendMessage(':exclamation: [Automate] [development] Finish deployment with error');
+        Phake::verify($gitter, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Deployment start');
+        Phake::verify($gitter, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success');
+        Phake::verify($gitter, Phake::times(1))->sendMessage(':exclamation: [Automate] [development] Deployment failed with error');
     }
 
     public function testMessage()

@@ -18,8 +18,8 @@ use Automate\Model\Project;
 
 abstract class AbstractChatPlugin implements PluginInterface
 {
-    const MESSAGE_START   = ':hourglass: [Automate] [%platform%] Start deployment';
-    const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] Finish deployment with success';
+    const MESSAGE_START   = ':hourglass: [Automate] [%platform%] Deployment start';
+    const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] End of deployment with success';
     const MESSAGE_FAILED  = ':exclamation: [Automate] [%platform%] Deployment failed with error';
 
     /**
