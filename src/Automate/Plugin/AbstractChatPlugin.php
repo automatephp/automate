@@ -20,7 +20,7 @@ abstract class AbstractChatPlugin implements PluginInterface
 {
     const MESSAGE_START   = ':hourglass: [Automate] [%platform%] Start deployment';
     const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] Finish deployment with success';
-    const MESSAGE_FAILED  = ':exclamation: [Automate] [%platform%] Finish deployment with error';
+    const MESSAGE_FAILED  = ':exclamation: [Automate] [%platform%] Deployment failed with error';
 
     /**
      * @var array
@@ -118,13 +118,14 @@ abstract class AbstractChatPlugin implements PluginInterface
 
     /**
      * @param string $name
-     * @param string $defaut
+     * @param string $default
      * @param Context $context
+     * @param \Exception|null $exception
      * @return mixed|string
      */
-    private function getMessage($name, $defaut, Context $context, \Exception $exception = null)
+    private function getMessage($name, $default, Context $context, \Exception $exception = null)
     {
-        $message = isset($this->configuration['messages'][$name]) ? $this->configuration['messages'][$name] : $defaut;
+        $message = isset($this->configuration['messages'][$name]) ? $this->configuration['messages'][$name] : $default;
 
         $message = str_replace("%platform%", $context->getPlatform()->getName(), $message);
 
