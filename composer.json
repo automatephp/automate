@@ -10,7 +10,7 @@
         "symfony/serializer": "^3.4",
         "romaricdrigon/metayaml": "^1.1",
         "phpseclib/phpseclib": "~2.0",
-        "kherge/amend": "3.0.5",
+        "padraic/phar-updater": "^1.0",
         "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
