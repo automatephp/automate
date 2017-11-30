@@ -30,7 +30,7 @@ class Loader
      *
      * @param string|null $path
      *
-     * @return Project
+     * @return Project|object
      */
     public function load($path)
     {
@@ -62,7 +62,7 @@ class Loader
     }
 
     /**
-     * Schema defintition.
+     * Schema definition.
      *
      * @see https://github.com/romaricdrigon/MetaYaml
      *

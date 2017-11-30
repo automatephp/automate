@@ -47,7 +47,7 @@ class LockListener implements EventSubscriberInterface
 
         foreach($context->getPlatform()->getServers() as $server) {
             $session = $context->getSession($server);
-            if($session->exists($this->getLockFilePath($server))) {
+            if($session->exists($this->getLockFilePath($server)) && !$context->isForce()) {
                 throw new \RuntimeException('A deployment is already in progress');
             }
         }
