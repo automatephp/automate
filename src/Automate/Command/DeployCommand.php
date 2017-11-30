@@ -11,6 +11,7 @@
 
 namespace Automate\Command;
 
+use Automate\Context;
 use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\VariableResolver;
@@ -31,6 +32,7 @@ class DeployCommand extends BaseCommand
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy')
         ;
     }
 
@@ -49,6 +51,8 @@ class DeployCommand extends BaseCommand
 
         $logger->section('Start deployment');
 
+        $gitRef = $input->getArgument('gitRef');
+
         $io->table(array(), array(
             array('Repository', $project->getRepository()),
             array('Platform', $platform->getName()),
@@ -56,9 +60,10 @@ class DeployCommand extends BaseCommand
             array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
         ));
 
-        $workflow = new Deployer($project, $platform, $logger);
+        $context = new Context($project, $platform, $gitRef, $logger, $input->getOption('force'));
+        $workflow = new Deployer($context);
 
-        if (!$workflow->deploy($input->getArgument('gitRef'))) {
+        if (!$workflow->deploy()) {
             throw new \RuntimeException('Deployment failed');
         }
 

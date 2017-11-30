@@ -3,16 +3,19 @@
     "description": "Deployment Tool",
     "type": "project",
     "require": {
-        "symfony/console": "^3.2",
-        "symfony/yaml": "^3.2",
+        "php": ">=5.6",
+        "symfony/console": "^3.4",
+        "symfony/yaml": "^3.4",
+        "symfony/event-dispatcher": "^3.4",
+        "symfony/serializer": "^3.4",
         "romaricdrigon/metayaml": "^1.1",
-        "symfony/serializer": "3.2",
         "phpseclib/phpseclib": "~2.0",
-        "kherge/amend": "3.0.5",
-        "phpunit/phpunit": "5.*"
+        "padraic/phar-updater": "^1.0",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
-        "phake/phake": "@stable"
+        "phake/phake": "~2.0",
+        "phpunit/phpunit": "5.*"
     },
     "license": "MIT",
     "authors": [

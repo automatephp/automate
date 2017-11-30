@@ -11,7 +11,6 @@
 
 namespace Automate;
 
-use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
@@ -31,11 +30,19 @@ class Loader
      *
      * @param string|null $path
      *
-     * @return Project
+     * @return Project|object
      */
     public function load($path)
     {
-        $schema = new MetaYaml($this->getSchema(), true);
+        $pluginManager = new PluginManager();
+
+        $schemaDescription = $this->getSchema();
+
+        foreach ($pluginManager->getPlugins() as $plugin) {
+            $schemaDescription['root']['_children']['plugins']['_children'][$plugin->getName()] = $plugin->getConfigurationSchema();
+        }
+
+        $schema = new MetaYaml($schemaDescription, true);
 
         if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
@@ -55,7 +62,7 @@ class Loader
     }
 
     /**
-     * Schema defintition.
+     * Schema definition.
      *
      * @see https://github.com/romaricdrigon/MetaYaml
      *
@@ -91,6 +98,10 @@ class Loader
                     'post_deploy' => [
                         '_type'    => 'partial',
                         '_partial' => 'command',
+                    ],
+                    'plugins' => [
+                        '_type' => 'array',
+                        '_children' => []
                     ],
                     'platforms' => [
                         '_type' => 'prototype',

@@ -12,6 +12,7 @@
 namespace Automate\Tests;
 
 use Automate\Application;
+use Automate\Command\SelfUpdateCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -62,9 +63,6 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $app = new Application('Test', '1.2.3');
         $app->setAutoExit(false);
         restore_error_handler();
-        $this->assertInstanceOf(
-            'KevinGH\\Amend\\Command',
-            $app->get('update')
-        );
+        $this->assertInstanceOf(SelfUpdateCommand::class, $app->get('update'));
     }
 }

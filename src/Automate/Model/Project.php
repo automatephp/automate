@@ -47,6 +47,11 @@ class Project
     private $postDeploy = array();
 
     /**
+     * @var array
+     */
+    private $plugins = array();
+
+    /**
      * @var Platform[]
      */
     private $plaforms = array();
@@ -170,6 +175,39 @@ class Project
 
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function getPlugins()
+    {
+        return $this->plugins;
+    }
+
+    /**
+     * @param array
+     *
+     * @return Project
+     */
+    public function setPlugins($plugins)
+    {
+        $this->plugins = $plugins;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return array | null
+     */
+    public function getPlugin($name)
+    {
+        if(isset($this->plugins[$name])) {
+            return $this->plugins[$name];
+        }
+
+        return null;
+     }
 
     /**
      * @param Platform $platform
