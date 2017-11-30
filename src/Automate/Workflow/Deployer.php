@@ -18,6 +18,9 @@ use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Automate\PluginManager;
+use Symfony\Component\Process\InputStream;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 /**
  * Deployment workflow.
@@ -55,6 +58,21 @@ class Deployer
             $this->createReleaseDirectory();
 
             $dispatcher->dispatch(DeployEvents::BUILD, new DeployEvent($this->context));
+
+            $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
+            $input = new InputStream();
+            //$input->write('Taef4que');
+
+            //$process = new Process('ssh responsage@dddv-responsage-app1');
+            $process = new Process('pwd');
+            //$process->setInput($input);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+            var_dump($process->getOutput()); exit;
+
             $this->deployWithGit();
             $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
             $this->initShared();
