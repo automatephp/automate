@@ -15,6 +15,7 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class Context
 {
@@ -54,6 +55,11 @@ class Context
     protected $sessions = array();
 
     /**
+     * @var boolean
+     */
+    protected $force;
+
+    /**
      * @var SessionFactory
      */
     protected $sessionFactory;
@@ -63,14 +69,16 @@ class Context
      * @param Platform            $platform
      * @param string              $gitRef
      * @param LoggerInterface     $logger
+     * @param Boolean $force
      * @param SessionFactory|null $sessionFactory
      */
-    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, SessionFactory $sessionFactory = null)
+    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, $force = false, SessionFactory $sessionFactory = null)
     {
         $this->project = $project;
         $this->platform = $platform;
         $this->gitRef = $gitRef;
         $this->logger = $logger;
+        $this->force = $force;
         $this->sessionFactory = $sessionFactory ?: new SessionFactory();
     }
 
@@ -122,6 +130,26 @@ class Context
     public function setDeployed($isDeployed)
     {
         $this->isDeployed = $isDeployed;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isForce()
+    {
+        return $this->force;
+    }
+
+    /**
+     * @param bool $force
+     *
+     * @return Context
+     */
+    public function setForce($force)
+    {
+        $this->force = $force;
 
         return $this;
     }

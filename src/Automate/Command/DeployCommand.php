@@ -32,6 +32,7 @@ class DeployCommand extends BaseCommand
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy')
         ;
     }
 
@@ -59,7 +60,7 @@ class DeployCommand extends BaseCommand
             array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
         ));
 
-        $context = new Context($project, $platform, $gitRef, $logger);
+        $context = new Context($project, $platform, $gitRef, $logger, $input->getOption('force'));
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {
