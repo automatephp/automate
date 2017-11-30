@@ -15,7 +15,6 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use phpDocumentor\Reflection\Types\Boolean;
 
 class Context
 {

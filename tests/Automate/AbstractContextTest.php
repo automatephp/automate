@@ -29,7 +29,7 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $context = new Context($project, $platform, $gitRef, $logger, $sessionFactory);
+        $context = new Context($project, $platform, $gitRef, $logger, false, $sessionFactory);
         $context->connect();
 
         return $context;

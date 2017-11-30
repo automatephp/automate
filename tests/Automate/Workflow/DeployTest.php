@@ -11,11 +11,8 @@
 
 namespace Automate\Tests\Workflow;
 
-use Automate\Loader;
 use Automate\Logger\ConsoleLogger;
-use Automate\Logger\LoggerInterface;
 use Automate\Session;
-use Automate\SessionFactory;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
 use Phake;
@@ -83,7 +80,4 @@ class DeployTest extends AbstractContextTest
 
         $this->assertTrue($rs);
     }
-
-
-
 }
