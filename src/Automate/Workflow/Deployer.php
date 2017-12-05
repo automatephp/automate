@@ -114,7 +114,7 @@ class Deployer
 
             $sftp = new SFTP($server->getHost());
             if (!$sftp->login($server->getUser(), $server->getPassword())) {
-                exit('Login Failed');
+                throw new \InvalidArgumentException(sprintf('Login Failed on the remote server : '.$server->getHost()));
             }
 
             $sftp->put($this->context->getReleasePath($server).'/'.$tarName, file_get_contents($tarName));
@@ -168,15 +168,15 @@ class Deployer
     {
         $this->context->getLogger()->section('Start build in local machine');
         foreach ($this->context->getProject()->getSftp()->getLocalBuild() as $command) {
+            $this->context->getLogger()->section($command);
             $process = new Process($command);
             $process->run();
+            if (!$process->isSuccessful()) {
+                throw new \InvalidArgumentException($process);
+            }
         }
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }else{
-            $this->context->getLogger()->section('Built with success');
-        }
+        
+        $this->context->getLogger()->section('Built with success');
     }
 
     /**

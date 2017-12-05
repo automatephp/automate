@@ -11,7 +11,6 @@
         "romaricdrigon/metayaml": "^1.1",
         "phpseclib/phpseclib": "~2.0",
         "kherge/amend": "3.0.5",
-        "phpunit/phpunit": "5.*",
         "symfony/event-dispatcher": "^3.3",
         "padraic/phar-updater": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
