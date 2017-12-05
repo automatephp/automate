@@ -36,10 +36,14 @@ class Sftp
 
     /**
      * @param array $excludeFolders
+     *
+     * @return Sftp
      */
     public function setExcludeFolders($excludeFolders)
     {
         $this->excludeFolders = $excludeFolders;
+
+        return $this;
     }
 
     /**
@@ -52,10 +56,14 @@ class Sftp
 
     /**
      * @param array $localBuild
+     *
+     * @return Sftp
      */
     public function setLocalBuild($localBuild)
     {
         $this->localBuild = $localBuild;
+
+        return $this;
     }
 
 }

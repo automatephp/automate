@@ -100,8 +100,14 @@ class Deployer
     {
         $this->context->getLogger()->section('Deployment from your local machine to remote');
 
-        $tarName = $this->context->getReleaseId().'.tar';
-        $process = new Process('tar -vcf '.$tarName.' bin');
+        $tarName = $this->context->getReleaseId().'.tar.gz';
+        $commandCompression = 'tar ';
+        foreach ($this->context->getProject()->getSftp()->getExcludeFolders() as $folder) {
+            $commandCompression .= ' --exclude="./'.$folder.'"';
+        }
+        $commandCompression .= ' -zcvf '.$tarName.' .';
+
+        $process = new Process($commandCompression);
         $process->run();
 
         foreach ($this->context->getPlatform()->getServers() as $server) {
@@ -113,7 +119,7 @@ class Deployer
 
             $sftp->put($this->context->getReleasePath($server).'/'.$tarName, file_get_contents($tarName));
 
-            $this->context->doRun($server, 'tar -xf '.$tarName);
+            $this->context->doRun($server, 'tar -zxvf '.$tarName);
             $this->context->doRun($server, 'rm '.$tarName);
         }
 
@@ -161,8 +167,8 @@ class Deployer
     private function runLocalHooks()
     {
         $this->context->getLogger()->section('Start build in local machine');
-        foreach ($this->context->getProject()->getPreDeploy() as $command) {
-            $process = new Process($command->getCmd());
+        foreach ($this->context->getProject()->getSftp()->getLocalBuild() as $command) {
+            $process = new Process($command);
             $process->run();
         }
 

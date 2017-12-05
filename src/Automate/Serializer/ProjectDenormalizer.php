@@ -39,7 +39,7 @@ class ProjectDenormalizer extends AbstractDenormalizer
             ->setOnDeploy($this->extractCommands($data,   'on_deploy'))
             ->setPostDeploy($this->extractCommands($data, 'post_deploy'))
             ->setPlugins($this->extractValue($data,       'plugins', array()))
-            ->setSftp($this->normalizer->denormalize($data, Sftp::class))
+            ->setSftp($this->normalizer->denormalize($this->extractValue($data, 'sftp', array()), Sftp::class))
         ;
 
         $platforms = $this->extractValue($data, 'platforms', array());

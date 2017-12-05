@@ -62,9 +62,9 @@ class Project
     private $plaforms = array();
 
     /**
-     * @var Sftp[]
+     * @var Sftp
      */
-    private $sftp = array();
+    private $sftp;
 
     /**
      * @return string
@@ -76,10 +76,14 @@ class Project
 
     /**
      * @param string $strategy
+     *
+     * @return Project
      */
     public function setStrategy($strategy)
     {
         $this->strategy = $strategy;
+
+        return $this;
     }
 
     /**
@@ -268,7 +272,7 @@ class Project
     }
 
     /**
-     * @return array
+     * @return object
      */
     public function getSftp()
     {
@@ -276,11 +280,11 @@ class Project
     }
 
     /**
-     * @param array $sftp
+     * @param Sftp $sftp
      *
      * @return Project
      */
-    public function setSftp(array $sftp)
+    public function setSftp(Sftp $sftp)
     {
         $this->sftp = $sftp;
 

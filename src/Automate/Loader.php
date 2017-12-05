@@ -52,6 +52,8 @@ class Loader
         $data = Yaml::parse(file_get_contents($path));
         $schema->validate($data);
 
+        $this->strategyValidation($data);
+
         $serializer = new Serializer([
             new SftpDenormalizer(),
             new ProjectDenormalizer(),
@@ -201,5 +203,25 @@ class Loader
                 ],
             ],
         ];
+    }
+
+    /**
+     * Can validate (or not) the strategy deployment
+     * @param $data
+     */
+    private function strategyValidation($data)
+    {
+        if ($data['strategy'] === 'sftp' && !isset($data['sftp']))
+        {
+            throw new \InvalidArgumentException(sprintf('If you use "stfp" as "strategy", ou have to declare your 
+            sftp schema. Please take a look in the documentation : http://automatephp.github.io'));
+        }
+
+        if ($data['strategy'] === 'git' && !isset($data['repository']))
+        {
+            throw new \InvalidArgumentException(sprintf('If you use "git" as "strategy", ou have to declare your 
+            repository adresse. Please take a look in the documentation : http://automatephp.github.io'));
+        }
+
     }
 }

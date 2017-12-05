@@ -43,4 +43,3 @@ post_deploy:
     - cmd: "php bin/console doctrine:schema:update --force"
       only: eddv-exemple-front-01
     - "php bin/console doctrine:cache:clear-result"
-    

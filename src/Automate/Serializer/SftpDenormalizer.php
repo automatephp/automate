@@ -29,23 +29,11 @@ class SftpDenormalizer extends AbstractDenormalizer
         $sftp = new Sftp();
 
         $sftp
-            ->setExcludeFolders($this->extractCommands($data, 'exclude_folders', array()))
-            ->setLocalBuild($this->extractCommands($data, 'local_build', array()))
+            ->setExcludeFolders($this->extractValue($data, 'exclude_folders', array()))
+            ->setLocalBuild($this->extractValue($data, 'local_build', array()))
         ;
 
         return $sftp;
-    }
-
-    public function extractCommands($data, $hookName)
-    {
-        $commands = [];
-
-        $data = $this->extractValue($data, $hookName, array());
-        foreach ($data as $item) {
-            $commands[] = $this->normalizer->denormalize($item, Command::class);
-        }
-
-        return $commands;
     }
 
     /**
