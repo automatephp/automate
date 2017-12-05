@@ -25,6 +25,7 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
         $project = $loder->load(__DIR__.'/../fixtures/config.yml');
 
         $this->assertInstanceOf(Project::class, $project);
+        $this->assertEquals('git', $project->getStrategy());
         $this->assertEquals('git@github.com:julienj/symfony-demo.git', $project->getRepository());
         $this->assertEquals(array('app/data'), $project->getSharedFolders());
         $this->assertEquals(array('app/config/parameters.yml'), $project->getSharedFiles());

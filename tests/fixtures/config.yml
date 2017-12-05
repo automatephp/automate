@@ -1,3 +1,4 @@
+strategy: git
 repository: git@github.com:julienj/symfony-demo.git
 
 platforms:
