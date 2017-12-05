@@ -4,7 +4,6 @@
   "files": [
     "LICENSE",
     "vendor/romaricdrigon/metayaml/data/MetaSchema.json",
-    "vendor/herrera-io/phar-update/res/schema.json",
     "vendor/symfony/console/Resources/bin/hiddeninput.exe"
   ],
   "finder": [
@@ -24,8 +23,5 @@
   "output": "build/automate.phar",
   "git-commit": "git-commit",
   "git-version": "git-version",
-  "replacements": {
-    "manifest_url": "https://automatephp.github.io/automate/manifest.json"
-  },
   "stub": true
 }
