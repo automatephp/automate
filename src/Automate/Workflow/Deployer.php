@@ -175,7 +175,7 @@ class Deployer
                 throw new \InvalidArgumentException($process);
             }
         }
-        
+
         $this->context->getLogger()->section('Built with success');
     }
 
