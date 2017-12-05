@@ -18,9 +18,10 @@ use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Automate\PluginManager;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\InputStream;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
+use phpseclib\Net\SFTP;
 
 /**
  * Deployment workflow.
@@ -47,11 +48,9 @@ class Deployer
      */
     public function deploy()
     {
-
         $dispatcher = (new DispatcherFactory(new PluginManager()))->create($this->context->getProject());
 
         try {
-
             $this->context->connect();
 
             $dispatcher->dispatch(DeployEvents::INIT, new DeployEvent($this->context));
@@ -59,22 +58,15 @@ class Deployer
 
             $dispatcher->dispatch(DeployEvents::BUILD, new DeployEvent($this->context));
 
-            $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
-            $input = new InputStream();
-            //$input->write('Taef4que');
-
-            //$process = new Process('ssh responsage@dddv-responsage-app1');
-            $process = new Process('pwd');
-            //$process->setInput($input);
-            $process->run();
-
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
+            if (!$this->context->getProject()->getRepository()){
+                $this->runLocalHooks();
+                $this->deployFromLocal();
+            }else{
+                $this->deployWithGit();
             }
-            var_dump($process->getOutput()); exit;
 
-            $this->deployWithGit();
             $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
+
             $this->initShared();
             $this->runHooks($this->context->getProject()->getOnDeploy(), 'On deploy');
 
@@ -99,6 +91,34 @@ class Deployer
         }
 
         return false;
+    }
+
+    /**
+     * Deploy from local
+     */
+    private function deployFromLocal()
+    {
+        $this->context->getLogger()->section('Deployment from your local machine to remote');
+
+        $tarName = $this->context->getReleaseId().'.tar';
+        $process = new Process('tar -vcf '.$tarName.' bin');
+        $process->run();
+
+        foreach ($this->context->getPlatform()->getServers() as $server) {
+
+            $sftp = new SFTP($server->getHost());
+            if (!$sftp->login($server->getUser(), $server->getPassword())) {
+                exit('Login Failed');
+            }
+
+            $sftp->put($this->context->getReleasePath($server).'/'.$tarName, file_get_contents($tarName));
+
+            $this->context->doRun($server, 'tar -xf '.$tarName);
+            $this->context->doRun($server, 'rm '.$tarName);
+        }
+
+        $process = new Process('rm '.$tarName);
+        $process->run();
     }
 
     /**
@@ -131,6 +151,25 @@ class Deployer
                 $this->context->getLogger()->command($command, true);
                 $this->context->doRun($server, $command, true, true);
             }
+        }
+    }
+
+    /**
+     * Run local hook commands.
+     *
+     */
+    private function runLocalHooks()
+    {
+        $this->context->getLogger()->section('Start build in local machine');
+        foreach ($this->context->getProject()->getPreDeploy() as $command) {
+            $process = new Process($command->getCmd());
+            $process->run();
+        }
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }else{
+            $this->context->getLogger()->section('Built with success');
         }
     }
 

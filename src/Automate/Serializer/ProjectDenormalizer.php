@@ -14,6 +14,7 @@ namespace Automate\Serializer;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Command;
+use Automate\Model\Sftp;
 
 /**
  * Project Denormalizer.
@@ -30,13 +31,15 @@ class ProjectDenormalizer extends AbstractDenormalizer
         $project = new Project();
 
         $project
+            ->setStrategy($this->extractValue($data,      'strategy'))
             ->setRepository($this->extractValue($data,    'repository'))
             ->setSharedFiles($this->extractValue($data,   'shared_files', array()))
             ->setSharedFolders($this->extractValue($data, 'shared_folders', array()))
             ->setPreDeploy($this->extractCommands($data,  'pre_deploy'))
             ->setOnDeploy($this->extractCommands($data,   'on_deploy'))
             ->setPostDeploy($this->extractCommands($data, 'post_deploy'))
-            ->setPlugins($this->extractValue($data,  'plugins', array()))
+            ->setPlugins($this->extractValue($data,       'plugins', array()))
+            ->setSftp($this->normalizer->denormalize($data, Sftp::class))
         ;
 
         $platforms = $this->extractValue($data, 'platforms', array());

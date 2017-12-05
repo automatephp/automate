@@ -1,4 +1,14 @@
+strategy: sftp # or git
+
+sftp:
+    exclude_folders:
+        - ".git"
+        - ".idea"
+    local_build:
+        - "php -v"
+
 repository: git@gitlab.eolas.fr:romaric.paul/test.git
+
 plugins:
     cache_tool:
         opcache: true
@@ -12,7 +22,7 @@ platforms:
                 host: 10.66.236.233
                 user: responsage
                 password: Taef4que
-                path: /home/wwwroot/responsage
+                path: /home/wwwroot/responsage/romaricp
 
 pre_deploy:
     - "php -v"

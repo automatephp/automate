@@ -16,6 +16,7 @@ use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
 use Automate\Serializer\ServerDenormalizer;
 use Automate\Serializer\CommandDenormalizer;
+use Automate\Serializer\SftpDenormalizer;
 use RomaricDrigon\MetaYaml\MetaYaml;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
@@ -52,6 +53,7 @@ class Loader
         $schema->validate($data);
 
         $serializer = new Serializer([
+            new SftpDenormalizer(),
             new ProjectDenormalizer(),
             new PlatformDenormalizer(),
             new ServerDenormalizer(),
@@ -74,10 +76,28 @@ class Loader
             'root' => [
                 '_type' => 'array',
                 '_children' => [
+                    'strategy' => [
+                        '_type' => 'text',
+                        '_required'  => true,
+                        '_not_empty' => true,
+                    ],
                     'repository' => [
                         '_type' => 'text',
-                        '_required' => true,
+                        '_required' => false,
                         '_not_empty' => true,
+                    ],
+                    'sftp' => [
+                        '_type' => 'array',
+                        '_children' => [
+                            'exclude_folders' => [
+                                '_type' => 'prototype',
+                                '_prototype' => ['_type' => 'text'],
+                            ],
+                            'local_build' => [
+                                '_type' => 'prototype',
+                                '_prototype' => ['_type' => 'text'],
+                            ]
+                        ]
                     ],
                     'shared_files' => [
                         '_type' => 'prototype',

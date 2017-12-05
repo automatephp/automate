@@ -165,7 +165,7 @@ class Context
         $servers = $this->platform->getServers();
 
         foreach ($servers as $server) {
-            if($specificServer && $server->getName() != $specificServer) {
+            if($specificServer && $server->getName() !== $specificServer) {
                 continue;
             }
             $this->logger->command($command, $verbose);

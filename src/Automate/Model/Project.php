@@ -19,6 +19,11 @@ class Project
     /**
      * @var string
      */
+    private $strategy;
+
+    /**
+     * @var string
+     */
     private $repository;
 
     /**
@@ -55,6 +60,27 @@ class Project
      * @var Platform[]
      */
     private $plaforms = array();
+
+    /**
+     * @var Sftp[]
+     */
+    private $sftp = array();
+
+    /**
+     * @return string
+     */
+    public function getStrategy()
+    {
+        return $this->strategy;
+    }
+
+    /**
+     * @param string $strategy
+     */
+    public function setStrategy($strategy)
+    {
+        $this->strategy = $strategy;
+    }
 
     /**
      * @return string
@@ -239,5 +265,25 @@ class Project
         }
 
         return $this->plaforms[$name];
+    }
+
+    /**
+     * @return array
+     */
+    public function getSftp()
+    {
+        return $this->sftp;
+    }
+
+    /**
+     * @param array $sftp
+     *
+     * @return Project
+     */
+    public function setSftp(array $sftp)
+    {
+        $this->sftp = $sftp;
+
+        return $this;
     }
 }
