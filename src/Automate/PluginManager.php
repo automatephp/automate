@@ -24,13 +24,13 @@ class PluginManager
 
     public function __construct()
     {
-        foreach (glob(__DIR__ .'/Plugin/*Plugin.php') as $filename) {
-            $file = new \SplFileInfo($filename);
-            $class = 'Automate\\Plugin\\' . substr($file->getFilename(), 0, -4);
-
-            $ref = new \ReflectionClass($class);
-            if(!$ref->isAbstract() && $ref->implementsInterface(PluginInterface::class)) {
-                $this->plugins[] = new $class;
+        foreach (new \DirectoryIterator(__DIR__ .'/Plugin/') as $file) {
+            if($file->isFile()) {
+                $class = 'Automate\\Plugin\\' . substr($file->getFilename(), 0, -4);
+                $ref = new \ReflectionClass($class);
+                if(!$ref->isAbstract() && $ref->implementsInterface(PluginInterface::class)) {
+                    $this->plugins[] = new $class;
+                }
             }
         }
     }
