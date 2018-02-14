@@ -31,6 +31,12 @@ class Server
      */
     private $user;
 
+
+    /**
+     * @var string
+     */
+    private $sshKey;
+
     /**
      * @var int
      */
@@ -107,6 +113,26 @@ class Server
     }
 
     /**
+     * @return string
+     */
+    public function getSshKey()
+    {
+        return $this->sshKey;
+    }
+
+    /**
+     * @param string $sshKey
+     *
+     * @return Server
+     */
+    public function setSshKey($sshKey)
+    {
+        $this->sshKey = $sshKey;
+
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getPassword()
@@ -165,6 +191,4 @@ class Server
 
         return $this;
     }
-
-
 }

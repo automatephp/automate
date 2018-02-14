@@ -28,12 +28,13 @@ class ServerDenormalizer extends AbstractDenormalizer
         $server = new Server();
 
         $server
-            ->setName($this->extractValue($data,     'name'))
-            ->setHost($this->extractValue($data,     'host'))
-            ->setUser($this->extractValue($data,     'user'))
-            ->setPassword($this->extractValue($data, 'password'))
-            ->setPath($this->extractValue($data,     'path'))
-            ->setPort($this->extractValue($data,     'port', 22))
+            ->setName($this->extractValue($data, 'name'))
+            ->setHost($this->extractValue($data, 'host'))
+            ->setUser($this->extractValue($data, 'user'))
+            ->setSshKey($this->extractValue($data, 'ssh_key'))
+            ->setPassword($this->extractValue($data, 'password', ""))
+            ->setPath($this->extractValue($data, 'path'))
+            ->setPort($this->extractValue($data, 'port', 22))
         ;
 
         return $server;
