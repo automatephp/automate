@@ -137,7 +137,12 @@ class Loader
                                             ],
                                             'password' => [
                                                 '_type' => 'text',
-                                                '_required' => true,
+                                                '_required' => false,
+                                                '_not_empty' => false,
+                                            ],
+                                            'ssh_key' => [
+                                                '_type' => 'text',
+                                                '_required' => false,
                                                 '_not_empty' => true,
                                             ],
                                             'path' => [
