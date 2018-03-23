@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "dd89623e0c63c52874c39cb7874d9edd",
+    "content-hash": "3105e2457bd175b3e3c064d659d4441a",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -773,6 +773,55 @@
                 "shim"
             ],
             "time": "2017-10-11T12:05:26+00:00"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v3.4.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/process.git",
+                "reference": "cc4aea21f619116aaf1c58016a944e4821c8e8af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/process/zipball/cc4aea21f619116aaf1c58016a944e4821c8e8af",
+                "reference": "cc4aea21f619116aaf1c58016a944e4821c8e8af",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.5.9|>=7.0.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Process\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Process Component",
+            "homepage": "https://symfony.com",
+            "time": "2018-02-12T17:55:00+00:00"
         },
         {
             "name": "symfony/serializer",

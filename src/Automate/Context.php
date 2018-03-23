@@ -15,6 +15,7 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\Session\SessionInterface;
 
 class Context
 {
@@ -49,7 +50,7 @@ class Context
     protected $isDeployed;
 
     /**
-     * @var Session[]
+     * @var SessionInterface[]
      */
     protected $sessions = array();
 
@@ -170,7 +171,7 @@ class Context
     /**
      * @param Server $server
      *
-     * @return Session
+     * @return SessionInterface
      */
     public function getSession(Server $server)
     {

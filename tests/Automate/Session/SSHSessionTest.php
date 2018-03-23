@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\Tests;
+namespace Automate\Tests\Session;
 
-use Automate\Session;
+use Automate\Session\SSHSession;
 use phpseclib\Net\SSH2;
 use Phake;
 
-class SessionTest extends \PHPUnit_Framework_TestCase
+class SSHSessionTest extends \PHPUnit_Framework_TestCase
 {
     private $ssh;
 
@@ -26,7 +26,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         $command = 'echo "test"';
 
@@ -43,7 +43,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function testRunWithError()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         $command = 'echo "test"';
 
@@ -55,7 +55,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testMkdir()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 
@@ -70,7 +70,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testMv()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 
@@ -81,7 +81,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testMvWithMkdir()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 
@@ -95,7 +95,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testRm()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 
@@ -106,7 +106,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testexistsFolder()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
         Phake::when($this->ssh)->exec('if test -d "/home/test"; then echo "Y";fi')->thenReturn('Y');
@@ -116,7 +116,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testexistsFile()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
         Phake::when($this->ssh)->exec('if test -f "/home/test.txt"; then echo "Y";fi')->thenReturn('Y');
@@ -126,7 +126,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testSymlink()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 
@@ -137,7 +137,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testTouch()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 
@@ -151,7 +151,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testListDirectory()
     {
-        $session = new Session($this->ssh);
+        $session = new SSHSession($this->ssh);
 
         Phake::when($this->ssh)->getExitStatus()->thenReturn(0);
 

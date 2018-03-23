@@ -14,13 +14,13 @@ namespace Automate\Tests;
 use Automate\Context;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
-use Automate\Session;
+use Automate\Session\SessionInterface;
 use Automate\SessionFactory;
 use Phake;
 
 abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
 {
-    protected function createContext(Session $session, LoggerInterface $logger, $gitRef = null)
+    protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
     {
         $loader = new Loader();
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');

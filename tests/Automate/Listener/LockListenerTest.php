@@ -16,7 +16,7 @@ use Automate\Event\FailedDeployEvent;
 use Automate\Listener\ClearListener;
 use Automate\Listener\LockListener;
 use Automate\Logger\ConsoleLogger;
-use Automate\Session;
+use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 use phpseclib\Net\SSH2;
@@ -30,7 +30,7 @@ class LockListenerTest extends AbstractContextTest
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
 
         $logger = Phake::mock(ConsoleLogger::class);
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
         $event = new DeployEvent($context);
@@ -48,7 +48,7 @@ class LockListenerTest extends AbstractContextTest
         Phake::when($ssh)->exec('if test -f "/home/wwwroot/automate/demo/automate.lock"; then echo "Y";fi')->thenReturn('Y');
 
         $logger = Phake::mock(ConsoleLogger::class);
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
         $event = new DeployEvent($context);

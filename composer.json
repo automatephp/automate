@@ -11,7 +11,8 @@
         "romaricdrigon/metayaml": "^1.1",
         "phpseclib/phpseclib": "~2.0",
         "padraic/phar-updater": "^1.0",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "symfony/process": "^3.4"
     },
     "require-dev": {
         "phake/phake": "~2.0",

@@ -12,17 +12,19 @@
 namespace Automate;
 
 use Automate\Model\Server;
+use Automate\Session\SessionInterface;
+use Automate\Session\SSHSession;
 use phpseclib\Net\SSH2;
 use phpseclib\Crypt\RSA;
 
 class SessionFactory
 {
     /**
-     * Create SSH session.
+     * Create session.
      *
      * @param Server $server
      *
-     * @return Session
+     * @return SessionInterface
      *
      * @throws \Exception
      */
@@ -49,6 +51,6 @@ class SessionFactory
             }
         }
 
-        return new Session($ssh);
+        return new SSHSession($ssh);
     }
 }

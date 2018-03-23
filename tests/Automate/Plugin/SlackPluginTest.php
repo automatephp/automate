@@ -15,7 +15,7 @@ use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
 use Automate\Plugin\SlackPlugin;
-use Automate\Session;
+use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 
@@ -25,7 +25,7 @@ class SlackPluginTest extends AbstractContextTest
     public function testDisablePlugin()
     {
         $slack = Phake::partialMock(SlackPlugin::class);
-        $context = $this->createContext(Phake::mock(Session::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
         $slack->register($context->getProject());
 
         $slack->onInit(new DeployEvent($context));
@@ -36,7 +36,7 @@ class SlackPluginTest extends AbstractContextTest
     public function testSimpleConfig()
     {
         $slack = Phake::partialMock(SlackPlugin::class);
-        $context = $this->createContext(Phake::mock(Session::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['slack' => [
             'uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
@@ -58,7 +58,7 @@ class SlackPluginTest extends AbstractContextTest
     public function testMessage()
     {
         $slack = Phake::partialMock(SlackPlugin::class);
-        $context = $this->createContext(Phake::mock(Session::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['slack' => [
             'uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',

@@ -90,11 +90,18 @@ class Deployer
     {
         $this->context->getLogger()->section('Prepare Release');
 
-        $this->context->run(sprintf(
-            'git clone %s -q --recursive -b %s .',
-            $this->context->getProject()->getRepository(),
-            $this->context->getPlatform()->getDefaultBranch()
-        ), true);
+        if($this->context->getPlatform()->getDefaultBranch()) {
+           $clone = sprintf(
+               'git clone %s -q --recursive -b %s .',
+               $this->context->getProject()->getRepository(),
+               $this->context->getPlatform()->getDefaultBranch()
+           );
+        } else {
+            $clone = sprintf(
+                'git clone %s -q --recursive .', $this->context->getProject()->getRepository());
+        }
+
+        $this->context->run($clone, true);
 
         $gitRef = $this->context->getGitRef();
 
