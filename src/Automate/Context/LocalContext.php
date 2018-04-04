@@ -8,14 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate;
+namespace Automate\Context;
 
 
 use Automate\Model\Server;
 use Automate\Session\LocalSession;
 use Automate\Session\SessionInterface;
 
-class LocalContext extends Context
+class LocalContext extends AbstractContext
 {
     /**
      * connect servers.
@@ -33,5 +33,4 @@ class LocalContext extends Context
     {
         return new LocalSession();
     }
-
 }

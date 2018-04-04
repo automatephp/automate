@@ -10,7 +10,7 @@
 
 namespace Automate\Plugin;
 
-use Automate\Context;
+use Automate\Context\ContextInterface;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
@@ -108,11 +108,11 @@ class GitlabPlugin implements PluginInterface
     /**
      * Create the job
      *
-     * @param Context $context
+     * @param ContextInterface $context
      * @param string $message
      * @param string $envName
      */
-    private function send(Context $context, $message, $envName)
+    private function send(ContextInterface $context, $message, $envName)
     {
         if (getenv('GITLAB_CI') === false) {
             $configuration = $this->project->getPlugin($this->getName());

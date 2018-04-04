@@ -11,7 +11,7 @@
 namespace Automate\Tests;
 
 
-use Automate\Context;
+use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
 use Automate\Session\SessionInterface;
@@ -29,7 +29,7 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $context = new Context($project, $platform, $gitRef, $logger, false, $sessionFactory);
+        $context = new SSHContext($project, $platform, $gitRef, $logger, false, $sessionFactory);
         $context->connect();
 
         return $context;

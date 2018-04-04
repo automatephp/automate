@@ -8,26 +8,24 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate;
-
+namespace Automate\Context;
 
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Session\SessionInterface;
 
-class Context
+abstract class AbstractContext implements ContextInterface
 {
     /**
      * @var string
      */
-    private $releaseId;
+    protected $releaseId;
 
     /**
      * @var string
      */
-    private $gitRef;
+    protected $gitRef;
 
     /**
      * @var Project
@@ -50,19 +48,9 @@ class Context
     protected $isDeployed;
 
     /**
-     * @var SessionInterface[]
-     */
-    protected $sessions = array();
-
-    /**
      * @var boolean
      */
     protected $force;
-
-    /**
-     * @var SessionFactory
-     */
-    protected $sessionFactory;
 
     /**
      * @param Project             $project
@@ -70,20 +58,28 @@ class Context
      * @param string              $gitRef
      * @param LoggerInterface     $logger
      * @param Boolean $force
-     * @param SessionFactory|null $sessionFactory
      */
-    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, $force = false, SessionFactory $sessionFactory = null)
+    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, $force = false)
     {
         $this->project = $project;
         $this->platform = $platform;
         $this->gitRef = $gitRef;
         $this->logger = $logger;
         $this->force = $force;
-        $this->sessionFactory = $sessionFactory ?: new SessionFactory();
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
+     */
+    abstract public function connect();
+
+    /**
+     * {@inheritdoc}
+     */
+    abstract public function getSession(Server $server);
+
+    /**
+     * {@inheritdoc}
      */
     public function getGitRef()
     {
@@ -91,7 +87,7 @@ class Context
     }
 
     /**
-     * @return Project
+     * {@inheritdoc}
      */
     public function getProject()
     {
@@ -99,7 +95,7 @@ class Context
     }
 
     /**
-     * @return Platform
+     * {@inheritdoc}
      */
     public function getPlatform()
     {
@@ -107,7 +103,7 @@ class Context
     }
 
     /**
-     * @return LoggerInterface
+     * {@inheritdoc}
      */
     public function getLogger()
     {
@@ -115,7 +111,7 @@ class Context
     }
 
     /**
-     * @return bool
+     * {@inheritdoc}
      */
     public function isDeployed()
     {
@@ -123,9 +119,7 @@ class Context
     }
 
     /**
-     * @param bool $isDeployed
-     *
-     * @return Context
+     * {@inheritdoc}
      */
     public function setDeployed($isDeployed)
     {
@@ -135,7 +129,7 @@ class Context
     }
 
     /**
-     * @return bool
+     * {@inheritdoc}
      */
     public function isForce()
     {
@@ -143,9 +137,7 @@ class Context
     }
 
     /**
-     * @param bool $force
-     *
-     * @return Context
+     * {@inheritdoc}
      */
     public function setForce($force)
     {
@@ -155,127 +147,7 @@ class Context
     }
 
     /**
-     * connect servers.
-     */
-    public function connect()
-    {
-        $this->logger->section('Remote servers connection');
-
-        foreach ($this->platform->getServers() as $server) {
-            $session = $this->sessionFactory->create($server);
-            $this->logger->response('Connection successful', $server->getName(), true);
-            $this->sessions[$server->getName()] = $session;
-        }
-    }
-
-    /**
-     * @param Server $server
-     *
-     * @return SessionInterface
-     */
-    public function getSession(Server $server)
-    {
-        if (!isset($this->sessions[$server->getName()])) {
-            throw new \RuntimeException('Unable to find session');
-        }
-
-        return $this->sessions[$server->getName()];
-    }
-
-    /**
-     * Run command.
-     *
-     * @param string $command
-     * @param bool   $verbose
-     */
-    public function run($command, $verbose = false, $specificServer = null)
-    {
-        $servers = $this->platform->getServers();
-
-        foreach ($servers as $server) {
-            if($specificServer && $server->getName() != $specificServer) {
-                continue;
-            }
-            $this->logger->command($command, $verbose);
-            $this->doRun($server, $command, true, $verbose);
-        }
-    }
-
-    /**
-     * Run on server.
-     *
-     * @param Server $server
-     * @param string $command
-     * @param bool   $addWorkingDir
-     * @param bool   $verbose
-     *
-     * @return string
-     */
-    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
-    {
-        $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
-        $response = $this->getSession($server)->run($realCommand);
-
-        if ($response) {
-            $this->logger->response($response, $server->getName(), $verbose);
-        }
-
-        return $response;
-    }
-
-    /**
-     * Get release path.
-     *
-     * @param Server $server
-     *
-     * @return string
-     */
-    public function getReleasePath(Server $server)
-    {
-        return $this->getReleasesPath($server).'/'.$this->getReleaseId();
-    }
-
-    /**
-     * Get releases path.
-     *
-     * @param Server $server
-     *
-     * @return string
-     */
-    public function getReleasesPath(Server $server)
-    {
-        return $server->getPath().'/releases';
-    }
-
-
-    /**
-     * Get shared path.
-     *
-     * @param Server $server
-     *
-     * @return string
-     */
-    public function getSharedPath(Server $server)
-    {
-        return $server->getPath().'/shared';
-    }
-
-    /**
-     * Get current path.
-     *
-     * @param Server $server
-     *
-     * @return string
-     */
-    public function getCurrentPath(Server $server)
-    {
-        return $server->getPath().'/current';
-    }
-
-    /**
-     * Get a release ID.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getReleaseId()
     {
@@ -294,5 +166,68 @@ class Context
         }
 
         return $this->releaseId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function run($command, $verbose = false, $specificServer = null)
+    {
+        $servers = $this->platform->getServers();
+
+        foreach ($servers as $server) {
+            if($specificServer && $server->getName() != $specificServer) {
+                continue;
+            }
+            $this->logger->command($command, $verbose);
+            $this->doRun($server, $command, true, $verbose);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
+    {
+        $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
+        $response = $this->getSession($server)->run($realCommand);
+
+        if ($response) {
+            $this->logger->response($response, $server->getName(), $verbose);
+        }
+
+        return $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReleasePath(Server $server)
+    {
+        return $this->getReleasesPath($server).'/'.$this->getReleaseId();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReleasesPath(Server $server)
+    {
+        return $server->getPath().'/releases';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSharedPath(Server $server)
+    {
+        return $server->getPath().'/shared';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentPath(Server $server)
+    {
+        return $server->getPath().'/current';
     }
 }

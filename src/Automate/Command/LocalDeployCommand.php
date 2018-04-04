@@ -11,9 +11,8 @@
 
 namespace Automate\Command;
 
-use Automate\Context;
 use Automate\Loader;
-use Automate\LocalContext;
+use Automate\Context\LocalContext;
 use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
@@ -29,7 +28,7 @@ class LocalDeployCommand extends BaseCommand
     protected function configure()
     {
         $this
-            ->setName('local:deploy')
+            ->setName('run')
             ->setDescription('Start local deployment.')
             ->addArgument('path', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::REQUIRED, 'Branch or tag name')

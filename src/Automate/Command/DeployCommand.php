@@ -11,7 +11,7 @@
 
 namespace Automate\Command;
 
-use Automate\Context;
+use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\VariableResolver;
@@ -28,7 +28,7 @@ class DeployCommand extends BaseCommand
     {
         $this
             ->setName('deploy')
-            ->setDescription('Start deployment.')
+            ->setDescription('Start remote deployment.')
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
@@ -60,7 +60,7 @@ class DeployCommand extends BaseCommand
             array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
         ));
 
-        $context = new Context($project, $platform, $gitRef, $logger, $input->getOption('force'));
+        $context = new SSHContext($project, $platform, $gitRef, $logger, $input->getOption('force'));
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {

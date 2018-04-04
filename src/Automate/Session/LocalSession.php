@@ -13,7 +13,7 @@ namespace Automate\Session;
 
 use Symfony\Component\Process\Process;
 
-class LocalSession  extends AbstractSession
+class LocalSession extends AbstractSession
 {
 
     /**
