@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the ShopEngine package.
+ * This file is part of the Automate package.
  *
  * (c) Julien Jacottet <jjacottet@gmail.com>
  *
@@ -9,7 +10,6 @@
  */
 
 namespace Automate\Tests;
-
 
 use Automate\Context\SSHContext;
 use Automate\Loader;
@@ -29,7 +29,8 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $context = new SSHContext($project, $platform, $gitRef, $logger, false, $sessionFactory);
+        $context = new SSHContext($project, $platform, $gitRef, $logger, false);
+        $context->setSessionFactory($sessionFactory);
         $context->connect();
 
         return $context;

@@ -27,6 +27,7 @@ class ClearListenerTest extends AbstractContextTest
     {
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
+
         Phake::when($ssh)->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->thenReturn('
             2016.08.30-0032.620
             ab
