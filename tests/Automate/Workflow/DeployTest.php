@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest
 {
-    public function testDeploy()
+    public function testRemoteDeploy()
     {
         $io = Phake::mock(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
@@ -79,5 +79,24 @@ class DeployTest extends AbstractContextTest
         $rs = $workflow->deploy('1.0.0');
 
         $this->assertTrue($rs);
+    }
+
+    public function testLocalDeploy()
+    {
+        $io = Phake::mock(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io);
+
+        $context = $this->createLocalContext($logger);
+        
+        $workflow = new Workflow\Deployer($context);
+        $this->assertFalse($workflow->deploy());
+
+//        Phake::inOrder(
+//            Phake::verify($ssh)->exec("mkdir -p /home/wwwroot/automate/demo/releases/$releaseId"),
+//            Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master ."),
+//            Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; php -v"),
+//            Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; composer install"),
+//            Phake::verify($ssh)->exec("ln -sfn /home/wwwroot/automate/demo/releases/$releaseId /home/wwwroot/automate/demo/current")
+//        );
     }
 }
