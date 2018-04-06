@@ -43,11 +43,10 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
-//        $sessionFactory = Phake::mock(SessionFactory::class);
-//        Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
-
         $context = new LocalContext($project, $platform, $gitRef, $logger);
         $context->connect();
+        $context->setForce(true);
+        $this->assertTrue($context->isForce());
 
         return $context;
     }

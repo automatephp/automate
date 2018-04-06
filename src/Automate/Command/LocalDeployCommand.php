@@ -43,7 +43,7 @@ class LocalDeployCommand extends BaseCommand
         $loader = new Loader();
         $project = $loader->load($input->getOption('config'));
 
-        $platform =$this->createLocalPlatforme($input->getArgument('path'), $input->getOption('max-releases'));
+        $platform = $this->createLocalPlatforme($input->getArgument('path'), $input->getOption('max-releases'));
 
         $io = new SymfonyStyle($input, $output);
 
