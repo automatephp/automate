@@ -61,5 +61,4 @@ class Application extends BaseApplication
 
         return $commands;
     }
-    
 }
