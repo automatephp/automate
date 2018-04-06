@@ -30,7 +30,7 @@ class LocalDeployCommand extends BaseCommand
         $this
             ->setName('run')
             ->setDescription('Start local deployment.')
-            ->addArgument('path', InputArgument::REQUIRED, 'Platform name')
+            ->addArgument('path', InputArgument::REQUIRED, 'Project\'s local path')
             ->addArgument('gitRef', InputArgument::REQUIRED, 'Branch or tag name')
             ->addOption('max-releases', null, InputOption::VALUE_REQUIRED, 'The number of releases to be kept', 3)
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
