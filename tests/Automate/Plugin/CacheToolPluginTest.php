@@ -23,15 +23,6 @@ use phpseclib\Net\SSH2;
 
 class CacheToolPluginTest extends AbstractContextTest
 {
-    public function testDisablePlugin()
-    {
-        $cacheTool = Phake::partialMock(CacheToolPlugin::class);
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
-        $cacheTool->register($context->getProject());
-
-        Phake::verify($cacheTool, Phake::times(0))->onTerminate();
-    }
-
     public function testSimpleConfig()
     {
         $cacheTool = new CacheToolPlugin();
