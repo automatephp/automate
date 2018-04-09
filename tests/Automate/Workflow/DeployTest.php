@@ -12,7 +12,7 @@
 namespace Automate\Tests\Workflow;
 
 use Automate\Logger\ConsoleLogger;
-use Automate\Session;
+use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
 use Phake;
@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest
 {
-    public function testDeploy()
+    public function testRemoteDeploy()
     {
         $io = Phake::mock(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
@@ -29,7 +29,7 @@ class DeployTest extends AbstractContextTest
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
 
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
         $workflow = new Workflow\Deployer($context);
 
@@ -56,7 +56,7 @@ class DeployTest extends AbstractContextTest
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(1);
 
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
         $workflow = new Workflow\Deployer($context);
 
@@ -72,12 +72,23 @@ class DeployTest extends AbstractContextTest
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
 
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger, 'master');
         $workflow = new Workflow\Deployer($context);
 
         $rs = $workflow->deploy('1.0.0');
 
         $this->assertTrue($rs);
+    }
+
+    public function testLocalDeploy()
+    {
+        $io = Phake::mock(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io);
+
+        $context = $this->createLocalContext($logger);
+
+        $workflow = new Workflow\Deployer($context);
+        $this->assertFalse($workflow->deploy());
     }
 }

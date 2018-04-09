@@ -11,7 +11,8 @@
 
 namespace Automate\Workflow;
 
-use Automate\Context;
+use Automate\Context\Context;
+use Automate\Context\ContextInterface;
 use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
@@ -32,7 +33,7 @@ class Deployer
     /**
      * @param Context $context
      */
-    public function __construct(Context $context)
+    public function __construct(ContextInterface $context)
     {
         $this->context = $context;
     }
@@ -90,11 +91,18 @@ class Deployer
     {
         $this->context->getLogger()->section('Prepare Release');
 
-        $this->context->run(sprintf(
-            'git clone %s -q --recursive -b %s .',
-            $this->context->getProject()->getRepository(),
-            $this->context->getPlatform()->getDefaultBranch()
-        ), true);
+        if($this->context->getPlatform()->getDefaultBranch()) {
+           $clone = sprintf(
+               'git clone %s -q --recursive -b %s .',
+               $this->context->getProject()->getRepository(),
+               $this->context->getPlatform()->getDefaultBranch()
+           );
+        } else {
+            $clone = sprintf(
+                'git clone %s -q --recursive .', $this->context->getProject()->getRepository());
+        }
+
+        $this->context->run($clone, true);
 
         $gitRef = $this->context->getGitRef();
 

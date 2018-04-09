@@ -1,6 +1,7 @@
 <?php
+
 /*
- * This file is part of the ShopEngine package.
+ * This file is part of the Automate package.
  *
  * (c) Julien Jacottet <jjacottet@gmail.com>
  *
@@ -10,17 +11,17 @@
 
 namespace Automate\Tests;
 
-
-use Automate\Context;
+use Automate\Context\LocalContext;
+use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
-use Automate\Session;
+use Automate\Session\SessionInterface;
 use Automate\SessionFactory;
 use Phake;
 
 abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
 {
-    protected function createContext(Session $session, LoggerInterface $logger, $gitRef = null)
+    protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
     {
         $loader = new Loader();
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
@@ -29,8 +30,23 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $sessionFactory = Phake::mock(SessionFactory::class);
         Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
 
-        $context = new Context($project, $platform, $gitRef, $logger, false, $sessionFactory);
+        $context = new SSHContext($project, $platform, $gitRef, $logger, false);
+        $context->setSessionFactory($sessionFactory);
         $context->connect();
+
+        return $context;
+    }
+
+    protected function createLocalContext(LoggerInterface $logger, $gitRef = null)
+    {
+        $loader = new Loader();
+        $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
+        $platform = $project->getPlatform('development');
+
+        $context = new LocalContext($project, $platform, $gitRef, $logger);
+        $context->connect();
+        $context->setForce(true);
+        $this->assertTrue($context->isForce());
 
         return $context;
     }

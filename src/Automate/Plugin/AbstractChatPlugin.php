@@ -10,7 +10,7 @@
 
 namespace Automate\Plugin;
 
-use Automate\Context;
+use Automate\Context\ContextInterface;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
@@ -119,11 +119,11 @@ abstract class AbstractChatPlugin implements PluginInterface
     /**
      * @param string $name
      * @param string $default
-     * @param Context $context
+     * @param ContextInterface $context
      * @param \Exception|null $exception
      * @return mixed|string
      */
-    private function getMessage($name, $default, Context $context, \Exception $exception = null)
+    private function getMessage($name, $default, ContextInterface $context, \Exception $exception = null)
     {
         $message = isset($this->configuration['messages'][$name]) ? $this->configuration['messages'][$name] : $default;
 

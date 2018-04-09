@@ -11,26 +11,26 @@
 
 namespace Automate\Event;
 
-use Automate\Context;
+use Automate\Context\ContextInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class DeployEvent extends Event
 {
     /**
-     * @var Context
+     * @var ContextInterface
      */
     private $context;
 
     /**
-     * @param Context $context
+     * @param ContextInterface $context
      */
-    public function __construct(Context $context)
+    public function __construct(ContextInterface $context)
     {
         $this->context = $context;
     }
 
     /**
-     * @return Context
+     * @return ContextInterface
      */
     public function getContext()
     {

@@ -12,8 +12,8 @@
 namespace Automate;
 
 use Automate\Command\DeployCommand;
+use Automate\Command\LocalDeployCommand;
 use Automate\Command\SelfUpdateCommand;
-use KevinGH\Amend;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
@@ -53,6 +53,7 @@ class Application extends BaseApplication
         $commands = parent::getDefaultCommands();
 
         $commands[] = new DeployCommand();
+        $commands[] = new LocalDeployCommand();
 
         if (('@'.'git-version@') !== $this->getVersion()) {
             $commands[] = new SelfUpdateCommand();
@@ -60,5 +61,4 @@ class Application extends BaseApplication
 
         return $commands;
     }
-    
 }

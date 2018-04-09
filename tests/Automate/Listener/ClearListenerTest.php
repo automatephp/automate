@@ -15,7 +15,7 @@ use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Listener\ClearListener;
 use Automate\Logger\ConsoleLogger;
-use Automate\Session;
+use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 use phpseclib\Net\SSH2;
@@ -27,6 +27,7 @@ class ClearListenerTest extends AbstractContextTest
     {
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
+
         Phake::when($ssh)->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->thenReturn('
             2016.08.30-0032.620
             ab
@@ -40,7 +41,7 @@ class ClearListenerTest extends AbstractContextTest
         ');
 
         $logger = Phake::mock(ConsoleLogger::class);
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
         $event = new DeployEvent($context);
@@ -65,7 +66,7 @@ class ClearListenerTest extends AbstractContextTest
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
         $logger = Phake::mock(ConsoleLogger::class);
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
         Phake::when($ssh)->exec('if test -f "/home/wwwroot/automate/demo/releases/failed"; then echo "Y";fi')->thenReturn('Y');
@@ -82,7 +83,7 @@ class ClearListenerTest extends AbstractContextTest
         $ssh = Phake::mock(SSH2::class);
         Phake::when($ssh)->getExitStatus()->thenReturn(0);
         $logger = Phake::mock(ConsoleLogger::class);
-        $session = new Session($ssh);
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
         $event = new FailedDeployEvent($context, new \Exception());

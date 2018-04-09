@@ -58,6 +58,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             $string
         );
     }
+
     public function testAppNonRepo()
     {
         $app = new Application('Test', '1.2.3');

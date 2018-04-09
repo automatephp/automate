@@ -11,7 +11,7 @@
 
 namespace Automate\Event;
 
-use Automate\Context;
+use Automate\Context\ContextInterface;
 
 class FailedDeployEvent extends DeployEvent
 {
@@ -20,7 +20,7 @@ class FailedDeployEvent extends DeployEvent
      */
     private $exception;
 
-    public function __construct(Context $context, \Exception $exception)
+    public function __construct(ContextInterface $context, \Exception $exception)
     {
         $this->exception = $exception;
 

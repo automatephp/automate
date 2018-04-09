@@ -15,7 +15,7 @@ use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
 use Automate\Plugin\GitterPlugin;
-use Automate\Session;
+use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 
@@ -25,7 +25,7 @@ class GitterPluginTest extends AbstractContextTest
     public function testDisablePlugin()
     {
         $gitter = Phake::partialMock(GitterPlugin::class);
-        $context = $this->createContext(Phake::mock(Session::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
         $gitter->register($context->getProject());
 
         $gitter->onInit(new DeployEvent($context));
@@ -36,7 +36,7 @@ class GitterPluginTest extends AbstractContextTest
     public function testSimpleConfig()
     {
         $gitter = Phake::partialMock(GitterPlugin::class);
-        $context = $this->createContext(Phake::mock(Session::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['gitter' => [
             'token' => '123',
@@ -59,7 +59,7 @@ class GitterPluginTest extends AbstractContextTest
     public function testMessage()
     {
         $gitter = Phake::partialMock(GitterPlugin::class);
-        $context = $this->createContext(Phake::mock(Session::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['gitter' => [
             'token' => '123',

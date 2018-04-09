@@ -94,6 +94,4 @@ class CacheToolPlugin implements PluginInterface
             ]
         ];
     }
-
-
 }
