@@ -22,6 +22,10 @@ abstract class AbstractChatPlugin implements PluginInterface
     const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] End of deployment with success';
     const MESSAGE_FAILED  = ':exclamation: [Automate] [%platform%] Deployment failed with error';
 
+    const INIT      = 'onInit';
+    const TERMINATE = 'onFinish';
+    const FAILED    = 'onFailed';
+
     /**
      * @var array
      */
@@ -36,8 +40,9 @@ abstract class AbstractChatPlugin implements PluginInterface
      * Send message to chat service
      *
      * @param string $message
+     * @param string $eventName
      */
-    abstract protected function sendMessage($message);
+    abstract protected function sendMessage($message, $eventName);
 
     /**
      * {@inheritdoc}
@@ -51,9 +56,9 @@ abstract class AbstractChatPlugin implements PluginInterface
     public static function getSubscribedEvents()
     {
         return array(
-            DeployEvents::INIT => 'onInit',
-            DeployEvents::TERMINATE => 'onFinish',
-            DeployEvents::FAILED => 'onFailed',
+            DeployEvents::INIT => self::INIT,
+            DeployEvents::TERMINATE => self::TERMINATE,
+            DeployEvents::FAILED => self::FAILED,
         );
     }
 
@@ -73,7 +78,7 @@ abstract class AbstractChatPlugin implements PluginInterface
     public function onInit(DeployEvent $event)
     {
         if($this->configuration) {
-            $this->sendMessage($this->getMessage('start', self::MESSAGE_START, $event->getContext()));
+            $this->sendMessage($this->getMessage('start', self::MESSAGE_START, $event->getContext()), self::INIT);
         }
     }
 
@@ -85,7 +90,7 @@ abstract class AbstractChatPlugin implements PluginInterface
     public function onFinish(DeployEvent $event)
     {
         if($this->configuration) {
-            $this->sendMessage($this->getMessage('success', self::MESSAGE_SUCCESS, $event->getContext()));
+            $this->sendMessage($this->getMessage('success', self::MESSAGE_SUCCESS, $event->getContext()), self::TERMINATE);
         }
     }
 
@@ -97,7 +102,7 @@ abstract class AbstractChatPlugin implements PluginInterface
     public function onFailed(FailedDeployEvent $event)
     {
         if($this->configuration) {
-            $this->sendMessage($this->getMessage('failed', self::MESSAGE_FAILED, $event->getContext(), $event->getException()));
+            $this->sendMessage($this->getMessage('failed', self::MESSAGE_FAILED, $event->getContext(), $event->getException()), self::FAILED);
         }
     }
 
@@ -111,7 +116,7 @@ abstract class AbstractChatPlugin implements PluginInterface
             '_children' => [
                 'start'   => ['_type' => 'text'],
                 'success' => ['_type' => 'text'],
-                'failed'  => ['_type' => 'text'],
+                'failed'  => ['_type' => 'text']
             ],
         ];
     }
@@ -127,7 +132,11 @@ abstract class AbstractChatPlugin implements PluginInterface
     {
         $message = isset($this->configuration['messages'][$name]) ? $this->configuration['messages'][$name] : $default;
 
-        $message = str_replace("%platform%", $context->getPlatform()->getName(), $message);
+        if ($context->getPlatform()->getName() !== null){
+            $message = str_replace("%platform%", $context->getPlatform()->getName(), $message);
+        }else{
+            $message = str_replace("[%platform%]", '', $message);
+        }
 
         if($exception) {
             $message = str_replace("%error%", $exception->getMessage(), $message);

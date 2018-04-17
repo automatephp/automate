@@ -52,7 +52,7 @@ class SlackPlugin extends AbstractChatPlugin
     /**
      * @param string $message
      */
-    protected function sendMessage($message)
+    protected function sendMessage($message, $eventName)
     {
         $client = new \GuzzleHttp\Client();
 
