@@ -22,7 +22,6 @@ use Phake;
 
 class SlackPluginTest extends AbstractContextTest
 {
-
     public function testDisablePlugin()
     {
         $slack = Phake::partialMock(SlackPlugin::class);

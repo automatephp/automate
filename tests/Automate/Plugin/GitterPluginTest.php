@@ -22,7 +22,6 @@ use Phake;
 
 class GitterPluginTest extends AbstractContextTest
 {
-
     public function testDisablePlugin()
     {
         $gitter = Phake::partialMock(GitterPlugin::class);
