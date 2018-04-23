@@ -20,7 +20,7 @@ namespace Automate\Plugin;
  *
  */
 
-class SentryPlugin extends AbstractChatPlugin
+class SentryPlugin extends AbstractNotificationPlugin
 {
     /**
      * {@inheritdoc}
@@ -54,7 +54,7 @@ class SentryPlugin extends AbstractChatPlugin
      */
     protected function sendMessage($message, $eventName)
     {
-        if ($eventName === AbstractChatPlugin::TERMINATE){
+        if ($eventName === AbstractNotificationPlugin::TERMINATE){
             $res = (new \GuzzleHttp\Client())->request(
                 'POST', $this->checkUri($this->configuration['hook_uri']),
                 [

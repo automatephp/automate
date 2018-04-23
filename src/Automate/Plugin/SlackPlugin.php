@@ -21,7 +21,7 @@ namespace Automate\Plugin;
  */
 
 
-class SlackPlugin extends AbstractChatPlugin
+class SlackPlugin extends AbstractNotificationPlugin
 {
     /**
      * {@inheritdoc}

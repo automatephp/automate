@@ -14,7 +14,7 @@ namespace Automate\Tests\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
-use Automate\Plugin\AbstractChatPlugin;
+use Automate\Plugin\AbstractNotificationPlugin;
 use Automate\Plugin\SlackPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
@@ -50,9 +50,9 @@ class SlackPluginTest extends AbstractContextTest
         $slack->onFinish(new DeployEvent($context));
         $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($slack, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Deployment start', AbstractChatPlugin::INIT);
-        Phake::verify($slack, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success', AbstractChatPlugin::TERMINATE);
-        Phake::verify($slack, Phake::times(1))->sendMessage(':exclamation: [Automate] [development] Deployment failed with error', AbstractChatPlugin::FAILED);
+        Phake::verify($slack, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Deployment start', AbstractNotificationPlugin::INIT);
+        Phake::verify($slack, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success', AbstractNotificationPlugin::TERMINATE);
+        Phake::verify($slack, Phake::times(1))->sendMessage(':exclamation: [Automate] [development] Deployment failed with error', AbstractNotificationPlugin::FAILED);
     }
 
     public function testMessage()
@@ -77,8 +77,8 @@ class SlackPluginTest extends AbstractContextTest
         $slack->onFinish(new DeployEvent($context));
         $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($slack, Phake::times(1))->sendMessage('[development] start', AbstractChatPlugin::INIT);
-        Phake::verify($slack, Phake::times(1))->sendMessage('[development] success', AbstractChatPlugin::TERMINATE);
-        Phake::verify($slack, Phake::times(1))->sendMessage('[development] failed', AbstractChatPlugin::FAILED);
+        Phake::verify($slack, Phake::times(1))->sendMessage('[development] start', AbstractNotificationPlugin::INIT);
+        Phake::verify($slack, Phake::times(1))->sendMessage('[development] success', AbstractNotificationPlugin::TERMINATE);
+        Phake::verify($slack, Phake::times(1))->sendMessage('[development] failed', AbstractNotificationPlugin::FAILED);
     }
 }

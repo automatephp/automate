@@ -14,7 +14,7 @@ namespace Automate\Tests\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
-use Automate\Plugin\AbstractChatPlugin;
+use Automate\Plugin\AbstractNotificationPlugin;
 use Automate\Plugin\SentryPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
@@ -51,7 +51,7 @@ class SentryPluginTest extends AbstractContextTest
         $sentry->onFailed(new FailedDeployEvent($context, new \Exception()));
 
         Phake::verify($sentry, Phake::times(0))->sendMessage();
-        Phake::verify($sentry, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success', AbstractChatPlugin::TERMINATE);
+        Phake::verify($sentry, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success', AbstractNotificationPlugin::TERMINATE);
         Phake::verify($sentry, Phake::times(0))->sendMessage();
     }
 
@@ -73,6 +73,6 @@ class SentryPluginTest extends AbstractContextTest
 
         $sentry->onFinish(new DeployEvent($context));
 
-        Phake::verify($sentry, Phake::times(1))->sendMessage('success', AbstractChatPlugin::TERMINATE);
+        Phake::verify($sentry, Phake::times(1))->sendMessage('success', AbstractNotificationPlugin::TERMINATE);
     }
 }

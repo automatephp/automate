@@ -11,7 +11,7 @@
 namespace Automate\Plugin;
 
 
-class GitterPlugin extends AbstractChatPlugin
+class GitterPlugin extends AbstractNotificationPlugin
 {
     /**
      * {@inheritdoc}
