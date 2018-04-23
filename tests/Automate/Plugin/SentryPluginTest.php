@@ -61,7 +61,7 @@ class SentryPluginTest extends AbstractContextTest
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['sentry' => [
-            'uri' => 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/',
+            'uri' => 'https://sentry.io/api/hooks/release/builtin/AAA/BBB',
             'messages' => [
                 'success' => 'success',
             ]
