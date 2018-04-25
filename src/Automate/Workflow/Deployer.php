@@ -73,6 +73,8 @@ class Deployer
             return true;
 
         } catch (\Exception $e) {
+            //var_dump($e->getMessage()); exit;
+
             $this->context->getLogger()->error($e->getMessage());
             try {
                 $dispatcher->dispatch(DeployEvents::FAILED, new FailedDeployEvent($this->context, $e));

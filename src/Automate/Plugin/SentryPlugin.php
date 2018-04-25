@@ -55,7 +55,7 @@ class SentryPlugin extends AbstractNotificationPlugin
     protected function sendMessage($message, $eventName)
     {
         if ($eventName === AbstractNotificationPlugin::TERMINATE){
-            $res = (new \GuzzleHttp\Client())->request(
+            $res = $this->client->request(
                 'POST', $this->checkUri($this->configuration['hook_uri']),
                 [
                     'headers' => [

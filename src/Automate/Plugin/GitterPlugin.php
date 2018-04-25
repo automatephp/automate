@@ -49,11 +49,9 @@ class GitterPlugin extends AbstractNotificationPlugin
      */
     protected function sendMessage($message, $eventName)
     {
-        $client = new \GuzzleHttp\Client();
-
         $uri = sprintf('https://api.gitter.im/v1/rooms/%s/chatMessages', $this->configuration['room']);
 
-        $client->request('POST', $uri, [
+        $this->client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer %s', $this->configuration['token'])
             ],

@@ -18,24 +18,30 @@ use Automate\Plugin\AbstractNotificationPlugin;
 use Automate\Plugin\GitterPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
+use GuzzleHttp\ClientInterface;
 use Phake;
 
 class GitterPluginTest extends AbstractContextTest
 {
     public function testDisablePlugin()
     {
-        $gitter = Phake::partialMock(GitterPlugin::class);
+
+        $client = Phake::partialMock(ClientInterface::class);
+        $gitter = new GitterPlugin($client);
+
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
         $gitter->register($context->getProject());
 
         $gitter->onInit(new DeployEvent($context));
 
-        Phake::verify($gitter, Phake::times(0))->sendMessage();
+        Phake::verify($client, Phake::times(0))->request();
     }
 
     public function testSimpleConfig()
     {
-        $gitter = Phake::partialMock(GitterPlugin::class);
+        $client = Phake::partialMock(ClientInterface::class);
+        $gitter = new GitterPlugin($client);
+
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['gitter' => [
@@ -45,20 +51,43 @@ class GitterPluginTest extends AbstractContextTest
 
         $gitter->register($context->getProject());
 
-        Phake::when($gitter)->sendMessage(Phake::anyParameters())->thenReturn(true);
-
         $gitter->onInit(new DeployEvent($context));
         $gitter->onFinish(new DeployEvent($context));
         $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($gitter, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Deployment start', AbstractNotificationPlugin::INIT);
-        Phake::verify($gitter, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success', AbstractNotificationPlugin::TERMINATE);
-        Phake::verify($gitter, Phake::times(1))->sendMessage(':exclamation: [Automate] [development] Deployment failed with error', AbstractNotificationPlugin::FAILED);
+        $uri = 'https://api.gitter.im/v1/rooms/456/chatMessages';
+
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'headers' => [
+                'Authorization' => sprintf('Bearer 123')
+            ],
+            'json' => [
+                'text' => ':hourglass: [Automate] [development] Deployment start'
+            ]
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'headers' => [
+                'Authorization' => sprintf('Bearer 123')
+            ],
+            'json' => [
+                'text' => ':sunny: [Automate] [development] End of deployment with success'
+            ]
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'headers' => [
+                'Authorization' => sprintf('Bearer 123')
+            ],
+            'json' => [
+                'text' => ':exclamation: [Automate] [development] Deployment failed with error'
+            ]
+        ]);
     }
 
     public function testMessage()
     {
-        $gitter = Phake::partialMock(GitterPlugin::class);
+        $client = Phake::partialMock(ClientInterface::class);
+        $gitter = new GitterPlugin($client);
+
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
         $context->getProject()->setPlugins(['gitter' => [
@@ -72,16 +101,36 @@ class GitterPluginTest extends AbstractContextTest
         ]]);
 
         $gitter->register($context->getProject());
-
-        Phake::when($gitter)->sendMessage(Phake::anyParameters())->thenReturn(true);
-
+        
         $gitter->onInit(new DeployEvent($context));
         $gitter->onFinish(new DeployEvent($context));
         $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($gitter, Phake::times(1))->sendMessage('[development] start', AbstractNotificationPlugin::INIT);
-        Phake::verify($gitter, Phake::times(1))->sendMessage('[development] success', AbstractNotificationPlugin::TERMINATE);
-        Phake::verify($gitter, Phake::times(1))->sendMessage('[development] failed', AbstractNotificationPlugin::FAILED);
-    }
+        $uri = 'https://api.gitter.im/v1/rooms/456/chatMessages';
 
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'headers' => [
+                'Authorization' => sprintf('Bearer 123')
+            ],
+            'json' => [
+                'text' => '[development] start'
+            ]
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'headers' => [
+                'Authorization' => sprintf('Bearer 123')
+            ],
+            'json' => [
+                'text' => '[development] success'
+            ]
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'headers' => [
+                'Authorization' => sprintf('Bearer 123')
+            ],
+            'json' => [
+                'text' => '[development] failed'
+            ]
+        ]);
+    }
 }

@@ -54,9 +54,7 @@ class SlackPlugin extends AbstractNotificationPlugin
      */
     protected function sendMessage($message, $eventName)
     {
-        $client = new \GuzzleHttp\Client();
-
-        $client->request(
+        $this->client->request(
             'POST', $this->configuration['hook_uri'],
             [
                 'json' => [

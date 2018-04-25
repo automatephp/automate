@@ -15,6 +15,8 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 
 abstract class AbstractNotificationPlugin implements PluginInterface
 {
@@ -30,6 +32,16 @@ abstract class AbstractNotificationPlugin implements PluginInterface
      * @var array
      */
     protected $configuration;
+
+    /**
+     * @var ClientInterface
+     */
+    protected $client;
+
+    public function __construct($client = null)
+    {
+        $this->client = $client ?: new Client();
+    }
 
     /**
      * {@inheritdoc}
