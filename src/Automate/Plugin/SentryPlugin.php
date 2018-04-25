@@ -64,7 +64,8 @@ class SentryPlugin extends AbstractNotificationPlugin
                     'json' => [
                         'version' => (new \DateTime('now'))->format('Y-m-d H:i:s') . ' ' . $message
                     ],
-                    'http_errors' => false
+                    'http_errors' => false,
+                    'verify' => false
                 ]
             );
         }
