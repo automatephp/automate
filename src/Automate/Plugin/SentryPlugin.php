@@ -67,8 +67,6 @@ class SentryPlugin extends AbstractNotificationPlugin
                     'http_errors' => false
                 ]
             );
-
-            $this->displayToConsole($res->getStatusCode());
         }
     }
 
@@ -83,15 +81,5 @@ class SentryPlugin extends AbstractNotificationPlugin
         }
 
         return $uri;
-    }
-
-    /**
-     * @param string $code
-     */
-    protected function displayToConsole($code)
-    {
-        if (substr($code, 0, 1) === "4"){
-            throw new \InvalidArgumentException(sprintf("A required security token was not found or was invalid to connect to Sentry."));
-        }
     }
 }

@@ -14,54 +14,77 @@ namespace Automate\Tests\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
-use Automate\Plugin\AbstractNotificationPlugin;
 use Automate\Plugin\SlackPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
+use GuzzleHttp\ClientInterface;
 use Phake;
 
 class SlackPluginTest extends AbstractContextTest
 {
     public function testDisablePlugin()
     {
-        $slack = Phake::partialMock(SlackPlugin::class);
+        $client = Phake::partialMock(ClientInterface::class);
+        $slack = new SlackPlugin($client);
+
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
         $slack->register($context->getProject());
 
         $slack->onInit(new DeployEvent($context));
 
-        Phake::verify($slack, Phake::times(0))->sendMessage();
+        Phake::verify($client, Phake::times(0))->request();
     }
 
     public function testSimpleConfig()
     {
-        $slack = Phake::partialMock(SlackPlugin::class);
+        $client = Phake::partialMock(ClientInterface::class);
+        $slack = new SlackPlugin($client);
+
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
+        $uri = 'https://hooks.slack.com/services/AAAA/BBBB/CCCC';
+
         $context->getProject()->setPlugins(['slack' => [
-            'uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
+            'hook_uri' => $uri,
         ]]);
 
         $slack->register($context->getProject());
-
-        Phake::when($slack)->sendMessage(Phake::anyParameters())->thenReturn(true);
 
         $slack->onInit(new DeployEvent($context));
         $slack->onFinish(new DeployEvent($context));
         $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($slack, Phake::times(1))->sendMessage(':hourglass: [Automate] [development] Deployment start', AbstractNotificationPlugin::INIT);
-        Phake::verify($slack, Phake::times(1))->sendMessage(':sunny: [Automate] [development] End of deployment with success', AbstractNotificationPlugin::TERMINATE);
-        Phake::verify($slack, Phake::times(1))->sendMessage(':exclamation: [Automate] [development] Deployment failed with error', AbstractNotificationPlugin::FAILED);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'json' => [
+                'text' => ':hourglass: [Automate] [development] Deployment start'
+            ],
+            'verify' => false
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'json' => [
+                'text' => ':sunny: [Automate] [development] End of deployment with success'
+            ],
+            'verify' => false
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'json' => [
+                'text' => ':exclamation: [Automate] [development] Deployment failed with error'
+            ],
+            'verify' => false
+        ]);
     }
 
     public function testMessage()
     {
-        $slack = Phake::partialMock(SlackPlugin::class);
+        $client = Phake::partialMock(ClientInterface::class);
+        $slack = new SlackPlugin($client);
+
         $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
 
+        $uri = 'https://hooks.slack.com/services/AAAA/BBBB/CCCC';
+
         $context->getProject()->setPlugins(['slack' => [
-            'uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
+            'hook_uri' => $uri,
             'messages' => [
                 'start' => '[%platform%] start',
                 'success' => '[%platform%] success',
@@ -71,14 +94,27 @@ class SlackPluginTest extends AbstractContextTest
 
         $slack->register($context->getProject());
 
-        Phake::when($slack)->sendMessage(Phake::anyParameters())->thenReturn(true);
-
         $slack->onInit(new DeployEvent($context));
         $slack->onFinish(new DeployEvent($context));
         $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($slack, Phake::times(1))->sendMessage('[development] start', AbstractNotificationPlugin::INIT);
-        Phake::verify($slack, Phake::times(1))->sendMessage('[development] success', AbstractNotificationPlugin::TERMINATE);
-        Phake::verify($slack, Phake::times(1))->sendMessage('[development] failed', AbstractNotificationPlugin::FAILED);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'json' => [
+                'text' => '[development] start'
+            ],
+            'verify' => false
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'json' => [
+                'text' => '[development] success'
+            ],
+            'verify' => false
+        ]);
+        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+            'json' => [
+                'text' => '[development] failed'
+            ],
+            'verify' => false
+        ]);
     }
 }

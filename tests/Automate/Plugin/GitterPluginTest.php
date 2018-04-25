@@ -14,7 +14,6 @@ namespace Automate\Tests\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
-use Automate\Plugin\AbstractNotificationPlugin;
 use Automate\Plugin\GitterPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
@@ -25,7 +24,6 @@ class GitterPluginTest extends AbstractContextTest
 {
     public function testDisablePlugin()
     {
-
         $client = Phake::partialMock(ClientInterface::class);
         $gitter = new GitterPlugin($client);
 
@@ -101,7 +99,7 @@ class GitterPluginTest extends AbstractContextTest
         ]]);
 
         $gitter->register($context->getProject());
-        
+
         $gitter->onInit(new DeployEvent($context));
         $gitter->onFinish(new DeployEvent($context));
         $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
