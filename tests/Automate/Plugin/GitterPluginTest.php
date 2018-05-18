@@ -61,7 +61,8 @@ class GitterPluginTest extends AbstractContextTest
             ],
             'json' => [
                 'text' => ':hourglass: [Automate] [development] Deployment start'
-            ]
+            ],
+            'verify' => false
         ]);
         Phake::verify($client, Phake::times(1))->request('POST', $uri, [
             'headers' => [
@@ -69,7 +70,8 @@ class GitterPluginTest extends AbstractContextTest
             ],
             'json' => [
                 'text' => ':sunny: [Automate] [development] End of deployment with success'
-            ]
+            ],
+            'verify' => false
         ]);
         Phake::verify($client, Phake::times(1))->request('POST', $uri, [
             'headers' => [
@@ -77,7 +79,8 @@ class GitterPluginTest extends AbstractContextTest
             ],
             'json' => [
                 'text' => ':exclamation: [Automate] [development] Deployment failed with error'
-            ]
+            ],
+            'verify' => false
         ]);
     }
 
@@ -112,7 +115,8 @@ class GitterPluginTest extends AbstractContextTest
             ],
             'json' => [
                 'text' => '[development] start'
-            ]
+            ],
+            'verify' => false
         ]);
         Phake::verify($client, Phake::times(1))->request('POST', $uri, [
             'headers' => [
@@ -120,7 +124,8 @@ class GitterPluginTest extends AbstractContextTest
             ],
             'json' => [
                 'text' => '[development] success'
-            ]
+            ],
+            'verify' => false
         ]);
         Phake::verify($client, Phake::times(1))->request('POST', $uri, [
             'headers' => [
@@ -128,7 +133,8 @@ class GitterPluginTest extends AbstractContextTest
             ],
             'json' => [
                 'text' => '[development] failed'
-            ]
+            ],
+            'verify' => false
         ]);
     }
 }
