@@ -21,7 +21,7 @@ namespace Automate\Plugin;
  */
 
 
-class SlackPlugin extends AbstractChatPlugin
+class SlackPlugin extends AbstractNotificationPlugin
 {
     /**
      * {@inheritdoc}
@@ -52,11 +52,9 @@ class SlackPlugin extends AbstractChatPlugin
     /**
      * @param string $message
      */
-    protected function sendMessage($message)
+    protected function sendMessage($message, $eventName)
     {
-        $client = new \GuzzleHttp\Client();
-
-        $client->request(
+        $this->client->request(
             'POST', $this->configuration['hook_uri'],
             [
                 'json' => [

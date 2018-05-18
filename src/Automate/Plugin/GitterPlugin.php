@@ -11,7 +11,7 @@
 namespace Automate\Plugin;
 
 
-class GitterPlugin extends AbstractChatPlugin
+class GitterPlugin extends AbstractNotificationPlugin
 {
     /**
      * {@inheritdoc}
@@ -47,19 +47,18 @@ class GitterPlugin extends AbstractChatPlugin
     /**
      * @param string $message
      */
-    protected function sendMessage($message)
+    protected function sendMessage($message, $eventName)
     {
-        $client = new \GuzzleHttp\Client();
-
         $uri = sprintf('https://api.gitter.im/v1/rooms/%s/chatMessages', $this->configuration['room']);
 
-        $client->request('POST', $uri, [
+        $this->client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer %s', $this->configuration['token'])
             ],
             'json' => [
                 'text' => $message
-            ]
+            ],
+            'verify' => false
         ]);
     }
 }
