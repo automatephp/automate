@@ -17,7 +17,6 @@ use Automate\Model\Project;
 
 class CacheToolPlugin implements PluginInterface
 {
-
     const PHAR_URL = 'http://gordalina.github.io/cachetool/downloads/cachetool.phar';
 
     /**
@@ -61,7 +60,11 @@ class CacheToolPlugin implements PluginInterface
             $context = $event->getContext();
             $fastcgi = isset($this->configuration['fastcgi']) ? sprintf('--fcgi="%s"', $this->configuration['fastcgi']) : '--fcgi';
 
-            $context->run('curl -sO ' . self::PHAR_URL);
+            if (isset($this->configuration['version'])){
+                $context->run('curl -sO ' . str_replace('cachetool.phar', 'cachetool-'. $this->configuration['version'] .'.phar', self::PHAR_URL) );
+            }else{
+                $context->run('curl -sO ' . self::PHAR_URL );
+            }
 
             if(isset($this->configuration['opcache']) && $this->configuration['opcache']) {
                 $context->run('php cachetool.phar opcache:reset ' . $fastcgi, true);
@@ -87,6 +90,7 @@ class CacheToolPlugin implements PluginInterface
         return [
             '_type' => 'array',
             '_children' => [
+                'version' => ['_type' => 'text'],
                 'fastcgi' => ['_type' => 'text'],
                 'opcache' => ['_type' => 'boolean'],
                 'apcu' => ['_type' => 'boolean'],
