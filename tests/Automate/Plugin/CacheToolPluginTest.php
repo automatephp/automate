@@ -48,4 +48,27 @@ class CacheToolPluginTest extends AbstractContextTest
             Phake::verify($session, Phake::times(1))->run('cd '.$path.'; rm cachetool.phar')
         );
     }
+
+    public function testVersionConfig()
+    {
+        $cacheTool = new CacheToolPlugin();
+        $session  = Phake::mock(SessionInterface::class);
+        $context = $this->createContext($session, Phake::mock(LoggerInterface::class));
+
+        $context->getProject()->setPlugins(['cache_tool' => [
+            'version' => '3.2.1',
+            'opcache' => 'true',
+        ]]);
+
+        $cacheTool->register($context->getProject());
+        $cacheTool->onTerminate(new DeployEvent($context));
+
+        $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
+
+        Phake::inOrder(
+            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; curl -sO ' . str_replace('cachetool.phar', 'cachetool-3.2.1.phar', CacheToolPlugin::PHAR_URL) ),
+            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi'),
+            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; rm cachetool.phar')
+        );
+    }
 }
