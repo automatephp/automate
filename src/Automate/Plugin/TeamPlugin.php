@@ -11,7 +11,7 @@
 namespace Automate\Plugin;
 
 /**
- * Allow to send a notification to your channel Slack
+ * Allow to send a notification to your Team's channel
  * if the deployment is success or failed
  * only if you're deploying from your remote (not from gitlab)
  *
