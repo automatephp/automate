@@ -150,6 +150,11 @@ class Loader
                                                 '_required' => true,
                                                 '_not_empty' => true,
                                             ],
+                                            'shared_path' => [
+                                                '_type' => 'text',
+                                                '_required' => false,
+                                                '_not_empty' => true,
+                                            ],
                                             'port' => [
                                                 '_type' => 'number'
                                             ],

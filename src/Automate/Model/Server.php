@@ -48,6 +48,11 @@ class Server
     private $path;
 
     /**
+     * @var string
+     */
+    private $sharedPath;
+
+    /**
      * @var int
      */
     private $port;
@@ -168,6 +173,26 @@ class Server
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSharedPath()
+    {
+        return $this->sharedPath;
+    }
+
+    /**
+     * @param string $sharedPath
+     *
+     * @return Server
+     */
+    public function setSharedPath($sharedPath)
+    {
+        $this->sharedPath = $sharedPath;
 
         return $this;
     }

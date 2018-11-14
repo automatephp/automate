@@ -1,0 +1,21 @@
+repository: git@github.com:julienj/symfony-demo.git
+
+platforms:
+    development:
+        default_branch: master
+        max_releases: 3
+        servers:
+            dddv-exemple-front-01:
+                host: 127.0.0.1
+                user: automate
+                password: p@ssw0rd
+                path: /home/wwwroot/automate/demo
+                shared_path: /home/wwwroot/shared
+shared_files:
+    - app/config/parameters.yml
+shared_folders:
+    - app/data
+pre_deploy:
+    - "php -v"
+on_deploy:
+    - "composer install"

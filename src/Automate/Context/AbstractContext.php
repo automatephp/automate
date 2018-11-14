@@ -220,7 +220,14 @@ abstract class AbstractContext implements ContextInterface
      */
     public function getSharedPath(Server $server)
     {
-        return $server->getPath().'/shared';
+        $serverSharedPath = $server->getSharedPath();
+
+        // if the shared path is not configured on the server configuration
+        if (empty($serverSharedPath)) {
+            $serverSharedPath = $server->getPath().'/shared';
+        }
+
+        return $serverSharedPath;
     }
 
     /**
