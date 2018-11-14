@@ -72,4 +72,18 @@ class LoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('%dev_password%', $server->getPassword());
         $this->assertEquals('/home/wwwroot/automate/demo', $server->getPath());
     }
+
+    public function testSharedPathLoader()
+    {
+        $loder = new Loader();
+
+        $project = $loder->load(__DIR__ . '/../fixtures/simpleWithSharedPath.yml');
+
+        $platform = $project->getPlatform('development');
+
+        /** @var Server $server */
+        $server = current($platform->getServers());
+
+        $this->assertEquals('/home/wwwroot/shared', $server->getSharedPath());
+    }
 }

@@ -50,4 +50,20 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
 
         return $context;
     }
+
+    protected function createContextWithServerSharedPath(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
+    {
+        $loader = new Loader();
+        $project = $loader->load(__DIR__ . '/../fixtures/simpleWithSharedPath.yml');
+        $platform = $project->getPlatform('development');
+
+        $sessionFactory = Phake::mock(SessionFactory::class);
+        Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
+
+        $context = new SSHContext($project, $platform, $gitRef, $logger, false);
+        $context->setSessionFactory($sessionFactory);
+        $context->connect();
+
+        return $context;
+    }
 }

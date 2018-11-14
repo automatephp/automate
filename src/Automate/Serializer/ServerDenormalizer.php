@@ -34,6 +34,7 @@ class ServerDenormalizer extends AbstractDenormalizer
             ->setSshKey($this->extractValue($data, 'ssh_key'))
             ->setPassword($this->extractValue($data, 'password', ""))
             ->setPath($this->extractValue($data, 'path'))
+            ->setSharedPath($this->extractValue($data, 'shared_path'))
             ->setPort($this->extractValue($data, 'port', 22))
         ;
 
