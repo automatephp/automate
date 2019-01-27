@@ -10,7 +10,6 @@
 
 namespace Automate\Context;
 
-
 use Automate\Model\Server;
 
 interface ContextInterface
