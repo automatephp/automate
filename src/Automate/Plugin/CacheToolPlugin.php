@@ -17,7 +17,7 @@ use Automate\Model\Project;
 
 class CacheToolPlugin implements PluginInterface
 {
-    const PHAR_URL = 'http://gordalina.github.io/cachetool/downloads/cachetool.phar';
+    const PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/cachetool.phar';
 
     /**
      * @var array
