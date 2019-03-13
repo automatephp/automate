@@ -10,11 +10,11 @@ You can use Automate from your workstation or through an integration server like
 
 ## Installation
 
-> curl -LSs https://automatephp.github.io/installer.php | php
+> curl -LSs https://automate-deployer.com/installer.php | php
 
 ## Usage
 
-https://automatephp.github.io/
+https://automate-deployer.com
 
 ## Contributing
 
