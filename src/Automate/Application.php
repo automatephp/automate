@@ -11,6 +11,7 @@
 
 namespace Automate;
 
+use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
 use Automate\Command\LocalDeployCommand;
 use Automate\Command\SelfUpdateCommand;
@@ -54,6 +55,7 @@ class Application extends BaseApplication
 
         $commands[] = new DeployCommand();
         $commands[] = new LocalDeployCommand();
+        $commands[] = new CheckCommand();
 
         if (('@'.'git-version@') !== $this->getVersion()) {
             $commands[] = new SelfUpdateCommand();
