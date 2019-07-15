@@ -171,7 +171,7 @@ abstract class AbstractContext implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function run($command, $verbose = false, $specificServer = null)
+    public function run($command, $verbose = false, $specificServer = null, $addWorkingDir = true)
     {
         $servers = $this->platform->getServers();
 
@@ -180,7 +180,7 @@ abstract class AbstractContext implements ContextInterface
                 continue;
             }
             $this->logger->command($command, $verbose);
-            $this->doRun($server, $command, true, $verbose);
+            $this->doRun($server, $command, $addWorkingDir, $verbose);
         }
     }
 
@@ -190,6 +190,7 @@ abstract class AbstractContext implements ContextInterface
     public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
+
         $response = $this->getSession($server)->run($realCommand);
 
         if ($response) {
