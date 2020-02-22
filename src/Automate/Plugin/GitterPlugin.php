@@ -11,6 +11,8 @@
 namespace Automate\Plugin;
 
 
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+
 class GitterPlugin extends AbstractNotificationPlugin
 {
     /**
@@ -24,24 +26,18 @@ class GitterPlugin extends AbstractNotificationPlugin
     /**
      * {@inheritdoc}
      */
-    public function getConfigurationSchema()
+    public function getConfigurationNode()
     {
-        return [
-            '_type' => 'array',
-            '_children' => [
-                'token' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'room' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'messages' => $this->getMessagesSchema()
-            ]
-        ];
+        $treeBuilder = new TreeBuilder("gitter");
+
+        $node = $treeBuilder->getRootNode()
+            ->children()
+                ->scalarNode('token')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('room')->isRequired()->cannotBeEmpty()->end()
+                ->append($this->getMessagesNode())
+            ->end();
+
+        return $node;
     }
 
     /**

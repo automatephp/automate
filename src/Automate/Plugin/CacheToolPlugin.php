@@ -14,6 +14,7 @@ namespace Automate\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class CacheToolPlugin implements PluginInterface
 {
@@ -85,17 +86,19 @@ class CacheToolPlugin implements PluginInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigurationSchema()
+    public function getConfigurationNode()
     {
-        return [
-            '_type' => 'array',
-            '_children' => [
-                'version' => ['_type' => 'text'],
-                'fastcgi' => ['_type' => 'text'],
-                'opcache' => ['_type' => 'boolean'],
-                'apcu' => ['_type' => 'boolean'],
-                'apc' => ['_type' => 'boolean'],
-            ]
-        ];
+        $treeBuilder = new TreeBuilder("cache_tool");
+
+        $node = $treeBuilder->getRootNode()
+            ->children()
+                ->scalarNode('version')->end()
+                ->scalarNode('fastcgi')->end()
+                ->booleanNode('opcache')->end()
+                ->booleanNode('apcu')->end()
+                ->booleanNode('apc')->end()
+            ->end();
+
+        return $node;
     }
 }

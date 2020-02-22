@@ -4,15 +4,15 @@
     "type": "project",
     "require": {
         "php": ">=5.6",
-        "symfony/console": "^3.4",
-        "symfony/yaml": "^3.4",
-        "symfony/event-dispatcher": "^3.4",
-        "symfony/serializer": "^3.4",
-        "romaricdrigon/metayaml": "^1.1",
+        "symfony/console": "^4.4",
+        "symfony/yaml": "^4.4",
+        "symfony/event-dispatcher": "^4.4",
+        "symfony/serializer": "^4.4",
+        "symfony/config": "^4.4",
         "phpseclib/phpseclib": "~2.0",
         "padraic/phar-updater": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
-        "symfony/process": "^3.4"
+        "symfony/process": "^4.4"
     },
     "require-dev": {
         "phake/phake": "~2.0",

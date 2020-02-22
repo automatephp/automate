@@ -15,6 +15,7 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
  * Allow to send a trigger job to Gitlab
@@ -141,34 +142,24 @@ class GitlabPlugin implements PluginInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigurationSchema()
+    public function getConfigurationNode()
     {
-        return [
-            '_type' => 'array',
-            '_children' => [
-                'uri' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'id_project' => [
-                    '_type' => 'number',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'token_trigger' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true,
-                ],
-                'messages' => [
-                    '_type' => 'array',
-                    '_children' => [
-                        'success' => ['_type' => 'text'],
-                        'failed' => ['_type' => 'text'],
-                    ],
-                ]
-            ]
-        ];
+        $treeBuilder = new TreeBuilder("gitlab");
+
+        $node = $treeBuilder->getRootNode()
+            ->children()
+                ->scalarNode('uri')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('id_project')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('token_trigger')->isRequired()->cannotBeEmpty()->end()
+                ->arrayNode('messages')
+                    ->children()
+                        ->scalarNode('success')->end()
+                        ->scalarNode('failed')->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $node;
     }
+
 }

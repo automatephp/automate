@@ -17,6 +17,7 @@ use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 abstract class AbstractNotificationPlugin implements PluginInterface
 {
@@ -59,8 +60,7 @@ abstract class AbstractNotificationPlugin implements PluginInterface
     /**
      * {@inheritdoc}
      */
-    abstract public function getConfigurationSchema();
-
+    abstract public function getConfigurationNode();
 
     /**
      * {@inheritdoc}
@@ -118,19 +118,18 @@ abstract class AbstractNotificationPlugin implements PluginInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getMessagesSchema()
+    protected function getMessagesNode()
     {
-        return [
-            '_type' => 'array',
-            '_children' => [
-                'start'   => ['_type' => 'text'],
-                'success' => ['_type' => 'text'],
-                'failed'  => ['_type' => 'text']
-            ],
-        ];
+        $treeBuilder = new TreeBuilder("messages");
+
+        $node = $treeBuilder->getRootNode()
+            ->children()
+                ->scalarNode('start')->end()
+                ->scalarNode('success')->end()
+                ->scalarNode('failed')->end()
+            ->end();
+
+        return $node;
     }
 
     /**

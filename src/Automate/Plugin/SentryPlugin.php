@@ -10,6 +10,8 @@
 
 namespace Automate\Plugin;
 
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+
 /**
  * Allow to send a notification to your channel Sentry
  * if the deployment is success only
@@ -33,19 +35,19 @@ class SentryPlugin extends AbstractNotificationPlugin
     /**
      * {@inheritdoc}
      */
-    public function getConfigurationSchema()
+    public function getConfigurationNode()
     {
-        return [
-            '_type' => 'array',
-            '_children' => [
-                'hook_uri' => [
-                    '_type' => 'text',
-                    '_required' => true,
-                    '_not_empty' => true
-                ],
-                'messages' => $this->getMessagesSchema()
-            ]
-        ];
+
+        $treeBuilder = new TreeBuilder("sentry");
+
+        $node = $treeBuilder->getRootNode()
+            ->children()
+                ->scalarNode('hook_uri')->isRequired()->cannotBeEmpty()->end()
+                ->append($this->getMessagesNode())
+            ->end();
+
+        return $node;
+
     }
 
     /**

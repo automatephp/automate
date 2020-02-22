@@ -8,7 +8,7 @@ platforms:
             dddv-exemple-front-01:
                 host: 192.168.1.18
                 user: root
-                password: %dev_password%
+                password: "%dev_password%"
                 path: /home/wwwroot/automate/demo
     production:
         default_branch: production
@@ -16,12 +16,12 @@ platforms:
             eddv-exemple-front-01:
                 host: 12.9.9.1
                 user: user
-                password: %prod_password%
+                password: "%prod_password%"
                 path: /home/wwwroot/exemple
             eddv-exemple-front-02:
                 host: 12.9.9.2
                 user: user
-                password: %prod_password%
+                password: "%prod_password%"
                 path: /home/wwwroot/exemple
 
 shared_files:
