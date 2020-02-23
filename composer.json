@@ -3,7 +3,7 @@
     "description": "Deployment Tool",
     "type": "project",
     "require": {
-        "php": ">=7.3",
+        "php": ">=7.2",
         "symfony/console": "^4.4",
         "symfony/yaml": "^4.4",
         "symfony/event-dispatcher": "^4.4",
