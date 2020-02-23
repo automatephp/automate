@@ -4,3 +4,5 @@ phpunit.phar
 box.phar
 build
 test.yml
+.php_cs.cache
+.phpunit.result.cache

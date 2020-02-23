@@ -24,23 +24,31 @@ class SlackPluginTest extends AbstractContextTest
 {
     public function testDisablePlugin()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $slack = new SlackPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $slack = new SlackPlugin($client->reveal());
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
         $slack->register($context->getProject());
 
         $slack->onInit(new DeployEvent($context));
+        $slack->onFinish(new DeployEvent($context));
+        $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($client, Phake::times(0))->request();
+        $client->request()->shouldNotBeCalled();
     }
 
     public function testSimpleConfig()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $slack = new SlackPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $slack = new SlackPlugin($client->reveal());
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $uri = 'https://hooks.slack.com/services/AAAA/BBBB/CCCC';
 
@@ -54,32 +62,37 @@ class SlackPluginTest extends AbstractContextTest
         $slack->onFinish(new DeployEvent($context));
         $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        $client->request('POST', $uri, [
             'json' => [
                 'text' => ':hourglass: [Automate] [development] Deployment start'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'json' => [
                 'text' => ':sunny: [Automate] [development] End of deployment with success'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'json' => [
                 'text' => ':exclamation: [Automate] [development] Deployment failed with error'
             ],
             'verify' => false
-        ]);
+        ])->shouldBeCalled();
     }
 
     public function testMessage()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $slack = new SlackPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $slack = new SlackPlugin($client->reveal());
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $uri = 'https://hooks.slack.com/services/AAAA/BBBB/CCCC';
 
@@ -98,19 +111,21 @@ class SlackPluginTest extends AbstractContextTest
         $slack->onFinish(new DeployEvent($context));
         $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        $client->request('POST', $uri, [
             'json' => [
                 'text' => '[development] start'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'json' => [
                 'text' => '[development] success'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'json' => [
                 'text' => '[development] failed'
             ],

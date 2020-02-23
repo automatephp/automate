@@ -26,8 +26,10 @@ class CacheToolPluginTest extends AbstractContextTest
     public function testSimpleConfig()
     {
         $cacheTool = new CacheToolPlugin();
-        $session  = Phake::mock(SessionInterface::class);
-        $context = $this->createContext($session, Phake::mock(LoggerInterface::class));
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $context->getProject()->setPlugins(['cache_tool' => [
             'opcache' => 'true',
@@ -40,20 +42,20 @@ class CacheToolPluginTest extends AbstractContextTest
 
         $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
 
-        Phake::inOrder(
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL),
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi'),
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; php cachetool.phar apcu:cache:clear --fcgi'),
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; php cachetool.phar apc:cache:clear --fcgi'),
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; rm cachetool.phar')
-        );
+        $session->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL)->shouldBeCalled();
+        $session->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi')->shouldBeCalled();
+        $session->run('cd '.$path.'; php cachetool.phar apcu:cache:clear --fcgi')->shouldBeCalled();
+        $session->run('cd '.$path.'; php cachetool.phar apc:cache:clear --fcgi')->shouldBeCalled();
+        $session->run('cd '.$path.'; rm cachetool.phar')->shouldBeCalled();
     }
 
     public function testVersionConfig()
     {
         $cacheTool = new CacheToolPlugin();
-        $session  = Phake::mock(SessionInterface::class);
-        $context = $this->createContext($session, Phake::mock(LoggerInterface::class));
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $context->getProject()->setPlugins(['cache_tool' => [
             'version' => '3.2.1',
@@ -65,10 +67,8 @@ class CacheToolPluginTest extends AbstractContextTest
 
         $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
 
-        Phake::inOrder(
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; curl -sO ' . str_replace('cachetool.phar', 'cachetool-3.2.1.phar', CacheToolPlugin::PHAR_URL) ),
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi'),
-            Phake::verify($session, Phake::times(1))->run('cd '.$path.'; rm cachetool.phar')
-        );
+        $session->run('cd '.$path.'; curl -sO ' . str_replace('cachetool.phar', 'cachetool-3.2.1.phar', CacheToolPlugin::PHAR_URL) )->shouldBeCalled();
+        $session->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi')->shouldBeCalled();
+        $session->run('cd '.$path.'; rm cachetool.phar')->shouldBeCalled();
     }
 }

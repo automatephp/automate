@@ -3,7 +3,6 @@
   "directories": ["src"],
   "files": [
     "LICENSE",
-    "vendor/romaricdrigon/metayaml/data/MetaSchema.json",
     "vendor/symfony/console/Resources/bin/hiddeninput.exe"
   ],
   "finder": [
@@ -11,7 +10,7 @@
       "name": "*.php",
       "exclude": [
         "sebastian",
-        "phake",
+        "phpsec",
         "Tester",
         "Tests",
         "tests"

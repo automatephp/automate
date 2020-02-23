@@ -9,18 +9,17 @@ use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 use phpseclib\Net\SSH2;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ContextTest extends AbstractContextTest
 {
     public function testSimpleContext()
     {
-        $logger = Phake::mock(ConsoleLogger::class);
+        $logger = $this->prophesize(ConsoleLogger::class);
+        $ssh = $this->prophesize(SSH2::class);
 
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(1);
-
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger);
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal());
 
         $server = $this->getServerFromContext($context);
 
@@ -29,13 +28,11 @@ class ContextTest extends AbstractContextTest
 
     public function testSimpleWithSharedPathContext()
     {
-        $logger = Phake::mock(ConsoleLogger::class);
+        $logger = $this->prophesize(ConsoleLogger::class);
+        $ssh = $this->prophesize(SSH2::class);
 
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(1);
-
-        $session = new SSHSession($ssh);
-        $context = $this->createContextWithServerSharedPath($session, $logger);
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContextWithServerSharedPath($session, $logger->reveal());
 
         $server = $this->getServerFromContext($context);
 

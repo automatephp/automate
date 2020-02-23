@@ -16,7 +16,7 @@ use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
 use Automate\Serializer\ServerDenormalizer;
 use Automate\Serializer\CommandDenormalizer;
-use RomaricDrigon\MetaYaml\MetaYaml;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
 
@@ -34,22 +34,18 @@ class Loader
      */
     public function load($path)
     {
+        $processor = new Processor();
+
         $pluginManager = new PluginManager();
-
-        $schemaDescription = $this->getSchema();
-
-        foreach ($pluginManager->getPlugins() as $plugin) {
-            $schemaDescription['root']['_children']['plugins']['_children'][$plugin->getName()] = $plugin->getConfigurationSchema();
-        }
-
-        $schema = new MetaYaml($schemaDescription, true);
+        $configuration = new Configuration($pluginManager);
 
         if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
         }
 
         $data = Yaml::parse(file_get_contents($path));
-        $schema->validate($data);
+
+        $processedConfiguration = $processor->processConfiguration($configuration, [$data]);
 
         $serializer = new Serializer([
             new ProjectDenormalizer(),
@@ -58,138 +54,6 @@ class Loader
             new CommandDenormalizer(),
         ]);
 
-        return $serializer->denormalize($data, Project::class);
-    }
-
-    /**
-     * Schema definition.
-     *
-     * @see https://github.com/romaricdrigon/MetaYaml
-     *
-     * @return array
-     */
-    private function getSchema()
-    {
-        return [
-            'root' => [
-                '_type' => 'array',
-                '_children' => [
-                    'repository' => [
-                        '_type' => 'text',
-                        '_required' => true,
-                        '_not_empty' => true,
-                    ],
-                    'shared_files' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
-                    ],
-                    'shared_folders' => [
-                        '_type' => 'prototype',
-                        '_prototype' => ['_type' => 'text'],
-                    ],
-                    'pre_deploy' => [
-                        '_type'    => 'partial',
-                        '_partial' => 'command',
-                    ],
-                    'on_deploy' => [
-                        '_type'    => 'partial',
-                        '_partial' => 'command',
-                    ],
-                    'post_deploy' => [
-                        '_type'    => 'partial',
-                        '_partial' => 'command',
-                    ],
-                    'plugins' => [
-                        '_type' => 'array',
-                        '_children' => []
-                    ],
-                    'platforms' => [
-                        '_type' => 'prototype',
-                        '_min_items' => 1,
-                        '_required' => true,
-                        '_prototype' => [
-                            '_type' => 'array',
-                            '_children' => [
-                                'default_branch' => [
-                                    '_type' => 'text',
-                                    '_required' => true,
-                                    '_not_empty' => true,
-                                ],
-                                'max_releases' => [
-                                    '_type' => 'number',
-                                ],
-                                'servers' => [
-                                    '_type' => 'prototype',
-                                    '_min_items' => 1,
-                                    '_required' => true,
-                                    '_prototype' => [
-                                        '_type' => 'array',
-                                        '_children' => [
-                                            'host' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'user' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'password' => [
-                                                '_type' => 'text',
-                                                '_required' => false,
-                                                '_not_empty' => false,
-                                            ],
-                                            'ssh_key' => [
-                                                '_type' => 'text',
-                                                '_required' => false,
-                                                '_not_empty' => true,
-                                            ],
-                                            'path' => [
-                                                '_type' => 'text',
-                                                '_required' => true,
-                                                '_not_empty' => true,
-                                            ],
-                                            'shared_path' => [
-                                                '_type' => 'text',
-                                                '_required' => false,
-                                                '_not_empty' => true,
-                                            ],
-                                            'port' => [
-                                                '_type' => 'number'
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            'partials' => [
-                'command' => [
-                    '_type' => 'prototype',
-                    '_prototype' => [
-                        '_type' => 'choice',
-                        '_choices' => [
-                            [
-                                '_type' => 'array',
-                                '_children' => [
-                                    'cmd' => [
-                                        '_type' => 'text',
-                                    ],
-                                    'only' => [
-                                        '_type' => 'text',
-                                    ],
-                                ]
-                            ],
-                            [
-                                '_type' => 'text',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        return $serializer->denormalize($processedConfiguration, Project::class);
     }
 }

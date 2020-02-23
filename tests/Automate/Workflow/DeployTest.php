@@ -15,48 +15,52 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
-use Phake;
 use phpseclib\Net\SSH2;
+use Prophecy\Argument;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest
 {
     public function testRemoteDeploy()
     {
-        $io = Phake::mock(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io);
+        $io = $this->prophesize(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io->reveal());
 
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh->getExitStatus()->willReturn(0);
+        $ssh->exec(Argument::any())->shouldBeCalled();
 
-        $session = new SSHSession($ssh);
+        $session = new SSHSession($ssh->reveal());
         $context = $this->createContext($session, $logger);
         $workflow = new Workflow\Deployer($context);
 
         $releaseId = $context->getReleaseId();
 
+        $ssh->exec("mkdir -p /home/wwwroot/automate/demo/releases/$releaseId")->shouldBeCalled();
+        $ssh->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .")->shouldBeCalled();
+        $ssh->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; php -v")->shouldBeCalled();
+        $ssh->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; composer install")->shouldBeCalled();
+        $ssh->exec("ln -sfn /home/wwwroot/automate/demo/releases/$releaseId /home/wwwroot/automate/demo/current")->shouldBeCalled();
+
+
         $rs = $workflow->deploy();
 
         $this->assertTrue($rs);
 
-        Phake::inOrder(
-            Phake::verify($ssh)->exec("mkdir -p /home/wwwroot/automate/demo/releases/$releaseId"),
-            Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master ."),
-            Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; php -v"),
-            Phake::verify($ssh)->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; composer install"),
-            Phake::verify($ssh)->exec("ln -sfn /home/wwwroot/automate/demo/releases/$releaseId /home/wwwroot/automate/demo/current")
-        );
     }
 
     public function testError()
     {
-        $io = Phake::mock(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io);
+        $io = $this->prophesize(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io->reveal());
 
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(1);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh->getExitStatus()->willReturn(1);
+        $ssh->exec(Argument::any())->shouldBeCalled();
 
-        $session = new SSHSession($ssh);
+        $session = new SSHSession($ssh->reveal());
         $context = $this->createContext($session, $logger);
         $workflow = new Workflow\Deployer($context);
 
@@ -67,13 +71,15 @@ class DeployTest extends AbstractContextTest
 
     public function testCheckout()
     {
-        $logger = Phake::mock(ConsoleLogger::class);
+        $logger = $this->prophesize(ConsoleLogger::class);
 
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh->getExitStatus()->willReturn(0);
+        $ssh->exec(Argument::any())->shouldBeCalled();
 
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger, 'master');
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal(), 'master');
         $workflow = new Workflow\Deployer($context);
 
         $rs = $workflow->deploy('1.0.0');
@@ -83,8 +89,8 @@ class DeployTest extends AbstractContextTest
 
     public function testLocalDeploy()
     {
-        $io = Phake::mock(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io);
+        $io = $this->prophesize(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io->reveal());
 
         $context = $this->createLocalContext($logger);
 

@@ -19,16 +19,17 @@ use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 use phpseclib\Net\SSH2;
+use Prophecy\Argument;
 
 class ClearListenerTest extends AbstractContextTest
 {
 
     public function testClearReleases()
     {
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
-
-        Phake::when($ssh)->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->thenReturn('
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->getExitStatus()->willReturn(0);
+        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh->exec('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->willReturn('
             2016.08.30-0032.620
             ab
             2016.08.28-0032.620
@@ -40,57 +41,65 @@ class ClearListenerTest extends AbstractContextTest
             failed
         ');
 
-        $logger = Phake::mock(ConsoleLogger::class);
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger);
+        $logger = $this->prophesize(ConsoleLogger::class);
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal());
 
         $event = new DeployEvent($context);
         $listener = new ClearListener();
         $listener->clearReleases($event);
 
-        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.20-0032.620');
-        Phake::verify($ssh, Phake::times(1))->exec('rm -R 2016.08.27-0032.620');
+        $ssh->exec('rm -R 2016.08.20-0032.620')->shouldBeCalled();
+        $ssh->exec('rm -R 2016.08.27-0032.620')->shouldBeCalled();
 
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.28-0032.620');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.29-0032.620');
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R 2016.08.30-0032.620');
-
-        Phake::verify($ssh, Phake::times(0))->exec('rm -R failed');
-        Phake::verify($ssh, Phake::never(0))->exec('rm -R ab');
-        Phake::verify($ssh, Phake::never(0))->exec('rm -R 999');
-        Phake::verify($ssh, Phake::never(0))->exec('rm -R test');
+        $ssh->exec('rm -R 2016.08.28-0032.620')->shouldNotBeCalled();
+        $ssh->exec('rm -R 2016.08.29-0032.620')->shouldNotBeCalled();
+        $ssh->exec('rm -R 2016.08.30-0032.620')->shouldNotBeCalled();
+        $ssh->exec('rm -R failed')->shouldNotBeCalled();
+        $ssh->exec('rm -R ab')->shouldNotBeCalled();
+        $ssh->exec('rm -R 999')->shouldNotBeCalled();
+        $ssh->exec('rm -R test')->shouldNotBeCalled();
     }
 
     public function testRemoveFailedRelease()
     {
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
-        $logger = Phake::mock(ConsoleLogger::class);
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh->getExitStatus()->willReturn(0);
 
-        Phake::when($ssh)->exec('if test -f "/home/wwwroot/automate/demo/releases/failed"; then echo "Y";fi')->thenReturn('Y');
+        $logger = $this->prophesize(ConsoleLogger::class);
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal());
+
+        $ssh->exec(Argument::any())->shouldBeCalled();
+        $ssh->exec('if test -f "/home/wwwroot/automate/demo/releases/failed"; then echo "Y";fi')->willReturn('Y');
 
         $event = new DeployEvent($context);
         $listener = new ClearListener();
         $listener->removeFailedRelease($event);
 
-        Phake::verify($ssh, Phake::times(1))->exec('rm -R /home/wwwroot/automate/demo/releases/failed');
+        $ssh->exec('rm -R /home/wwwroot/automate/demo/releases/failed')->shouldBeCalled();
     }
 
     public function testMoveFailedRelease()
     {
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
-        $logger = Phake::mock(ConsoleLogger::class);
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh->getExitStatus()->willReturn(0);
+        $ssh->exec(Argument::any())->shouldBeCalled();
+        $ssh->exec('mkdir -p /home/wwwroot/automate/demo/releases')->shouldBeCalled();
+
+        $logger = $this->prophesize(ConsoleLogger::class);
+
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal());
 
         $event = new FailedDeployEvent($context, new \Exception());
         $listener = new ClearListener();
         $listener->moveFailedRelease($event);
 
-        Phake::verify($ssh, Phake::times(1))->exec(sprintf('mv /home/wwwroot/automate/demo/releases/%s /home/wwwroot/automate/demo/releases/failed', $context->getReleaseId()));
+        $ssh->exec(sprintf('mv /home/wwwroot/automate/demo/releases/%s /home/wwwroot/automate/demo/releases/failed', $context->getReleaseId()))
+            ->shouldBeCalled();
     }
 
 }

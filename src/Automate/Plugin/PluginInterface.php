@@ -11,6 +11,7 @@
 namespace Automate\Plugin;
 
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 interface PluginInterface extends EventSubscriberInterface
@@ -26,7 +27,7 @@ interface PluginInterface extends EventSubscriberInterface
     public function register(Project $project);
 
     /**
-     * @return array
+     * @return NodeDefinition
      */
-    public function getConfigurationSchema();
+    public function getConfigurationNode();
 }
