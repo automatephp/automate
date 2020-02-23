@@ -3,7 +3,7 @@
     "description": "Deployment Tool",
     "type": "project",
     "require": {
-        "php": ">=7.1.3",
+        "php": ">=7.3",
         "symfony/console": "^4.4",
         "symfony/yaml": "^4.4",
         "symfony/event-dispatcher": "^4.4",
@@ -15,8 +15,8 @@
         "symfony/process": "^4.4"
     },
     "require-dev": {
-        "phake/phake": "~2.0",
-        "phpunit/phpunit": "5.*"
+        "phpunit/phpunit": "8.*",
+        "phpspec/prophecy": "^1.10"
     },
     "license": "MIT",
     "authors": [

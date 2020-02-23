@@ -24,23 +24,31 @@ class SentryPluginTest extends AbstractContextTest
 {
     public function testDisablePlugin()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $sentry = new SentryPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $sentry = new SentryPlugin($client->reveal());
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
         $sentry->register($context->getProject());
 
         $sentry->onInit(new DeployEvent($context));
+        $sentry->onFinish(new DeployEvent($context));
+        $sentry->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($client, Phake::times(0))->request();
+        $client->request()->shouldNotBeCalled();
     }
 
     public function testSimpleConfig()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $sentry = new SentryPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $sentry = new SentryPlugin($client->reveal());
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $uri = 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/';
 
@@ -54,9 +62,7 @@ class SentryPluginTest extends AbstractContextTest
         $sentry->onFinish(new DeployEvent($context));
         $sentry->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($client, Phake::times(0))->request();
-
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        $client->request('POST', $uri, [
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
@@ -65,18 +71,19 @@ class SentryPluginTest extends AbstractContextTest
             ],
             'http_errors' => false,
             'verify' => false
-        ]);
+        ])->shouldBeCalled();
 
-
-        Phake::verify($client, Phake::times(0))->request();
     }
 
     public function testMessage()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $sentry = new SentryPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $sentry = new SentryPlugin($client->reveal());
+
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $uri = 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/';
 
@@ -91,7 +98,7 @@ class SentryPluginTest extends AbstractContextTest
 
         $sentry->onFinish(new DeployEvent($context));
 
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        $client->request('POST', $uri, [
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
@@ -100,6 +107,6 @@ class SentryPluginTest extends AbstractContextTest
             ],
             'http_errors' => false,
             'verify' => false
-        ]);
+        ])->shouldBeCalled();
     }
 }

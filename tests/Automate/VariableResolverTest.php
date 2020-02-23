@@ -15,18 +15,18 @@ use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
 use Automate\VariableResolver;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Phake;
 
-class VariableResolverTest extends \PHPUnit_Framework_TestCase
+class VariableResolverTest extends TestCase
 {
     public function testAskPassword()
     {
-        $io = Phake::mock(SymfonyStyle::class);
+        $io = $this->prophesize(SymfonyStyle::class);
 
-        Phake::when($io)->askHidden('Enter a value for password "server_password"')->thenReturn('mypassword');
+        $io->askHidden('Enter a value for password "server_password"')->willReturn('mypassword');
 
-        $resolver = new VariableResolver($io);
+        $resolver = new VariableResolver($io->reveal());
         $platform = new Platform();
         $server = new Server();
 
@@ -40,9 +40,9 @@ class VariableResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testSessionPassword()
     {
-        $io = Phake::mock(SymfonyStyle::class);
+        $io = $this->prophesize(SymfonyStyle::class);
 
-        $resolver = new VariableResolver($io);
+        $resolver = new VariableResolver($io->reveal());
         $platform = new Platform();
         $server = new Server();
 
@@ -57,8 +57,9 @@ class VariableResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testRepository()
     {
-        $io = Phake::mock(SymfonyStyle::class);
-        $resolver = new VariableResolver($io);
+        $io = $this->prophesize(SymfonyStyle::class);
+
+        $resolver = new VariableResolver($io->reveal());
         putenv('AUTOMATE__git_password=sessionPassword');
 
         $project = new Project();

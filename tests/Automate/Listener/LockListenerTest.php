@@ -20,36 +20,38 @@ use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Phake;
 use phpseclib\Net\SSH2;
+use Prophecy\Argument;
 
 class LockListenerTest extends AbstractContextTest
 {
 
     public function testInitLockFile()
     {
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->getExitStatus()->willReturn(0);
+        $ssh->setTimeout(0)->shouldBeCalled();
 
-        $logger = Phake::mock(ConsoleLogger::class);
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger);
+        $logger = $this->prophesize(ConsoleLogger::class);
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal());
 
         $event = new DeployEvent($context);
         $listener = new LockListener();
         $listener->initLockFile($event);
 
-        Phake::verify($ssh, Phake::times(1))->exec('touch /home/wwwroot/automate/demo/automate.lock');
+        $ssh->exec(Argument::any())->shouldBeCalled();
+        $ssh->exec('touch /home/wwwroot/automate/demo/automate.lock')->shouldBeCalled();
     }
 
     public function testRemoveLockFile()
     {
-        $ssh = Phake::mock(SSH2::class);
-        Phake::when($ssh)->getExitStatus()->thenReturn(0);
+        $ssh = $this->prophesize(SSH2::class);
+        $ssh->getExitStatus()->willReturn(0);
+        $ssh->setTimeout(0)->shouldBeCalled();
 
-        Phake::when($ssh)->exec('if test -f "/home/wwwroot/automate/demo/automate.lock"; then echo "Y";fi')->thenReturn('Y');
-
-        $logger = Phake::mock(ConsoleLogger::class);
-        $session = new SSHSession($ssh);
-        $context = $this->createContext($session, $logger);
+        $logger = $this->prophesize(ConsoleLogger::class);
+        $session = new SSHSession($ssh->reveal());
+        $context = $this->createContext($session, $logger->reveal());
 
         $event = new DeployEvent($context);
         $listener = new LockListener();
@@ -61,6 +63,6 @@ class LockListenerTest extends AbstractContextTest
 
         $listener->clearLockFile($event);
 
-        Phake::verify($ssh, Phake::times(1))->exec('rm /home/wwwroot/automate/demo/automate.lock');
+        $ssh->exec('rm /home/wwwroot/automate/demo/automate.lock')->shouldBeCalled();
     }
 }

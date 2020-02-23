@@ -24,23 +24,29 @@ class GitterPluginTest extends AbstractContextTest
 {
     public function testDisablePlugin()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $gitter = new GitterPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
+        $gitter = new GitterPlugin($client->reveal());
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext($session->reveal(), $logger->reveal());
         $gitter->register($context->getProject());
 
         $gitter->onInit(new DeployEvent($context));
+        $gitter->onFinish(new DeployEvent($context));
+        $gitter->onFailed(new FailedDeployEvent($context, new \Exception()));
 
-        Phake::verify($client, Phake::times(0))->request();
+        $client->request()->shouldNotBeCalled();
     }
 
     public function testSimpleConfig()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $gitter = new GitterPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
+        $gitter = new GitterPlugin($client->reveal());
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $context->getProject()->setPlugins(['gitter' => [
             'token' => '123',
@@ -55,7 +61,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $uri = 'https://api.gitter.im/v1/rooms/456/chatMessages';
 
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        $client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer 123')
             ],
@@ -63,8 +69,9 @@ class GitterPluginTest extends AbstractContextTest
                 'text' => ':hourglass: [Automate] [development] Deployment start'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer 123')
             ],
@@ -72,8 +79,9 @@ class GitterPluginTest extends AbstractContextTest
                 'text' => ':sunny: [Automate] [development] End of deployment with success'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer 123')
             ],
@@ -81,15 +89,18 @@ class GitterPluginTest extends AbstractContextTest
                 'text' => ':exclamation: [Automate] [development] Deployment failed with error'
             ],
             'verify' => false
-        ]);
+        ])->shouldBeCalled();
+
     }
 
     public function testMessage()
     {
-        $client = Phake::partialMock(ClientInterface::class);
-        $gitter = new GitterPlugin($client);
+        $client = $this->prophesize(ClientInterface::class);
+        $session = $this->prophesize(SessionInterface::class);
+        $logger = $this->prophesize(LoggerInterface::class);
+        $gitter = new GitterPlugin($client->reveal());
 
-        $context = $this->createContext(Phake::mock(SessionInterface::class), Phake::mock(LoggerInterface::class));
+        $context = $this->createContext($session->reveal(), $logger->reveal());
 
         $context->getProject()->setPlugins(['gitter' => [
             'token' => '123',
@@ -109,7 +120,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $uri = 'https://api.gitter.im/v1/rooms/456/chatMessages';
 
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        $client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer 123')
             ],
@@ -117,8 +128,9 @@ class GitterPluginTest extends AbstractContextTest
                 'text' => '[development] start'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer 123')
             ],
@@ -126,8 +138,9 @@ class GitterPluginTest extends AbstractContextTest
                 'text' => '[development] success'
             ],
             'verify' => false
-        ]);
-        Phake::verify($client, Phake::times(1))->request('POST', $uri, [
+        ])->shouldBeCalled();
+
+        $client->request('POST', $uri, [
             'headers' => [
                 'Authorization' => sprintf('Bearer 123')
             ],
@@ -135,6 +148,6 @@ class GitterPluginTest extends AbstractContextTest
                 'text' => '[development] failed'
             ],
             'verify' => false
-        ]);
+        ])->shouldBeCalled();
     }
 }

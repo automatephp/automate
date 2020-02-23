@@ -17,9 +17,9 @@ use Automate\Loader;
 use Automate\Logger\LoggerInterface;
 use Automate\Session\SessionInterface;
 use Automate\SessionFactory;
-use Phake;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractContextTest extends TestCase
 {
     protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
     {
@@ -27,11 +27,11 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
-        $sessionFactory = Phake::mock(SessionFactory::class);
-        Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
+        $sessionFactory = $this->prophesize(SessionFactory::class);
+        $sessionFactory->create(current($platform->getServers()))->willReturn($session);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, false);
-        $context->setSessionFactory($sessionFactory);
+        $context->setSessionFactory($sessionFactory->reveal());
         $context->connect();
 
         return $context;
@@ -57,11 +57,11 @@ abstract class AbstractContextTest extends \PHPUnit_Framework_TestCase
         $project = $loader->load(__DIR__ . '/../fixtures/simpleWithSharedPath.yml');
         $platform = $project->getPlatform('development');
 
-        $sessionFactory = Phake::mock(SessionFactory::class);
-        Phake::when($sessionFactory)->create(current($platform->getServers()))->thenReturn($session);
+        $sessionFactory = $this->prophesize(SessionFactory::class);
+        $sessionFactory->create(current($platform->getServers()))->willReturn($session);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, false);
-        $context->setSessionFactory($sessionFactory);
+        $context->setSessionFactory($sessionFactory->reveal());
         $context->connect();
 
         return $context;
