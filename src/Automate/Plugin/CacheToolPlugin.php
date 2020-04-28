@@ -18,7 +18,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class CacheToolPlugin implements PluginInterface
 {
-    const PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/cachetool.phar';
+    const PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/';
 
     /**
      * @var array
@@ -60,26 +60,27 @@ class CacheToolPlugin implements PluginInterface
 
             $context = $event->getContext();
             $fastcgi = isset($this->configuration['fastcgi']) ? sprintf('--fcgi="%s"', $this->configuration['fastcgi']) : '--fcgi';
+            $scriptName = 'cachetool.phar';
 
             if (isset($this->configuration['version'])){
-                $context->run('curl -sO ' . str_replace('cachetool.phar', 'cachetool-'. $this->configuration['version'] .'.phar', self::PHAR_URL) );
-            }else{
-                $context->run('curl -sO ' . self::PHAR_URL );
+                $scriptName = sprintf('cachetool-%s.phar', $this->configuration['version']);
             }
 
+            $context->run('curl -sO ' . self::PHAR_URL . $scriptName);
+
             if(isset($this->configuration['opcache']) && $this->configuration['opcache']) {
-                $context->run('php cachetool.phar opcache:reset ' . $fastcgi, true);
+                $context->run('php ' . $scriptName . ' opcache:reset ' . $fastcgi, true);
             }
 
             if(isset($this->configuration['apcu']) && $this->configuration['apcu']) {
-                $context->run('php cachetool.phar apcu:cache:clear ' . $fastcgi, true);
+                $context->run('php ' . $scriptName . ' apcu:cache:clear ' . $fastcgi, true);
             }
 
             if(isset($this->configuration['apc']) && $this->configuration['apc']) {
-                $context->run('php cachetool.phar apc:cache:clear ' . $fastcgi, true);
+                $context->run('php ' . $scriptName . ' apc:cache:clear ' . $fastcgi, true);
             }
 
-            $context->run('rm cachetool.phar');
+            $context->run('rm ' . $scriptName);
         }
     }
 

@@ -42,7 +42,7 @@ class CacheToolPluginTest extends AbstractContextTest
 
         $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
 
-        $session->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL)->shouldBeCalled();
+        $session->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL . 'cachetool.phar')->shouldBeCalled();
         $session->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi')->shouldBeCalled();
         $session->run('cd '.$path.'; php cachetool.phar apcu:cache:clear --fcgi')->shouldBeCalled();
         $session->run('cd '.$path.'; php cachetool.phar apc:cache:clear --fcgi')->shouldBeCalled();
@@ -67,8 +67,8 @@ class CacheToolPluginTest extends AbstractContextTest
 
         $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
 
-        $session->run('cd '.$path.'; curl -sO ' . str_replace('cachetool.phar', 'cachetool-3.2.1.phar', CacheToolPlugin::PHAR_URL) )->shouldBeCalled();
-        $session->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi')->shouldBeCalled();
-        $session->run('cd '.$path.'; rm cachetool.phar')->shouldBeCalled();
+        $session->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL . 'cachetool-3.2.1.phar' )->shouldBeCalled();
+        $session->run('cd '.$path.'; php cachetool-3.2.1.phar opcache:reset --fcgi')->shouldBeCalled();
+        $session->run('cd '.$path.'; rm cachetool-3.2.1.phar')->shouldBeCalled();
     }
 }
