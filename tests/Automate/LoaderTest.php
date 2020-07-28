@@ -48,13 +48,16 @@ class LoaderTest extends TestCase
         }
 
         $this->assertEquals('php bin/console doctrine:cache:clear-metadata', $project->getPostDeploy()[0]->getCmd());
-        $this->assertEquals(null , $project->getPostDeploy()[0]->getOnly());
+        $this->assertEquals([] , $project->getPostDeploy()[0]->getOnly());
 
         $this->assertEquals('php bin/console doctrine:schema:update --force', $project->getPostDeploy()[1]->getCmd());
-        $this->assertEquals('eddv-exemple-front-01' , $project->getPostDeploy()[1]->getOnly());
+        $this->assertEquals(['eddv-exemple-front-01'] , $project->getPostDeploy()[1]->getOnly());
 
         $this->assertEquals('php bin/console doctrine:cache:clear-result', $project->getPostDeploy()[2]->getCmd());
-        $this->assertEquals(null , $project->getPostDeploy()[2]->getOnly());
+        $this->assertEquals([] , $project->getPostDeploy()[2]->getOnly());
+
+        $this->assertEquals('php bin/console messenger:consume', $project->getPostDeploy()[3]->getCmd());
+        $this->assertEquals(['eddv-exemple-front-01', 'dddv-exemple-front-01'] , $project->getPostDeploy()[3]->getOnly());
 
         $this->assertCount(2, $project->getPlatforms());
 
