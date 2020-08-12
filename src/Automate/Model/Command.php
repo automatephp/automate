@@ -22,7 +22,7 @@ class Command
     private $cmd;
 
     /**
-     * @var string
+     * @var array
      */
     private $only;
 
@@ -47,7 +47,7 @@ class Command
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getOnly()
     {
@@ -55,11 +55,11 @@ class Command
     }
 
     /**
-     * @param string $only
+     * @param array $only
      *
      * @return Command
      */
-    public function setOnly($only)
+    public function setOnly(array $only)
     {
         $this->only = $only;
 

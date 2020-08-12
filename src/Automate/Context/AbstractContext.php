@@ -171,12 +171,12 @@ abstract class AbstractContext implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function run($command, $verbose = false, $specificServer = null, $addWorkingDir = true)
+    public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true)
     {
         $servers = $this->platform->getServers();
 
         foreach ($servers as $server) {
-            if($specificServer && $server->getName() != $specificServer) {
+            if($specificServers && !in_array($server->getName(), $specificServers)) {
                 continue;
             }
             $this->logger->command($command, $verbose);
