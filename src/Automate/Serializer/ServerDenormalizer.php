@@ -23,7 +23,7 @@ class ServerDenormalizer extends AbstractDenormalizer
     /**
      * {@inheritdoc}
      */
-    public function denormalize($data, $class, $format = null, array $context = array())
+    public function denormalize($data, $class, $format = null, array $context = [])
     {
         $server = new Server();
 
@@ -32,11 +32,10 @@ class ServerDenormalizer extends AbstractDenormalizer
             ->setHost($this->extractValue($data, 'host'))
             ->setUser($this->extractValue($data, 'user'))
             ->setSshKey($this->extractValue($data, 'ssh_key'))
-            ->setPassword($this->extractValue($data, 'password', ""))
+            ->setPassword($this->extractValue($data, 'password', ''))
             ->setPath($this->extractValue($data, 'path'))
             ->setSharedPath($this->extractValue($data, 'shared_path'))
-            ->setPort($this->extractValue($data, 'port', 22))
-        ;
+            ->setPort($this->extractValue($data, 'port', 22));
 
         return $server;
     }
@@ -46,6 +45,6 @@ class ServerDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === Server::class;
+        return Server::class === $type;
     }
 }

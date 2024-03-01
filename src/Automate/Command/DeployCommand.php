@@ -32,8 +32,7 @@ class DeployCommand extends BaseCommand
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy')
-        ;
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -46,19 +45,19 @@ class DeployCommand extends BaseCommand
         $variableResolver = new VariableResolver($io);
         $variableResolver->resolvePlatform($platform);
         $variableResolver->resolveRepository($project);
-        
+
         $logger = $this->getLogger($io);
 
         $logger->section('Start deployment');
 
         $gitRef = $input->getArgument('gitRef');
 
-        $io->table(array(), array(
-            array('Repository', $project->getRepository()),
-            array('Platform', $platform->getName()),
-            array('Servers', $this->getServersList($platform)),
-            array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
-        ));
+        $io->table([], [
+            ['Repository', $project->getRepository()],
+            ['Platform', $platform->getName()],
+            ['Servers', $this->getServersList($platform)],
+            ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
+        ]);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, $input->getOption('force'));
         $workflow = new Deployer($context);
@@ -72,7 +71,7 @@ class DeployCommand extends BaseCommand
 
     private function getServersList(Platform $platform)
     {
-        $servers = array();
+        $servers = [];
         foreach ($platform->getServers() as $server) {
             $servers[] = sprintf('%s (%s)', $server->getName(), $server->getHost());
         }

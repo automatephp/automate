@@ -97,8 +97,6 @@ class Platform
     }
 
     /**
-     * @param Server $server
-     *
      * @return $this
      */
     public function addServer(Server $server)

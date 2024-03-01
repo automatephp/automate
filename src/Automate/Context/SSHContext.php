@@ -22,7 +22,7 @@ class SSHContext extends AbstractContext
     /**
      * @var SessionInterface[]
      */
-    protected $sessions = array();
+    protected $sessions = [];
 
     /**
      * @var SessionFactory
@@ -34,7 +34,6 @@ class SSHContext extends AbstractContext
         parent::__construct($project, $platform, $gitRef, $logger, $force);
         $this->sessionFactory = new SessionFactory();
     }
-
 
     /**
      * Connect servers.
@@ -51,8 +50,6 @@ class SSHContext extends AbstractContext
     }
 
     /**
-     * @param Server $server
-     *
      * @return SessionInterface
      */
     public function getSession(Server $server)
@@ -71,6 +68,4 @@ class SSHContext extends AbstractContext
     {
         $this->sessionFactory = $sessionFactory;
     }
-
-
 }

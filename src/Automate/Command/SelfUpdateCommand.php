@@ -33,8 +33,7 @@ class SelfUpdateCommand extends BaseCommand
                 'u',
                 InputOption::VALUE_NONE,
                 'Update to most recent pre-release version.'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -56,11 +55,11 @@ class SelfUpdateCommand extends BaseCommand
             $result = $updater->update();
             $newVersion = $updater->getNewVersion();
             $oldVersion = $updater->getOldVersion();
-            if (strlen($newVersion) == 40) {
-                $newVersion = 'dev-' . $newVersion;
+            if (40 == strlen($newVersion)) {
+                $newVersion = 'dev-'.$newVersion;
             }
-            if (strlen($oldVersion) == 40) {
-                $oldVersion = 'dev-' . $oldVersion;
+            if (40 == strlen($oldVersion)) {
+                $oldVersion = 'dev-'.$oldVersion;
             }
 
             if ($result) {

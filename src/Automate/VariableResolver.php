@@ -28,8 +28,6 @@ class VariableResolver
 
     /**
      * VariableResolver constructor.
-     *
-     * @param SymfonyStyle $io
      */
     public function __construct(SymfonyStyle $io)
     {
@@ -38,8 +36,6 @@ class VariableResolver
 
     /**
      * Resolve platform configuration.
-     *
-     * @param Platform $platform
      */
     public function resolvePlatform(Platform $platform)
     {
@@ -53,13 +49,10 @@ class VariableResolver
 
     /**
      * Resolve repository configuration.
-     *
-     * @param Project $project
      */
     public function resolveRepository(Project $project)
     {
-
-        if(preg_match('/http[s]?:\/\/(?P<user>.*):(?P<variable>%.*%)@(.*)/i', $project->getRepository(), $match)) {
+        if (preg_match('/http[s]?:\/\/(?P<user>.*):(?P<variable>%.*%)@(.*)/i', $project->getRepository(), $match)) {
             $password = $this->resolveVariable($match['variable']);
             $repository = str_replace($match['variable'], $password, $project->getRepository());
 
@@ -79,7 +72,7 @@ class VariableResolver
         $first = substr($value, -1);
         $last = substr($value, 0, 1);
 
-        return $first === self::VAR_PREFIX && $last === self::VAR_SUFFIX;
+        return self::VAR_PREFIX === $first && self::VAR_SUFFIX === $last;
     }
 
     /**

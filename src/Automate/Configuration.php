@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Automate;
-
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -18,7 +16,7 @@ class Configuration implements ConfigurationInterface
 
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder("automate");
+        $treeBuilder = new TreeBuilder('automate');
 
         $treeBuilder->getRootNode()
             ->children()
@@ -124,5 +122,4 @@ class Configuration implements ConfigurationInterface
 
         return $node->end();
     }
-
 }

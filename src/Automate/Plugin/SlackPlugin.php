@@ -38,7 +38,7 @@ class SlackPlugin extends AbstractNotificationPlugin
      */
     public function getConfigurationNode()
     {
-
+        $treeBuilder = new TreeBuilder('slack');
         $treeBuilder = new TreeBuilder("slack");
 
         $node = $treeBuilder->getRootNode()
@@ -53,6 +53,7 @@ class SlackPlugin extends AbstractNotificationPlugin
 
     /**
      * @param string $message
+     * @param mixed  $eventName
      */
     protected function sendMessage($message, $eventName)
     {
@@ -60,9 +61,9 @@ class SlackPlugin extends AbstractNotificationPlugin
             'POST', $this->configuration['hook_uri'],
             [
                 'json' => [
-                    'text' => $message
+                    'text' => $message,
                 ],
-                'verify' => false
+                'verify' => false,
             ]
         );
     }

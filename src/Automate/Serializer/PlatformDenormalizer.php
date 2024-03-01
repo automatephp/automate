@@ -24,17 +24,16 @@ class PlatformDenormalizer extends AbstractDenormalizer
     /**
      * {@inheritdoc}
      */
-    public function denormalize($data, $class, $format = null, array $context = array())
+    public function denormalize($data, $class, $format = null, array $context = [])
     {
         $platform = new Platform();
 
         $platform
-            ->setName($this->extractValue($data,          'name'))
+            ->setName($this->extractValue($data, 'name'))
             ->setDefaultBranch($this->extractValue($data, 'default_branch'))
-            ->setMaxReleases($this->extractValue($data,   'max_releases', 5))
-        ;
+            ->setMaxReleases($this->extractValue($data, 'max_releases', 5));
 
-        $servers = $this->extractValue($data, 'servers', array());
+        $servers = $this->extractValue($data, 'servers', []);
 
         foreach ($servers as $name => $serverData) {
             $serverData['name'] = $name;
@@ -51,6 +50,6 @@ class PlatformDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === Platform::class;
+        return Platform::class === $type;
     }
 }

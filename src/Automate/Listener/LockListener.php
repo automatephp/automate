@@ -11,48 +11,43 @@
 
 namespace Automate\Listener;
 
-
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
-use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LockListener implements EventSubscriberInterface
 {
-
     private $hasLock = false;
-    
+
     /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DeployEvents::INIT =>      'initLockFile',
+        return [
+            DeployEvents::INIT => 'initLockFile',
             DeployEvents::TERMINATE => 'clearLockFile',
-            DeployEvents::FAILED =>    'clearLockFile',
-        );
+            DeployEvents::FAILED => 'clearLockFile',
+        ];
     }
 
     /**
      * Check if a deployment is already in progress
-     * and create lock file
-     *
-     * @param DeployEvent $event
+     * and create lock file.
      */
     public function initLockFile(DeployEvent $event)
     {
         $context = $event->getContext();
 
-        foreach($context->getPlatform()->getServers() as $server) {
+        foreach ($context->getPlatform()->getServers() as $server) {
             $session = $context->getSession($server);
-            if($session->exists($this->getLockFilePath($server)) && !$context->isForce()) {
+            if ($session->exists($this->getLockFilePath($server)) && !$context->isForce()) {
                 throw new \RuntimeException('A deployment is already in progress');
             }
         }
 
-        foreach($context->getPlatform()->getServers() as $server) {
+        foreach ($context->getPlatform()->getServers() as $server) {
             $session = $context->getSession($server);
             $session->touch($this->getLockFilePath($server));
         }
@@ -61,16 +56,14 @@ class LockListener implements EventSubscriberInterface
     }
 
     /**
-     * Remove lock file
-     *
-     * @param DeployEvent $event
+     * Remove lock file.
      */
     public function clearLockFile(DeployEvent $event)
     {
         $context = $event->getContext();
 
-        if($this->hasLock) {
-            foreach($context->getPlatform()->getServers() as $server) {
+        if ($this->hasLock) {
+            foreach ($context->getPlatform()->getServers() as $server) {
                 $session = $context->getSession($server);
                 $session->rm($this->getLockFilePath($server));
             }
@@ -79,8 +72,6 @@ class LockListener implements EventSubscriberInterface
 
     /**
      * Get lock file path.
-     *
-     * @param Server $server
      *
      * @return string
      */

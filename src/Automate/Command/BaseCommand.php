@@ -24,8 +24,6 @@ abstract class BaseCommand extends Command
     /**
      * Get Logger.
      *
-     * @param SymfonyStyle $io
-     *
      * @return ConsoleLogger
      */
     protected function getLogger(SymfonyStyle $io)
