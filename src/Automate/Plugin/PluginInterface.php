@@ -21,9 +21,6 @@ interface PluginInterface extends EventSubscriberInterface
      */
     public function getName();
 
-    /**
-     * @param Project $project
-     */
     public function register(Project $project);
 
     /**

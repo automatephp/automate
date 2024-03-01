@@ -45,11 +45,9 @@ class Deployer
      */
     public function deploy()
     {
-
         $dispatcher = (new DispatcherFactory(new PluginManager()))->create($this->context->getProject());
 
         try {
-
             $this->context->connect();
 
             $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::INIT);
@@ -71,7 +69,6 @@ class Deployer
             $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::TERMINATE);
 
             return true;
-
         } catch (\Exception $e) {
             $this->context->getLogger()->error($e->getMessage());
             try {
@@ -91,8 +88,8 @@ class Deployer
     {
         $this->context->getLogger()->section('Prepare Release');
 
-        if($this->context->getPlatform()->getDefaultBranch()) {
-           $clone = sprintf(
+        if ($this->context->getPlatform()->getDefaultBranch()) {
+            $clone = sprintf(
                'git clone %s -q --recursive -b %s .',
                $this->context->getProject()->getRepository(),
                $this->context->getPlatform()->getDefaultBranch()
@@ -127,8 +124,7 @@ class Deployer
     /**
      * Run hook commands.
      *
-     * @param array  $commands
-     * @param string $name     section name
+     * @param string $name section name
      */
     private function runHooks(array $commands, $name)
     {
@@ -165,8 +161,7 @@ class Deployer
 
     /**
      * @param $path
-     * @param Server $server
-     * @param bool   $isDirectory
+     * @param bool $isDirectory
      */
     private function doShared($path, Server $server, $isDirectory)
     {
@@ -215,7 +210,6 @@ class Deployer
         $this->context->getLogger()->section('Publish new release');
 
         foreach ($this->context->getPlatform()->getServers() as $server) {
-
             $currentPath = $this->context->getCurrentPath($server);
             $releasePath = $this->context->getReleasePath($server);
 
@@ -223,7 +217,6 @@ class Deployer
             $this->context->getSession($server)->symlink($releasePath, $currentPath);
         }
     }
-
 
     /**
      * Create release directory.

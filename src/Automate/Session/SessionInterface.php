@@ -10,7 +10,6 @@
 
 namespace Automate\Session;
 
-
 interface SessionInterface
 {
     /**
@@ -79,5 +78,4 @@ interface SessionInterface
      * @return array
      */
     public function listDirectory($path);
-
 }

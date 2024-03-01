@@ -29,7 +29,6 @@ class DispatcherFactory
     }
 
     /**
-     * @param Project $project
      * @return EventDispatcher
      */
     public function create(Project $project)

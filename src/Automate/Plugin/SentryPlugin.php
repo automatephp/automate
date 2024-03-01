@@ -37,7 +37,7 @@ class SentryPlugin extends AbstractNotificationPlugin
      */
     public function getConfigurationNode()
     {
-
+        $treeBuilder = new TreeBuilder('sentry');
         $treeBuilder = new TreeBuilder("sentry");
 
         $node = $treeBuilder->getRootNode()
@@ -56,18 +56,18 @@ class SentryPlugin extends AbstractNotificationPlugin
      */
     protected function sendMessage($message, $eventName)
     {
-        if ($eventName === AbstractNotificationPlugin::TERMINATE){
+        if (AbstractNotificationPlugin::TERMINATE === $eventName) {
             $this->client->request(
                 'POST', $this->checkUri($this->configuration['hook_uri']),
                 [
                     'headers' => [
-                        'Content-Type' => 'application/json'
+                        'Content-Type' => 'application/json',
                     ],
                     'json' => [
-                        'version' => (new \DateTime('now'))->format('Y-m-d H:i:s') . ' ' . $message
+                        'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.$message,
                     ],
                     'http_errors' => false,
-                    'verify' => false
+                    'verify' => false,
                 ]
             );
         }
@@ -75,12 +75,13 @@ class SentryPlugin extends AbstractNotificationPlugin
 
     /**
      * @param string $uri
+     *
      * @return string
      */
     protected function checkUri($uri)
     {
-        if (substr($uri, -1) !== '/'){
-            $uri = $uri . '/';
+        if ('/' !== substr($uri, -1)) {
+            $uri = $uri.'/';
         }
 
         return $uri;

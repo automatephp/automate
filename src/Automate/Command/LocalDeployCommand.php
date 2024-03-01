@@ -11,8 +11,8 @@
 
 namespace Automate\Command;
 
-use Automate\Loader;
 use Automate\Context\LocalContext;
+use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
@@ -34,8 +34,7 @@ class LocalDeployCommand extends BaseCommand
             ->addArgument('gitRef', InputArgument::REQUIRED, 'Branch or tag name')
             ->addOption('max-releases', null, InputOption::VALUE_REQUIRED, 'The number of releases to be kept', 3)
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy')
-        ;
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -49,17 +48,17 @@ class LocalDeployCommand extends BaseCommand
 
         $variableResolver = new VariableResolver($io);
         $variableResolver->resolveRepository($project);
-        
+
         $logger = $this->getLogger($io);
 
         $logger->section('Start local deployment');
 
         $gitRef = $input->getArgument('gitRef');
 
-        $io->table(array(), array(
-            array('Repository', $project->getRepository()),
-            array('Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()),
-        ));
+        $io->table([], [
+            ['Repository', $project->getRepository()],
+            ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
+        ]);
 
         $context = new LocalContext($project, $platform, $gitRef, $logger, $input->getOption('force'));
         $workflow = new Deployer($context);
@@ -78,12 +77,12 @@ class LocalDeployCommand extends BaseCommand
         $serveur = new Server();
         $serveur
             ->setPath($path)
-            ->setName('local')
-        ;
+            ->setName('local');
 
         $platform = new Platform();
         $platform->setMaxReleases($maxReleases);
         $platform->addServer($serveur);
+
         return $platform;
     }
 }

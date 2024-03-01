@@ -24,37 +24,37 @@ class Project
     /**
      * @var array
      */
-    private $sharedFiles = array();
+    private $sharedFiles = [];
 
     /**
      * @var array
      */
-    private $sharedFolders = array();
+    private $sharedFolders = [];
 
     /**
      * @var array
      */
-    private $preDeploy = array();
+    private $preDeploy = [];
 
     /**
      * @var array
      */
-    private $onDeploy = array();
+    private $onDeploy = [];
 
     /**
      * @var array
      */
-    private $postDeploy = array();
+    private $postDeploy = [];
 
     /**
      * @var array
      */
-    private $plugins = array();
+    private $plugins = [];
 
     /**
      * @var Platform[]
      */
-    private $plaforms = array();
+    private $plaforms = [];
 
     /**
      * @return string
@@ -85,8 +85,6 @@ class Project
     }
 
     /**
-     * @param array $sharedFiles
-     *
      * @return Project
      */
     public function setSharedFiles(array $sharedFiles)
@@ -105,8 +103,6 @@ class Project
     }
 
     /**
-     * @param array $sharedFolders
-     *
      * @return Project
      */
     public function setSharedFolders(array $sharedFolders)
@@ -125,8 +121,6 @@ class Project
     }
 
     /**
-     * @param array $preDeploy
-     *
      * @return Project
      */
     public function setPreDeploy(array $preDeploy)
@@ -145,8 +139,6 @@ class Project
     }
 
     /**
-     * @param array $onDeploy
-     *
      * @return Project
      */
     public function setOnDeploy(array $onDeploy)
@@ -165,8 +157,6 @@ class Project
     }
 
     /**
-     * @param array $postDeploy
-     *
      * @return Project
      */
     public function setPostDeploy(array $postDeploy)
@@ -198,20 +188,19 @@ class Project
 
     /**
      * @param string $name
-     * @return array | null
+     *
+     * @return null|array
      */
     public function getPlugin($name)
     {
-        if(isset($this->plugins[$name])) {
+        if (isset($this->plugins[$name])) {
             return $this->plugins[$name];
         }
 
         return null;
-     }
+    }
 
     /**
-     * @param Platform $platform
-     *
      * @return Project
      */
     public function addPlatform(Platform $platform)
@@ -230,6 +219,8 @@ class Project
     }
 
     /**
+     * @param mixed $name
+     *
      * @return Platform
      */
     public function getPlatform($name)

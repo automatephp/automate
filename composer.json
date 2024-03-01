@@ -18,7 +18,8 @@
     "require-dev": {
         "phpunit/phpunit": "8.*",
         "phpspec/prophecy": "^1.10",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^1.10",
+        "friendsofphp/php-cs-fixer": "^2.19"
     },
     "license": "MIT",
     "authors": [

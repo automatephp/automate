@@ -10,7 +10,6 @@
 
 namespace Automate\Plugin;
 
-
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Model\Project;
@@ -30,9 +29,9 @@ class CacheToolPlugin implements PluginInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             DeployEvents::TERMINATE => 'onTerminate',
-        );
+        ];
     }
 
     /**
@@ -51,36 +50,32 @@ class CacheToolPlugin implements PluginInterface
         return 'cache_tool';
     }
 
-    /**
-     * @param DeployEvent $event
-     */
     public function onTerminate(DeployEvent $event)
     {
-        if($this->configuration) {
-
+        if ($this->configuration) {
             $context = $event->getContext();
             $fastcgi = isset($this->configuration['fastcgi']) ? sprintf('--fcgi="%s"', $this->configuration['fastcgi']) : '--fcgi';
             $scriptName = 'cachetool.phar';
 
-            if (isset($this->configuration['version'])){
+            if (isset($this->configuration['version'])) {
                 $scriptName = sprintf('cachetool-%s.phar', $this->configuration['version']);
             }
 
-            $context->run('curl -sO ' . self::PHAR_URL . $scriptName);
+            $context->run('curl -sO '.self::PHAR_URL.$scriptName);
 
-            if(isset($this->configuration['opcache']) && $this->configuration['opcache']) {
-                $context->run('php ' . $scriptName . ' opcache:reset ' . $fastcgi, true);
+            if (isset($this->configuration['opcache']) && $this->configuration['opcache']) {
+                $context->run('php '.$scriptName.' opcache:reset '.$fastcgi, true);
             }
 
-            if(isset($this->configuration['apcu']) && $this->configuration['apcu']) {
-                $context->run('php ' . $scriptName . ' apcu:cache:clear ' . $fastcgi, true);
+            if (isset($this->configuration['apcu']) && $this->configuration['apcu']) {
+                $context->run('php '.$scriptName.' apcu:cache:clear '.$fastcgi, true);
             }
 
-            if(isset($this->configuration['apc']) && $this->configuration['apc']) {
-                $context->run('php ' . $scriptName . ' apc:cache:clear ' . $fastcgi, true);
+            if (isset($this->configuration['apc']) && $this->configuration['apc']) {
+                $context->run('php '.$scriptName.' apc:cache:clear '.$fastcgi, true);
             }
 
-            $context->run('rm ' . $scriptName);
+            $context->run('rm '.$scriptName);
         }
     }
 
@@ -89,7 +84,7 @@ class CacheToolPlugin implements PluginInterface
      */
     public function getConfigurationNode()
     {
-        $treeBuilder = new TreeBuilder("cache_tool");
+        $treeBuilder = new TreeBuilder('cache_tool');
 
         $node = $treeBuilder->getRootNode()
             ->children()

@@ -12,10 +12,10 @@
 namespace Automate;
 
 use Automate\Model\Project;
+use Automate\Serializer\CommandDenormalizer;
 use Automate\Serializer\PlatformDenormalizer;
 use Automate\Serializer\ProjectDenormalizer;
 use Automate\Serializer\ServerDenormalizer;
-use Automate\Serializer\CommandDenormalizer;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
@@ -28,9 +28,9 @@ class Loader
     /**
      * Load project configuration.
      *
-     * @param string|null $path
+     * @param null|string $path
      *
-     * @return Project|object
+     * @return object|Project
      */
     public function load($path)
     {

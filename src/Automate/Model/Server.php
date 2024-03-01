@@ -31,7 +31,6 @@ class Server
      */
     private $user;
 
-
     /**
      * @var string
      */

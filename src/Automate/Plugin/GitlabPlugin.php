@@ -41,7 +41,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 class GitlabPlugin implements PluginInterface
 {
     const MESSAGE_SUCCESS = 'Success deployment of "%ref%" on platform "%platform%"';
-    const MESSAGE_FAILED  = 'Failed deployment of "%ref%" on platform "%platform%"';
+    const MESSAGE_FAILED = 'Failed deployment of "%ref%" on platform "%platform%"';
 
     /**
      * @var ?Project
@@ -53,10 +53,10 @@ class GitlabPlugin implements PluginInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             DeployEvents::TERMINATE => 'onSuccess',
             DeployEvents::FAILED => 'onFailed',
-        );
+        ];
     }
 
     /**
@@ -72,19 +72,17 @@ class GitlabPlugin implements PluginInterface
      */
     public function register(Project $project)
     {
-        if (isset($project->getPlugins()['gitlab'])){
+        if (isset($project->getPlugins()['gitlab'])) {
             $this->project = $project;
         }
     }
 
     /**
-     * Create a successed JOB on Gitlab
-     *
-     * @param DeployEvent $event
+     * Create a successed JOB on Gitlab.
      */
     public function onSuccess(DeployEvent $event)
     {
-        if($this->project) {
+        if ($this->project) {
             $configuration = $this->project->getPlugin($this->getName());
             $message = isset($configuration['message']['success']) ? $configuration['message']['success'] : self::MESSAGE_SUCCESS;
             $this->send($event->getContext(), $message, 'DEPLOY_SUCCESS_MSG');
@@ -92,49 +90,46 @@ class GitlabPlugin implements PluginInterface
     }
 
     /**
-     * Create a failed JOB on Gitlab
-     *
-     * @param FailedDeployEvent $event
+     * Create a failed JOB on Gitlab.
      */
     public function onFailed(FailedDeployEvent $event)
     {
-        if($this->project) {
+        if ($this->project) {
             $configuration = $this->project->getPlugin($this->getName());
             $message = isset($configuration['message']['failed']) ? $configuration['message']['failed'] : self::MESSAGE_FAILED;
-            $message .= "\n\n\n" . $event->getException()->getMessage();
+            $message .= "\n\n\n".$event->getException()->getMessage();
             $this->send($event->getContext(), $message, 'DEPLOY_FAILED_MSG');
         }
     }
 
     /**
-     * Create the job
+     * Create the job.
      *
-     * @param ContextInterface $context
      * @param string $message
      * @param string $envName
      */
     private function send(ContextInterface $context, $message, $envName)
     {
-        if (getenv('GITLAB_CI') === false) {
+        if (false === getenv('GITLAB_CI')) {
             $configuration = $this->project->getPlugin($this->getName());
 
             $client = new \GuzzleHttp\Client();
 
             $ref = $context->getGitRef() ?: $context->getPlatform()->getDefaultBranch();
 
-            $message = str_replace("%ref%", $ref, $message);
-            $message = str_replace("%platform%", $context->getPlatform()->getName(), $message);
+            $message = str_replace('%ref%', $ref, $message);
+            $message = str_replace('%platform%', $context->getPlatform()->getName(), $message);
 
             $uri = sprintf('%s/api/v4/projects/%s/trigger/pipeline', $configuration['uri'], $configuration['id_project']);
 
             $client->request('POST', $uri, [
-                'query'=> [
+                'query' => [
                     'ref' => $context->getPlatform()->getDefaultBranch(),
                     'token' => $configuration['token_trigger'],
                     'variables[ENVIRONMENT_NAME]' => $context->getPlatform()->getName(),
-                    'variables['.$envName.']' => $message
+                    'variables['.$envName.']' => $message,
                 ],
-                'verify' => false
+                'verify' => false,
             ]);
         }
     }
@@ -144,7 +139,7 @@ class GitlabPlugin implements PluginInterface
      */
     public function getConfigurationNode()
     {
-        $treeBuilder = new TreeBuilder("gitlab");
+        $treeBuilder = new TreeBuilder('gitlab');
 
         $node = $treeBuilder->getRootNode()
             ->children()
@@ -161,5 +156,4 @@ class GitlabPlugin implements PluginInterface
 
         return $node;
     }
-
 }

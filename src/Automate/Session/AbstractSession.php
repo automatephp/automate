@@ -12,7 +12,6 @@ namespace Automate\Session;
 
 abstract class AbstractSession implements SessionInterface
 {
-
     /**
      * {@inheritdoc}
      */

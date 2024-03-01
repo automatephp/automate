@@ -10,12 +10,10 @@
 
 namespace Automate\Session;
 
-
 use Symfony\Component\Process\Process;
 
 class LocalSession extends AbstractSession
 {
-
     /**
      * {@inheritdoc}
      */

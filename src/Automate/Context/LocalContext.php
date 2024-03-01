@@ -10,7 +10,6 @@
 
 namespace Automate\Context;
 
-
 use Automate\Model\Server;
 use Automate\Session\LocalSession;
 use Automate\Session\SessionInterface;
@@ -25,8 +24,6 @@ class LocalContext extends AbstractContext
     }
 
     /**
-     * @param Server $server
-     *
      * @return SessionInterface
      */
     public function getSession(Server $server)

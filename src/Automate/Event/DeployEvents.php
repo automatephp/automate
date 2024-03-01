@@ -13,10 +13,10 @@ namespace Automate\Event;
 
 final class DeployEvents
 {
-    const INIT  = 'init';
+    const INIT = 'init';
     const BUILD = 'build';
     const DEPLOY = 'deploy';
     const FINISH = 'finish';
-    const FAILED  = 'failed';
+    const FAILED = 'failed';
     const TERMINATE = 'terminate';
 }

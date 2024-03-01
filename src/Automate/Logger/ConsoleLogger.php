@@ -29,8 +29,7 @@ class ConsoleLogger implements LoggerInterface
     /**
      * ConsoleLogger constructor.
      *
-     * @param SymfonyStyle $io
-     * @param int          $verbosity
+     * @param int $verbosity
      */
     public function __construct(SymfonyStyle $io, $verbosity = self::VERBOSITY_NORMAL)
     {
