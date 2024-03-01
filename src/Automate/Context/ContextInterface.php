@@ -10,6 +10,9 @@
 
 namespace Automate\Context;
 
+use Automate\Logger\LoggerInterface;
+use Automate\Model\Platform;
+use Automate\Model\Project;
 use Automate\Model\Server;
 
 interface ContextInterface
@@ -64,7 +67,7 @@ interface ContextInterface
     /**
      * @param bool $isDeployed
      *
-     * @return Context
+     * @return ContextInterface
      */
     public function setDeployed($isDeployed);
 
@@ -78,7 +81,7 @@ interface ContextInterface
     /**
      * @param bool $force
      *
-     * @return Context
+     * @return ContextInterface
      */
     public function setForce($force);
 

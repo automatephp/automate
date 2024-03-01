@@ -14,6 +14,7 @@ namespace Automate\Command;
 use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\VariableResolver;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -54,9 +55,12 @@ class CheckCommand extends BaseCommand
 
          } catch (\Exception $exception) {
             $io->error($exception->getMessage());
-            return;
+
+            return 1;
         }
 
         $io->success('All is OK');
+
+        return 0;
     }
 }

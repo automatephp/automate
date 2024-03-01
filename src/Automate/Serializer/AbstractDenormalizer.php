@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Serializer;
 abstract class AbstractDenormalizer implements DenormalizerInterface, NormalizerAwareInterface
 {
     /**
-     * @var Serializer
+     * @var NormalizerInterface|DenormalizerInterface
      */
     protected $normalizer;
 

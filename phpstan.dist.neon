@@ -1,0 +1,10 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    fileExtensions:
+        - php
+    excludePaths:
+        - src/Automate/Configuration.php
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::children\(\)#'

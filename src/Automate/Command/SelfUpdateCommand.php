@@ -88,5 +88,7 @@ class SelfUpdateCommand extends BaseCommand
             $output->write(PHP_EOL);
             $output->writeln('You can also select update to unstable version using --unstable.');
         }
+
+        return 0;
     }
 }

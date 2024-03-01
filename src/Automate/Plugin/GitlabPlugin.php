@@ -44,7 +44,7 @@ class GitlabPlugin implements PluginInterface
     const MESSAGE_FAILED  = 'Failed deployment of "%ref%" on platform "%platform%"';
 
     /**
-     * @var Project
+     * @var ?Project
      */
     private $project;
 

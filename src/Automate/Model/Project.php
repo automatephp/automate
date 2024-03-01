@@ -185,7 +185,7 @@ class Project
     }
 
     /**
-     * @param array
+     * @param array $plugins
      *
      * @return Project
      */
