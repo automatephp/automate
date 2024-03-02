@@ -14,7 +14,6 @@ namespace Automate;
 use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
 use Automate\Command\LocalDeployCommand;
-use Automate\Command\SelfUpdateCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
@@ -56,10 +55,6 @@ class Application extends BaseApplication
         $commands[] = new DeployCommand();
         $commands[] = new LocalDeployCommand();
         $commands[] = new CheckCommand();
-
-        if (('@'.'git-version@') !== $this->getVersion()) {
-            $commands[] = new SelfUpdateCommand();
-        }
 
         return $commands;
     }

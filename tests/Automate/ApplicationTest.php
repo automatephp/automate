@@ -12,7 +12,6 @@
 namespace Automate\Tests;
 
 use Automate\Application;
-use Automate\Command\SelfUpdateCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -51,13 +50,5 @@ class ApplicationTest extends TestCase
             'Automate version 1.2.3 build @git-commit@',
             $string
         );
-    }
-
-    public function testAppNonRepo()
-    {
-        $app = new Application('Test', '1.2.3');
-        $app->setAutoExit(false);
-        restore_error_handler();
-        $this->assertInstanceOf(SelfUpdateCommand::class, $app->get('update'));
     }
 }
