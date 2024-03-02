@@ -124,7 +124,7 @@ class Deployer
      */
     private function runHooks(array $commands, $name)
     {
-        if ($commands !== []) {
+        if ([] !== $commands) {
             $this->context->getLogger()->section($name);
             foreach ($commands as $command) {
                 if ('' !== $command->getCmd() && '#' !== substr(trim($command->getCmd()), 0, 1)) {
