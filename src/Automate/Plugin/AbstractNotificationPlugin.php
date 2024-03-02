@@ -15,9 +15,9 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractNotificationPlugin implements PluginInterface
 {
@@ -39,13 +39,13 @@ abstract class AbstractNotificationPlugin implements PluginInterface
     protected $configuration;
 
     /**
-     * @var ClientInterface
+     * @var HttpClientInterface
      */
     protected $client;
 
     public function __construct($client = null)
     {
-        $this->client = $client ?: new Client();
+        $this->client = $client ?: HttpClient::create();
     }
 
     /**

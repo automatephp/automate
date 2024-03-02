@@ -17,8 +17,8 @@ use Automate\Logger\LoggerInterface;
 use Automate\Plugin\GitterPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
-use GuzzleHttp\ClientInterface;
 use Mockery;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GitterPluginTest extends AbstractContextTest
 {
@@ -130,7 +130,7 @@ class GitterPluginTest extends AbstractContextTest
 
     private function initPlugin(?array $configuration = null)
     {
-        $this->client = Mockery::mock(ClientInterface::class);
+        $this->client = Mockery::mock(HttpClientInterface::class);
         $session = Mockery::mock(SessionInterface::class);
         $logger = Mockery::spy(LoggerInterface::class);
 
