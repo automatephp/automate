@@ -13,12 +13,15 @@ namespace Automate\Command;
 
 use Humbug\SelfUpdate\Strategy\GithubStrategy;
 use Humbug\SelfUpdate\Updater;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateCommand extends BaseCommand
 {
+    protected static $defaultDescription = 'Self update.';
+
     public const PACKAGE_NAME = 'automate/automate';
 
     public const FILE_NAME = 'automate.phar';
@@ -27,7 +30,6 @@ class SelfUpdateCommand extends BaseCommand
     {
         $this
             ->setName('update')
-            ->setDescription('Self update.')
             ->addOption(
                 'unstable',
                 'u',
@@ -89,6 +91,6 @@ class SelfUpdateCommand extends BaseCommand
             $output->writeln('You can also select update to unstable version using --unstable.');
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

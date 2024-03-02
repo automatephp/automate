@@ -12,7 +12,7 @@
 namespace Automate\Event;
 
 use Automate\Context\ContextInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class DeployEvent extends Event
 {
