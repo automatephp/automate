@@ -17,7 +17,6 @@ use Automate\Logger\LoggerInterface;
 use Automate\Plugin\GitterPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
-use Mockery;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GitterPluginTest extends AbstractContextTest
@@ -124,9 +123,9 @@ class GitterPluginTest extends AbstractContextTest
 
     private function initPlugin(?array $configuration = null)
     {
-        $this->client = Mockery::mock(HttpClientInterface::class);
-        $session = Mockery::mock(SessionInterface::class);
-        $logger = Mockery::spy(LoggerInterface::class);
+        $this->client = \Mockery::mock(HttpClientInterface::class);
+        $session = \Mockery::mock(SessionInterface::class);
+        $logger = \Mockery::spy(LoggerInterface::class);
 
         $this->gitter = new GitterPlugin($this->client);
         $this->context = $this->createContext($session, $logger);

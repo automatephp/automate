@@ -2,7 +2,6 @@
 
 namespace Automate\Tests;
 
-use Mockery;
 use PHPUnit\Framework\TestCase;
 
 class AbstractMockTestCase extends TestCase
@@ -13,6 +12,6 @@ class AbstractMockTestCase extends TestCase
             $this->addToAssertionCount($container->mockery_getExpectationCount());
         }
 
-        Mockery::close();
+        \Mockery::close();
     }
 }

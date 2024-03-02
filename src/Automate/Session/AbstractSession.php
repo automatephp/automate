@@ -12,14 +12,8 @@ namespace Automate\Session;
 
 abstract class AbstractSession implements SessionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     abstract public function run($command);
 
-    /**
-     * {@inheritdoc}
-     */
     public function mkdir($path, $recursive = false)
     {
         $command = sprintf('mkdir%s %s', $recursive ? ' -p' : '', $path);
@@ -27,9 +21,6 @@ abstract class AbstractSession implements SessionInterface
         $this->run($command);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function mv($from, $to)
     {
         if (!$this->exists(dirname($to))) {
@@ -39,49 +30,34 @@ abstract class AbstractSession implements SessionInterface
         $this->run(sprintf('mv %s %s', $from, $to));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rm($path, $recursive = false)
     {
         $this->run(sprintf('rm%s %s', $recursive ? ' -R' : '', $path));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exists($path)
     {
-        if ('Y' === trim($this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
+        if ('Y' === trim((string) $this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
             return true;
         }
 
-        return 'Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)));
+        return 'Y' === trim((string) $this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function symlink($target, $link)
     {
         $this->run(sprintf('ln -sfn %s %s', $target, $link));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function touch($path)
     {
         $this->run(sprintf('mkdir -p %s', dirname($path)));
         $this->run(sprintf('touch %s', $path));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function listDirectory($path)
     {
-        $rs = $this->run(sprintf('find %s -maxdepth 1 -mindepth 1 -type d', $path));
+        $rs = (string) $this->run(sprintf('find %s -maxdepth 1 -mindepth 1 -type d', $path));
 
         return explode("\n", trim($rs));
     }

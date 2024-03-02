@@ -17,14 +17,13 @@ use Automate\Listener\ClearListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
-use Mockery;
 use phpseclib\Net\SSH2;
 
 class ClearListenerTest extends AbstractContextTest
 {
     public function testClearReleases()
     {
-        $ssh = Mockery::mock(SSH2::class);
+        $ssh = \Mockery::mock(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -40,7 +39,7 @@ class ClearListenerTest extends AbstractContextTest
             failed
         ');
 
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
         $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
@@ -55,11 +54,11 @@ class ClearListenerTest extends AbstractContextTest
 
     public function testRemoveFailedRelease()
     {
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
 
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
         $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
 
@@ -73,12 +72,12 @@ class ClearListenerTest extends AbstractContextTest
 
     public function testMoveFailedRelease()
     {
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
         $ssh->expects('exec')->with('mkdir -p /home/wwwroot/automate/demo/releases')->once();
 
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
 
         $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);

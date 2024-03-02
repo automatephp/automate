@@ -17,7 +17,6 @@ use Automate\Logger\LoggerInterface;
 use Automate\Plugin\SentryPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
-use Mockery;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SentryPluginTest extends AbstractContextTest
@@ -50,7 +49,7 @@ class SentryPluginTest extends AbstractContextTest
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.':sunny: [Automate] [development] End of deployment with success',
+                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' :sunny: [Automate] [development] End of deployment with success',
             ],
         ])->once();
 
@@ -73,7 +72,7 @@ class SentryPluginTest extends AbstractContextTest
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.'success',
+                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' success',
             ],
         ])->once();
 
@@ -84,9 +83,9 @@ class SentryPluginTest extends AbstractContextTest
 
     private function initPlugin(?array $configuration = null)
     {
-        $this->client = Mockery::mock(HttpClientInterface::class);
-        $session = Mockery::mock(SessionInterface::class);
-        $logger = Mockery::spy(LoggerInterface::class);
+        $this->client = \Mockery::mock(HttpClientInterface::class);
+        $session = \Mockery::mock(SessionInterface::class);
+        $logger = \Mockery::spy(LoggerInterface::class);
 
         $this->sentry = new SentryPlugin($this->client);
         $this->context = $this->createContext($session, $logger);

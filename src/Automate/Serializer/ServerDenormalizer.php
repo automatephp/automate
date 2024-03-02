@@ -20,9 +20,6 @@ use Automate\Model\Server;
  */
 class ServerDenormalizer extends AbstractDenormalizer
 {
-    /**
-     * {@inheritdoc}
-     */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         $server = new Server();
@@ -40,9 +37,6 @@ class ServerDenormalizer extends AbstractDenormalizer
         return $server;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsDenormalization($data, $type, $format = null)
     {
         return Server::class === $type;

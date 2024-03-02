@@ -15,7 +15,6 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
-use Mockery;
 use phpseclib\Net\SSH2;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -23,10 +22,10 @@ class DeployTest extends AbstractContextTest
 {
     public function testRemoteDeploy()
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -49,10 +48,10 @@ class DeployTest extends AbstractContextTest
 
     public function testError()
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(1);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -67,9 +66,9 @@ class DeployTest extends AbstractContextTest
 
     public function testCheckout()
     {
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
 
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -84,7 +83,7 @@ class DeployTest extends AbstractContextTest
 
     public function testLocalDeploy()
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
         $context = $this->createLocalContext($logger);

@@ -18,20 +18,14 @@ use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($name = 'Automate', $version = '@git-version@')
     {
         parent::__construct($name, $version);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLongVersion()
     {
-        if (('@'.'git-version@') !== $this->getVersion()) {
+        if ('@git-version@' !== $this->getVersion()) {
             return sprintf(
                 '<info>%s</info> version <comment>%s</comment> build <comment>%s</comment>',
                 $this->getName(),
@@ -43,9 +37,6 @@ class Application extends BaseApplication
         return '<info>'.$this->getName().'</info> <comment>@dev</comment>';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDefaultCommands()
     {
         // Keep the core default commands to have the HelpCommand

@@ -17,7 +17,6 @@ use Automate\Loader;
 use Automate\Logger\LoggerInterface;
 use Automate\Session\SessionInterface;
 use Automate\SessionFactory;
-use Mockery;
 
 abstract class AbstractContextTest extends AbstractMockTestCase
 {
@@ -27,7 +26,7 @@ abstract class AbstractContextTest extends AbstractMockTestCase
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
-        $sessionFactory = Mockery::mock(SessionFactory::class);
+        $sessionFactory = \Mockery::mock(SessionFactory::class);
         $sessionFactory->allows()->create(current($platform->getServers()))->andReturns($session);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, false);
@@ -57,7 +56,7 @@ abstract class AbstractContextTest extends AbstractMockTestCase
         $project = $loader->load(__DIR__.'/../fixtures/simpleWithSharedPath.yml');
         $platform = $project->getPlatform('development');
 
-        $sessionFactory = Mockery::mock(SessionFactory::class);
+        $sessionFactory = \Mockery::mock(SessionFactory::class);
         $sessionFactory->allows()->create(current($platform->getServers()))->andReturns($session);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, false);

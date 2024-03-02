@@ -86,10 +86,10 @@ class Deployer
 
         if ($this->context->getPlatform()->getDefaultBranch()) {
             $clone = sprintf(
-               'git clone %s -q --recursive -b %s .',
-               $this->context->getProject()->getRepository(),
-               $this->context->getPlatform()->getDefaultBranch()
-           );
+                'git clone %s -q --recursive -b %s .',
+                $this->context->getProject()->getRepository(),
+                $this->context->getPlatform()->getDefaultBranch()
+            );
         } else {
             $clone = sprintf(
                 'git clone %s -q --recursive .', $this->context->getProject()->getRepository());
@@ -157,7 +157,6 @@ class Deployer
     }
 
     /**
-     * @param $path
      * @param bool $isDirectory
      */
     private function doShared($path, Server $server, $isDirectory)

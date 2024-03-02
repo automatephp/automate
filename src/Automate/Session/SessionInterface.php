@@ -16,8 +16,6 @@ interface SessionInterface
      * Execute e command.
      *
      * @param string $command
-     *
-     * @return mixed
      */
     public function run($command);
 

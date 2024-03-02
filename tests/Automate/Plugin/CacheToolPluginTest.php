@@ -16,15 +16,14 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Plugin\CacheToolPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
-use Mockery;
 
 class CacheToolPluginTest extends AbstractContextTest
 {
     public function testSimpleConfig()
     {
         $cacheTool = new CacheToolPlugin();
-        $session = Mockery::spy(SessionInterface::class);
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $session = \Mockery::spy(SessionInterface::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
         $context = $this->createContext($session, $logger);
 
         $context->getProject()->setPlugins(['cache_tool' => [
@@ -47,8 +46,8 @@ class CacheToolPluginTest extends AbstractContextTest
     public function testVersionConfig()
     {
         $cacheTool = new CacheToolPlugin();
-        $session = Mockery::spy(SessionInterface::class);
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $session = \Mockery::spy(SessionInterface::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
         $context = $this->createContext($session, $logger);
 
         $context->getProject()->setPlugins(['cache_tool' => [

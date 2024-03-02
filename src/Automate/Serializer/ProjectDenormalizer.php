@@ -22,9 +22,6 @@ use Automate\Model\Project;
  */
 class ProjectDenormalizer extends AbstractDenormalizer
 {
-    /**
-     * {@inheritdoc}
-     */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         $project = new Project();
@@ -62,9 +59,6 @@ class ProjectDenormalizer extends AbstractDenormalizer
         return $commands;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsDenormalization($data, $type, $format = null)
     {
         return Project::class === $type;

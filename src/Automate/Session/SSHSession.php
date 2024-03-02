@@ -28,12 +28,9 @@ class SSHSession extends AbstractSession
         $this->ssh->setTimeout(0);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function run($command)
     {
-        $rs = $this->ssh->exec($command);
+        $rs = (string) $this->ssh->exec($command);
 
         if (0 !== $this->ssh->getExitStatus()) {
             throw new \RuntimeException($rs);

@@ -215,8 +215,6 @@ class Project
     }
 
     /**
-     * @param mixed $name
-     *
      * @return Platform
      */
     public function getPlatform($name)

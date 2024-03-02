@@ -13,7 +13,6 @@ namespace Automate\Tests\Session;
 
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractMockTestCase;
-use Mockery;
 use phpseclib\Net\SSH2;
 
 class SSHSessionTest extends AbstractMockTestCase
@@ -23,7 +22,7 @@ class SSHSessionTest extends AbstractMockTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->ssh = Mockery::spy(SSH2::class);
+        $this->ssh = \Mockery::spy(SSH2::class);
     }
 
     public function testRun()

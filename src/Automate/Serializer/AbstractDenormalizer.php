@@ -22,32 +22,21 @@ abstract class AbstractDenormalizer implements DenormalizerInterface, Normalizer
      */
     protected $normalizer;
 
-    /**
-     * {@inheritdoc}
-     */
     abstract public function denormalize($data, $class, $format = null, array $context = []);
 
-    /**
-     * {@inheritdoc}
-     */
     abstract public function supportsDenormalization($data, $type, $format = null);
 
     /**
      * Extract a value from a given array.
      *
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
+     * @param string     $key
+     * @param null|mixed $default
      */
     protected function extractValue(array $data, $key, $default = null)
     {
         return $data[$key] ?? $default;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setNormalizer(NormalizerInterface $normalizer)
     {
         $this->normalizer = $normalizer;

@@ -97,8 +97,6 @@ interface ContextInterface
      * @param bool       $verbose
      * @param null|array $specificServers
      * @param bool       $addWorkingDir
-     *
-     * @return mixed
      */
     public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true);
 

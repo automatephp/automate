@@ -20,9 +20,6 @@ class LockListener implements EventSubscriberInterface
 {
     private $hasLock = false;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents()
     {
         return [

@@ -65,8 +65,6 @@ class VariableResolver
     /**
      * Retourn true if value is a variable.
      *
-     * @param $value
-     *
      * @return bool
      */
     public function isVariable($value)
@@ -79,8 +77,6 @@ class VariableResolver
 
     /**
      * Resolve a variable.
-     *
-     * @param $value
      *
      * @return string
      */

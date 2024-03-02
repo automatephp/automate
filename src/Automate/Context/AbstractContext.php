@@ -65,59 +65,35 @@ abstract class AbstractContext implements ContextInterface
         $this->force = $force;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     abstract public function connect();
 
-    /**
-     * {@inheritdoc}
-     */
     abstract public function getSession(Server $server);
 
-    /**
-     * {@inheritdoc}
-     */
     public function getGitRef()
     {
         return $this->gitRef;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getProject()
     {
         return $this->project;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getPlatform()
     {
         return $this->platform;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLogger()
     {
         return $this->logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isDeployed()
     {
         return $this->isDeployed;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setDeployed($isDeployed)
     {
         $this->isDeployed = $isDeployed;
@@ -125,17 +101,11 @@ abstract class AbstractContext implements ContextInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isForce()
     {
         return $this->force;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setForce($force)
     {
         $this->force = $force;
@@ -143,9 +113,6 @@ abstract class AbstractContext implements ContextInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getReleaseId()
     {
         if (!$this->releaseId) {
@@ -165,9 +132,6 @@ abstract class AbstractContext implements ContextInterface
         return $this->releaseId;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true)
     {
         $servers = $this->platform->getServers();
@@ -182,9 +146,6 @@ abstract class AbstractContext implements ContextInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
@@ -198,25 +159,16 @@ abstract class AbstractContext implements ContextInterface
         return $response;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getReleasePath(Server $server)
     {
         return $this->getReleasesPath($server).'/'.$this->getReleaseId();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getReleasesPath(Server $server)
     {
         return $server->getPath().'/releases';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSharedPath(Server $server)
     {
         $serverSharedPath = $server->getSharedPath();
@@ -229,9 +181,6 @@ abstract class AbstractContext implements ContextInterface
         return $serverSharedPath;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCurrentPath(Server $server)
     {
         return $server->getPath().'/current';

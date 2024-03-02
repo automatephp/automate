@@ -37,17 +37,11 @@ class ConsoleLogger implements LoggerInterface
         $this->verbosity = $verbosity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function section($title)
     {
         $this->io->block($title, '*', 'fg=white;bg=blue', ' ', true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function command($name, $verbose = false)
     {
         if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
@@ -55,9 +49,6 @@ class ConsoleLogger implements LoggerInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function response($response, $server, $verbose = false)
     {
         if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
@@ -70,9 +61,6 @@ class ConsoleLogger implements LoggerInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function error($message)
     {
         $this->io->error($message);

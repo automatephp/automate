@@ -19,9 +19,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ClearListener implements EventSubscriberInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents()
     {
         return [
