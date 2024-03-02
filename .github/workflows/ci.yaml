@@ -83,30 +83,25 @@ jobs:
           with:
             dependency-versions: ${{ matrix.dependencies }}
 
-        - name: PHPStan
+        - name: Rector
           run: php vendor/bin/rector
 
     phpunit:
-        strategy:
-            matrix:
-                operating-system: [ 'ubuntu-latest' ]
-                php-version: [ '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ]
+      runs-on: ubuntu-latest
 
-        runs-on: ${{ matrix.operating-system }}
+      steps:
+        - uses: actions/checkout@v4
 
-        steps:
-            - uses: actions/checkout@v4
+        - name: Setup PHP
+          uses: shivammathur/setup-php@v2
+          with:
+            php-version: 7.2
+            coverage: none
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php_version }}
-                  coverage: none
+        - name: Install dependencies
+          uses: ramsey/composer-install@v3
+          with:
+            dependency-versions: ${{ matrix.dependencies }}
 
-            - name: Install dependencies
-              uses: ramsey/composer-install@v3
-              with:
-                  dependency-versions: ${{ matrix.dependencies }}
-
-            - name: Test PHPUnit
-              run: php vendor/bin/phpunit
+        - name: PHPUnit
+          run: php vendor/bin/phpunit
