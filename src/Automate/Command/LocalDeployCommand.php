@@ -17,6 +17,7 @@ use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,11 +26,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class LocalDeployCommand extends BaseCommand
 {
+    protected static $defaultDescription = 'Start local deployment.';
+
     protected function configure()
     {
         $this
             ->setName('run')
-            ->setDescription('Start local deployment.')
             ->addArgument('path', InputArgument::REQUIRED, "Project's local path")
             ->addArgument('gitRef', InputArgument::REQUIRED, 'Branch or tag name')
             ->addOption('max-releases', null, InputOption::VALUE_REQUIRED, 'The number of releases to be kept', 3)
@@ -69,7 +71,7 @@ class LocalDeployCommand extends BaseCommand
 
         $io->success('All is OK');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function createLocalPlatforme($path, $maxReleases)

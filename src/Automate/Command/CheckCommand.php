@@ -14,6 +14,7 @@ namespace Automate\Command;
 use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\VariableResolver;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,11 +23,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CheckCommand extends BaseCommand
 {
+    protected static $defaultDescription = 'check remote platform.';
+
     protected function configure()
     {
         $this
             ->setName('check')
-            ->setDescription('check remote platform.')
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE);
     }
@@ -53,11 +55,11 @@ class CheckCommand extends BaseCommand
         } catch (\Exception $exception) {
             $io->error($exception->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $io->success('All is OK');
 
-        return 0;
+        return Command::SUCCESS;
     }
 }
