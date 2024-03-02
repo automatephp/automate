@@ -43,21 +43,18 @@ abstract class AbstractContext implements ContextInterface
     protected $logger;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $isDeployed;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $force;
 
     /**
-     * @param Project             $project
-     * @param Platform            $platform
-     * @param string              $gitRef
-     * @param LoggerInterface     $logger
-     * @param Boolean $force
+     * @param string $gitRef
+     * @param bool   $force
      */
     public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, $force = false)
     {
@@ -176,7 +173,7 @@ abstract class AbstractContext implements ContextInterface
         $servers = $this->platform->getServers();
 
         foreach ($servers as $server) {
-            if($specificServers && !in_array($server->getName(), $specificServers)) {
+            if ($specificServers && !in_array($server->getName(), $specificServers)) {
                 continue;
             }
             $this->logger->command($command, $verbose);

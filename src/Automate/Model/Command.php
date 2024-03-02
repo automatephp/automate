@@ -55,8 +55,6 @@ class Command
     }
 
     /**
-     * @param array $only
-     *
      * @return Command
      */
     public function setOnly(array $only)

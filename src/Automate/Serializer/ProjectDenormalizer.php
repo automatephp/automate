@@ -11,9 +11,9 @@
 
 namespace Automate\Serializer;
 
+use Automate\Model\Command;
 use Automate\Model\Platform;
 use Automate\Model\Project;
-use Automate\Model\Command;
 
 /**
  * Project Denormalizer.
@@ -25,21 +25,20 @@ class ProjectDenormalizer extends AbstractDenormalizer
     /**
      * {@inheritdoc}
      */
-    public function denormalize($data, $class, $format = null, array $context = array())
+    public function denormalize($data, $class, $format = null, array $context = [])
     {
         $project = new Project();
 
         $project
-            ->setRepository($this->extractValue($data,    'repository'))
-            ->setSharedFiles($this->extractValue($data,   'shared_files', array()))
-            ->setSharedFolders($this->extractValue($data, 'shared_folders', array()))
-            ->setPreDeploy($this->extractCommands($data,  'pre_deploy'))
-            ->setOnDeploy($this->extractCommands($data,   'on_deploy'))
+            ->setRepository($this->extractValue($data, 'repository'))
+            ->setSharedFiles($this->extractValue($data, 'shared_files', []))
+            ->setSharedFolders($this->extractValue($data, 'shared_folders', []))
+            ->setPreDeploy($this->extractCommands($data, 'pre_deploy'))
+            ->setOnDeploy($this->extractCommands($data, 'on_deploy'))
             ->setPostDeploy($this->extractCommands($data, 'post_deploy'))
-            ->setPlugins($this->extractValue($data,  'plugins', array()))
-        ;
+            ->setPlugins($this->extractValue($data, 'plugins', []));
 
-        $platforms = $this->extractValue($data, 'platforms', array());
+        $platforms = $this->extractValue($data, 'platforms', []);
 
         foreach ($platforms as $name => $platformData) {
             $platformData['name'] = $name;
@@ -55,7 +54,7 @@ class ProjectDenormalizer extends AbstractDenormalizer
     {
         $commands = [];
 
-        $data = $this->extractValue($data, $hookName, array());
+        $data = $this->extractValue($data, $hookName, []);
         foreach ($data as $item) {
             $commands[] = $this->normalizer->denormalize($item, Command::class);
         }
@@ -68,6 +67,6 @@ class ProjectDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === Project::class;
+        return Project::class === $type;
     }
 }

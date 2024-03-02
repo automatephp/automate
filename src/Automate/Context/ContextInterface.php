@@ -20,42 +20,40 @@ interface ContextInterface
     public function connect();
 
     /**
-     * Get serveur's Session
-     *
-     * @param Server $server
+     * Get serveur's Session.
      */
     public function getSession(Server $server);
 
     /**
-     * Get GitRef
+     * Get GitRef.
      *
      * @return string
      */
     public function getGitRef();
 
     /**
-     * Get Project
+     * Get Project.
      *
      * @return Project
      */
     public function getProject();
 
     /**
-     * Get Platform
+     * Get Platform.
      *
      * @return Platform
      */
     public function getPlatform();
 
     /**
-     * Get Logger
+     * Get Logger.
      *
      * @return LoggerInterface
      */
     public function getLogger();
 
     /**
-     * Is Deployed
+     * Is Deployed.
      *
      * @return bool
      */
@@ -69,7 +67,7 @@ interface ContextInterface
     public function setDeployed($isDeployed);
 
     /**
-     * Is Force
+     * Is Force.
      *
      * @return bool
      */
@@ -89,15 +87,14 @@ interface ContextInterface
      */
     public function getReleaseId();
 
-
     /**
      * Execute e command.
      *
-     * @param string $command
+     * @param string     $command
+     * @param bool       $verbose
+     * @param null|array $specificServers
+     * @param bool       $addWorkingDir
      *
-     * @param bool $verbose
-     * @param array|null $specificServers
-     * @param bool $addWorkingDir
      * @return mixed
      */
     public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true);
@@ -105,7 +102,6 @@ interface ContextInterface
     /**
      * Run on server.
      *
-     * @param Server $server
      * @param string $command
      * @param bool   $addWorkingDir
      * @param bool   $verbose
@@ -117,16 +113,12 @@ interface ContextInterface
     /**
      * Get release path.
      *
-     * @param Server $server
-     *
      * @return string
      */
     public function getReleasePath(Server $server);
 
     /**
      * Get releases path.
-     *
-     * @param Server $server
      *
      * @return string
      */
@@ -135,16 +127,12 @@ interface ContextInterface
     /**
      * Get shared path.
      *
-     * @param Server $server
-     *
      * @return string
      */
     public function getSharedPath(Server $server);
 
     /**
      * Get current path.
-     *
-     * @param Server $server
      *
      * @return string
      */

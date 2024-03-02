@@ -21,9 +21,6 @@ class DeployEvent extends Event
      */
     private $context;
 
-    /**
-     * @param ContextInterface $context
-     */
     public function __construct(ContextInterface $context)
     {
         $this->context = $context;

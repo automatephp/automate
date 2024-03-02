@@ -10,7 +10,6 @@
 
 namespace Automate\Plugin;
 
-
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class GitterPlugin extends AbstractNotificationPlugin
@@ -28,7 +27,7 @@ class GitterPlugin extends AbstractNotificationPlugin
      */
     public function getConfigurationNode()
     {
-        $treeBuilder = new TreeBuilder("gitter");
+        $treeBuilder = new TreeBuilder('gitter');
 
         $node = $treeBuilder->getRootNode()
             ->children()
@@ -42,6 +41,7 @@ class GitterPlugin extends AbstractNotificationPlugin
 
     /**
      * @param string $message
+     * @param mixed  $eventName
      */
     protected function sendMessage($message, $eventName)
     {
@@ -49,12 +49,12 @@ class GitterPlugin extends AbstractNotificationPlugin
 
         $this->client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer %s', $this->configuration['token'])
+                'Authorization' => sprintf('Bearer %s', $this->configuration['token']),
             ],
             'json' => [
-                'text' => $message
+                'text' => $message,
             ],
-            'verify' => false
+            'verify' => false,
         ]);
     }
 }

@@ -11,9 +11,8 @@
 
 namespace Automate\Serializer;
 
-use Automate\Model\Platform;
-use Automate\Model\Project;
 use Automate\Model\Command;
+use Automate\Model\Project;
 
 /**
  * Project Denormalizer.
@@ -25,14 +24,13 @@ class CommandDenormalizer extends AbstractDenormalizer
     /**
      * {@inheritdoc}
      */
-    public function denormalize($data, $class, $format = null, array $context = array())
+    public function denormalize($data, $class, $format = null, array $context = [])
     {
         $command = new Command();
 
         $command
             ->setCmd($this->extractValue($data, 'cmd'))
-            ->setOnly($this->extractValue($data, 'only'))
-        ;
+            ->setOnly($this->extractValue($data, 'only'));
 
         return $command;
     }
@@ -42,6 +40,6 @@ class CommandDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === Command::class;
+        return Command::class === $type;
     }
 }

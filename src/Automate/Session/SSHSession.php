@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Automate\Session;
 
 use phpseclib\Net\SSH2;
@@ -20,8 +21,6 @@ class SSHSession extends AbstractSession
 
     /**
      * Session constructor.
-     *
-     * @param SSH2 $ssh
      */
     public function __construct(SSH2 $ssh)
     {

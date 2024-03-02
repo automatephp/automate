@@ -34,5 +34,4 @@ class FailedDeployEvent extends DeployEvent
     {
         return $this->exception;
     }
-
 }

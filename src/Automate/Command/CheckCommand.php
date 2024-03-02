@@ -28,8 +28,7 @@ class CheckCommand extends BaseCommand
             ->setName('check')
             ->setDescription('check remote platform.')
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
-            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
-        ;
+            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -42,7 +41,7 @@ class CheckCommand extends BaseCommand
         $variableResolver = new VariableResolver($io);
         $variableResolver->resolvePlatform($platform);
         $variableResolver->resolveRepository($project);
-        
+
         $logger = $this->getLogger($io);
 
         try {
@@ -50,10 +49,10 @@ class CheckCommand extends BaseCommand
 
             $context->connect();
             $logger->section('Check git access');
-            $context->run('git ls-remote ' . $project->getRepository(), false,  null, false);
-
-         } catch (\Exception $exception) {
+            $context->run('git ls-remote '.$project->getRepository(), false, null, false);
+        } catch (\Exception $exception) {
             $io->error($exception->getMessage());
+
             return;
         }
 

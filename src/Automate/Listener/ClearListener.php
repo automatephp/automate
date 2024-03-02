@@ -11,7 +11,6 @@
 
 namespace Automate\Listener;
 
-
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
@@ -20,32 +19,29 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ClearListener implements EventSubscriberInterface
 {
-
     /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             DeployEvents::INIT => 'removeFailedRelease',
             DeployEvents::FAILED => 'moveFailedRelease',
             DeployEvents::TERMINATE => 'clearReleases',
-        );
+        ];
     }
 
     /**
-     * Move current release to /releases/failed
-     *
-     * @param FailedDeployEvent $event
+     * Move current release to /releases/failed.
      */
     public function moveFailedRelease(FailedDeployEvent $event)
     {
         $context = $event->getContext();
 
         // not move if deploy
-        if(!$context->isDeployed()) {
+        if (!$context->isDeployed()) {
             foreach ($context->getPlatform()->getServers() as $server) {
-                if ($context->getReleasePath($server) !== null){
+                if (null !== $context->getReleasePath($server)) {
                     $session = $context->getSession($server);
 
                     $release = $context->getReleasePath($server);
@@ -60,9 +56,7 @@ class ClearListener implements EventSubscriberInterface
     }
 
     /**
-     * remove the lasted failed release
-     *
-     * @param DeployEvent $event
+     * remove the lasted failed release.
      */
     public function removeFailedRelease(DeployEvent $event)
     {
@@ -70,16 +64,14 @@ class ClearListener implements EventSubscriberInterface
 
         foreach ($context->getPlatform()->getServers() as $server) {
             $session = $context->getSession($server);
-            if($session->exists($this->getFailedPath($server))) {
+            if ($session->exists($this->getFailedPath($server))) {
                 $session->rm($this->getFailedPath($server), true);
             }
         }
     }
 
     /**
-     * Clear olds releases
-     *
-     * @param DeployEvent $event
+     * Clear olds releases.
      */
     public function clearReleases(DeployEvent $event)
     {
@@ -99,7 +91,6 @@ class ClearListener implements EventSubscriberInterface
                 return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\./', $release);
             });
 
-
             $keep = $context->getPlatform()->getMaxReleases();
 
             while ($keep > 0) {
@@ -115,13 +106,10 @@ class ClearListener implements EventSubscriberInterface
     }
 
     /**
-     * @param Server $server
-     *
      * @return string
      */
     private function getFailedPath(Server $server)
     {
         return $server->getPath().'/releases/failed';
     }
-
 }
