@@ -12,49 +12,46 @@
 namespace Automate\Tests\Listener;
 
 use Automate\Event\DeployEvent;
-use Automate\Event\FailedDeployEvent;
-use Automate\Listener\ClearListener;
 use Automate\Listener\LockListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
-use Phake;
+use Mockery;
 use phpseclib\Net\SSH2;
-use Prophecy\Argument;
 
 class LockListenerTest extends AbstractContextTest
 {
-
     public function testInitLockFile()
     {
-        $ssh = $this->prophesize(SSH2::class);
-        $ssh->getExitStatus()->willReturn(0);
-        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh = Mockery::spy(SSH2::class);
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh->shouldReceive()->setTimeout(0);
 
-        $logger = $this->prophesize(ConsoleLogger::class);
-        $session = new SSHSession($ssh->reveal());
-        $context = $this->createContext($session, $logger->reveal());
+        $logger = Mockery::spy(ConsoleLogger::class);
+        $session = new SSHSession($ssh);
+        $context = $this->createContext($session, $logger);
+
+        $ssh->expects('exec')->with('touch /home/wwwroot/automate/demo/automate.lock')->once();
 
         $event = new DeployEvent($context);
         $listener = new LockListener();
         $listener->initLockFile($event);
-
-        $ssh->exec(Argument::any())->shouldBeCalled();
-        $ssh->exec('touch /home/wwwroot/automate/demo/automate.lock')->shouldBeCalled();
     }
 
     public function testRemoveLockFile()
     {
-        $ssh = $this->prophesize(SSH2::class);
-        $ssh->getExitStatus()->willReturn(0);
-        $ssh->setTimeout(0)->shouldBeCalled();
+        $ssh = Mockery::spy(SSH2::class);
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh->shouldReceive()->setTimeout(0);
 
-        $logger = $this->prophesize(ConsoleLogger::class);
-        $session = new SSHSession($ssh->reveal());
-        $context = $this->createContext($session, $logger->reveal());
+        $logger = Mockery::spy(ConsoleLogger::class);
+        $session = new SSHSession($ssh);
+        $context = $this->createContext($session, $logger);
 
         $event = new DeployEvent($context);
         $listener = new LockListener();
+
+        $ssh->expects('exec')->with('rm /home/wwwroot/automate/demo/automate.lock')->once();
 
         $reflection = new \ReflectionClass($listener);
         $reflectionProperty = $reflection->getProperty('hasLock');
@@ -62,7 +59,5 @@ class LockListenerTest extends AbstractContextTest
         $reflectionProperty->setValue($listener, true);
 
         $listener->clearLockFile($event);
-
-        $ssh->exec('rm /home/wwwroot/automate/demo/automate.lock')->shouldBeCalled();
     }
 }

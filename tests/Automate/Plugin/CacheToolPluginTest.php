@@ -12,63 +12,56 @@
 namespace Automate\Tests\Plugin;
 
 use Automate\Event\DeployEvent;
-use Automate\Event\FailedDeployEvent;
-use Automate\Logger\LoggerInterface;
+use Automate\Logger\ConsoleLogger;
 use Automate\Plugin\CacheToolPlugin;
-use Automate\Plugin\GitterPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
-use Phake;
-use phpseclib\Net\SSH2;
+use Mockery;
 
 class CacheToolPluginTest extends AbstractContextTest
 {
     public function testSimpleConfig()
     {
         $cacheTool = new CacheToolPlugin();
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
+        $session = Mockery::spy(SessionInterface::class);
+        $logger = Mockery::spy(ConsoleLogger::class);
+        $context = $this->createContext($session, $logger);
 
         $context->getProject()->setPlugins(['cache_tool' => [
             'opcache' => 'true',
             'apcu' => 'true',
-            'apc' => 'true'
+            'apc' => 'true',
         ]]);
+
+        $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
+        $session->expects('run')->with('cd '.$path.'; curl -sO '.CacheToolPlugin::PHAR_URL.'cachetool.phar')->once();
+        $session->expects('run')->with('cd '.$path.'; php cachetool.phar opcache:reset --fcgi')->once();
+        $session->expects('run')->with('cd '.$path.'; php cachetool.phar apcu:cache:clear --fcgi')->once();
+        $session->expects('run')->with('cd '.$path.'; php cachetool.phar apc:cache:clear --fcgi')->once();
+        $session->expects('run')->with('cd '.$path.'; rm cachetool.phar')->once();
 
         $cacheTool->register($context->getProject());
         $cacheTool->onTerminate(new DeployEvent($context));
-
-        $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
-
-        $session->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL . 'cachetool.phar')->shouldBeCalled();
-        $session->run('cd '.$path.'; php cachetool.phar opcache:reset --fcgi')->shouldBeCalled();
-        $session->run('cd '.$path.'; php cachetool.phar apcu:cache:clear --fcgi')->shouldBeCalled();
-        $session->run('cd '.$path.'; php cachetool.phar apc:cache:clear --fcgi')->shouldBeCalled();
-        $session->run('cd '.$path.'; rm cachetool.phar')->shouldBeCalled();
     }
 
     public function testVersionConfig()
     {
         $cacheTool = new CacheToolPlugin();
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
+        $session = Mockery::spy(SessionInterface::class);
+        $logger = Mockery::spy(ConsoleLogger::class);
+        $context = $this->createContext($session, $logger);
 
         $context->getProject()->setPlugins(['cache_tool' => [
             'version' => '3.2.1',
             'opcache' => 'true',
         ]]);
 
+        $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
+        $session->expects('run')->with('cd '.$path.'; curl -sO '.CacheToolPlugin::PHAR_URL.'cachetool-3.2.1.phar')->once();
+        $session->expects('run')->with('cd '.$path.'; php cachetool-3.2.1.phar opcache:reset --fcgi')->once();
+        $session->expects('run')->with('cd '.$path.'; rm cachetool-3.2.1.phar')->once();
+
         $cacheTool->register($context->getProject());
         $cacheTool->onTerminate(new DeployEvent($context));
-
-        $path = $context->getReleasePath(current($context->getProject()->getPlatform('development')->getServers()));
-
-        $session->run('cd '.$path.'; curl -sO ' . CacheToolPlugin::PHAR_URL . 'cachetool-3.2.1.phar' )->shouldBeCalled();
-        $session->run('cd '.$path.'; php cachetool-3.2.1.phar opcache:reset --fcgi')->shouldBeCalled();
-        $session->run('cd '.$path.'; rm cachetool-3.2.1.phar')->shouldBeCalled();
     }
 }

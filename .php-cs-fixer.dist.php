@@ -1,7 +1,7 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__.'/src')
+    ->in([__DIR__.'/src', __DIR__.'/tests'])
     ->notPath('Automate/Plugin/AbstractNotificationPlugin.php')
     ->notPath('Automate/Plugin/CacheToolPlugin.php')
     ->notPath('Automate/Plugin/GitlabPlugin.php')

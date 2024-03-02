@@ -18,95 +18,87 @@ use Automate\Plugin\SentryPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
 use GuzzleHttp\ClientInterface;
-use Phake;
+use Mockery;
 
 class SentryPluginTest extends AbstractContextTest
 {
+    public $client;
+
+    public $sentry;
+
+    public $context;
+
     public function testDisablePlugin()
     {
-        $client = $this->prophesize(ClientInterface::class);
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
+        $this->initPlugin();
 
-        $sentry = new SentryPlugin($client->reveal());
+        $this->client->expects('request')->never();
 
-        $context = $this->createContext($session->reveal(), $logger->reveal());
-        $sentry->register($context->getProject());
-
-        $sentry->onInit(new DeployEvent($context));
-        $sentry->onFinish(new DeployEvent($context));
-        $sentry->onFailed(new FailedDeployEvent($context, new \Exception()));
-
-        $client->request()->shouldNotBeCalled();
+        $this->sentry->onInit(new DeployEvent($this->context));
+        $this->sentry->onFinish(new DeployEvent($this->context));
+        $this->sentry->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
     public function testSimpleConfig()
     {
-        $client = $this->prophesize(ClientInterface::class);
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
+        $this->initPlugin([
+            'hook_uri' => 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/',
+        ]);
 
-        $sentry = new SentryPlugin($client->reveal());
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
-
-        $uri = 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/';
-
-        $context->getProject()->setPlugins(['sentry' => [
-            'hook_uri' => $uri,
-        ]]);
-
-        $sentry->register($context->getProject());
-
-        $sentry->onInit(new DeployEvent($context));
-        $sentry->onFinish(new DeployEvent($context));
-        $sentry->onFailed(new FailedDeployEvent($context, new \Exception()));
-
-        $client->request('POST', $uri, [
+        $this->client->expects('request')->with('POST', 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/', [
             'headers' => [
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
             ],
             'json' => [
-                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s') . ' ' . ':sunny: [Automate] [development] End of deployment with success'
+                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.':sunny: [Automate] [development] End of deployment with success',
             ],
             'http_errors' => false,
-            'verify' => false
-        ])->shouldBeCalled();
+            'verify' => false,
+        ])->once();
 
+        $this->sentry->onInit(new DeployEvent($this->context));
+        $this->sentry->onFinish(new DeployEvent($this->context));
+        $this->sentry->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
     public function testMessage()
     {
-        $client = $this->prophesize(ClientInterface::class);
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
-
-        $sentry = new SentryPlugin($client->reveal());
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
-
-        $uri = 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/';
-
-        $context->getProject()->setPlugins(['sentry' => [
-            'hook_uri' => $uri,
+        $this->initPlugin([
+            'hook_uri' => 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/',
             'messages' => [
                 'success' => 'success',
-            ]
-        ]]);
+            ],
+        ]);
 
-        $sentry->register($context->getProject());
-
-        $sentry->onFinish(new DeployEvent($context));
-
-        $client->request('POST', $uri, [
+        $this->client->expects('request')->with('POST', 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/', [
             'headers' => [
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
             ],
             'json' => [
-                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s') . ' ' . 'success'
+                'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.'success',
             ],
             'http_errors' => false,
-            'verify' => false
-        ])->shouldBeCalled();
+            'verify' => false,
+        ])->once();
+
+        $this->sentry->onInit(new DeployEvent($this->context));
+        $this->sentry->onFinish(new DeployEvent($this->context));
+        $this->sentry->onFailed(new FailedDeployEvent($this->context, new \Exception()));
+    }
+
+    private function initPlugin(?array $configuration = null)
+    {
+        $this->client = Mockery::mock(ClientInterface::class);
+        $session = Mockery::mock(SessionInterface::class);
+        $logger = Mockery::spy(LoggerInterface::class);
+
+        $this->sentry = new SentryPlugin($this->client);
+        $this->context = $this->createContext($session, $logger);
+
+        if ($configuration) {
+            $this->context->getProject()->setPlugins(['sentry' => $configuration]);
+        }
+
+        $this->sentry->register($this->context->getProject());
     }
 }

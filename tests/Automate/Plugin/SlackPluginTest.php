@@ -18,118 +18,108 @@ use Automate\Plugin\SlackPlugin;
 use Automate\Session\SessionInterface;
 use Automate\Tests\AbstractContextTest;
 use GuzzleHttp\ClientInterface;
-use Phake;
+use Mockery;
 
 class SlackPluginTest extends AbstractContextTest
 {
+    public $client;
+
+    public $slack;
+
+    public $context;
+
     public function testDisablePlugin()
     {
-        $client = $this->prophesize(ClientInterface::class);
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
+        $this->initPlugin();
+        $this->client->expects('request')->never();
 
-        $slack = new SlackPlugin($client->reveal());
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
-        $slack->register($context->getProject());
-
-        $slack->onInit(new DeployEvent($context));
-        $slack->onFinish(new DeployEvent($context));
-        $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
-
-        $client->request()->shouldNotBeCalled();
+        $this->slack->onInit(new DeployEvent($this->context));
+        $this->slack->onFinish(new DeployEvent($this->context));
+        $this->slack->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
     public function testSimpleConfig()
     {
-        $client = $this->prophesize(ClientInterface::class);
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
+        $this->initPlugin([
+            'hook_uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
+        ]);
 
-        $slack = new SlackPlugin($client->reveal());
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
-
-        $uri = 'https://hooks.slack.com/services/AAAA/BBBB/CCCC';
-
-        $context->getProject()->setPlugins(['slack' => [
-            'hook_uri' => $uri,
-        ]]);
-
-        $slack->register($context->getProject());
-
-        $slack->onInit(new DeployEvent($context));
-        $slack->onFinish(new DeployEvent($context));
-        $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
-
-        $client->request('POST', $uri, [
+        $this->client->expects('request')->with('POST', 'https://hooks.slack.com/services/AAAA/BBBB/CCCC', [
             'json' => [
-                'text' => ':hourglass: [Automate] [development] Deployment start'
+                'text' => ':hourglass: [Automate] [development] Deployment start',
             ],
-            'verify' => false
-        ])->shouldBeCalled();
+            'verify' => false,
+        ])->once();
 
-        $client->request('POST', $uri, [
+        $this->client->expects('request')->with('POST', 'https://hooks.slack.com/services/AAAA/BBBB/CCCC', [
             'json' => [
-                'text' => ':sunny: [Automate] [development] End of deployment with success'
+                'text' => ':sunny: [Automate] [development] End of deployment with success',
             ],
-            'verify' => false
-        ])->shouldBeCalled();
+            'verify' => false,
+        ])->once();
 
-        $client->request('POST', $uri, [
+        $this->client->expects('request')->with('POST', 'https://hooks.slack.com/services/AAAA/BBBB/CCCC', [
             'json' => [
-                'text' => ':exclamation: [Automate] [development] Deployment failed with error'
+                'text' => ':exclamation: [Automate] [development] Deployment failed with error',
             ],
-            'verify' => false
-        ])->shouldBeCalled();
+            'verify' => false,
+        ])->once();
+
+        $this->slack->onInit(new DeployEvent($this->context));
+        $this->slack->onFinish(new DeployEvent($this->context));
+        $this->slack->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
     public function testMessage()
     {
-        $client = $this->prophesize(ClientInterface::class);
-        $session = $this->prophesize(SessionInterface::class);
-        $logger = $this->prophesize(LoggerInterface::class);
-
-        $slack = new SlackPlugin($client->reveal());
-
-        $context = $this->createContext($session->reveal(), $logger->reveal());
-
-        $uri = 'https://hooks.slack.com/services/AAAA/BBBB/CCCC';
-
-        $context->getProject()->setPlugins(['slack' => [
-            'hook_uri' => $uri,
+        $this->initPlugin([
+            'hook_uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
             'messages' => [
                 'start' => '[%platform%] start',
                 'success' => '[%platform%] success',
                 'failed' => '[%platform%] failed',
-            ]
-        ]]);
-
-        $slack->register($context->getProject());
-
-        $slack->onInit(new DeployEvent($context));
-        $slack->onFinish(new DeployEvent($context));
-        $slack->onFailed(new FailedDeployEvent($context, new \Exception()));
-
-        $client->request('POST', $uri, [
-            'json' => [
-                'text' => '[development] start'
             ],
-            'verify' => false
-        ])->shouldBeCalled();
-
-        $client->request('POST', $uri, [
-            'json' => [
-                'text' => '[development] success'
-            ],
-            'verify' => false
-        ])->shouldBeCalled();
-
-        $client->request('POST', $uri, [
-            'json' => [
-                'text' => '[development] failed'
-            ],
-            'verify' => false
         ]);
+
+        $this->client->expects('request')->with('POST', 'https://hooks.slack.com/services/AAAA/BBBB/CCCC', [
+            'json' => [
+                'text' => '[development] start',
+            ],
+            'verify' => false,
+        ])->once();
+
+        $this->client->expects('request')->with('POST', 'https://hooks.slack.com/services/AAAA/BBBB/CCCC', [
+            'json' => [
+                'text' => '[development] success',
+            ],
+            'verify' => false,
+        ])->once();
+
+        $this->client->expects('request')->with('POST', 'https://hooks.slack.com/services/AAAA/BBBB/CCCC', [
+            'json' => [
+                'text' => '[development] failed',
+            ],
+            'verify' => false,
+        ])->once();
+
+        $this->slack->onInit(new DeployEvent($this->context));
+        $this->slack->onFinish(new DeployEvent($this->context));
+        $this->slack->onFailed(new FailedDeployEvent($this->context, new \Exception()));
+    }
+
+    private function initPlugin(?array $configuration = null)
+    {
+        $this->client = Mockery::mock(ClientInterface::class);
+        $session = Mockery::mock(SessionInterface::class);
+        $logger = Mockery::spy(LoggerInterface::class);
+
+        $this->slack = new SlackPlugin($this->client);
+        $this->context = $this->createContext($session, $logger);
+
+        if ($configuration) {
+            $this->context->getProject()->setPlugins(['slack' => $configuration]);
+        }
+
+        $this->slack->register($this->context->getProject());
     }
 }

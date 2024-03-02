@@ -15,52 +15,48 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
+use Mockery;
 use phpseclib\Net\SSH2;
-use Prophecy\Argument;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest
 {
     public function testRemoteDeploy()
     {
-        $io = $this->prophesize(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io->reveal());
+        $io = Mockery::spy(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io);
 
-        $ssh = $this->prophesize(SSH2::class);
-        $ssh->setTimeout(0)->shouldBeCalled();
-        $ssh->getExitStatus()->willReturn(0);
-        $ssh->exec(Argument::any())->shouldBeCalled();
+        $ssh = Mockery::spy(SSH2::class);
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh->shouldReceive()->setTimeout(0);
 
-        $session = new SSHSession($ssh->reveal());
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
         $workflow = new Workflow\Deployer($context);
 
         $releaseId = $context->getReleaseId();
 
-        $ssh->exec('mkdir -p /home/wwwroot/automate/demo/releases/' . $releaseId)->shouldBeCalled();
-        $ssh->exec(sprintf('cd /home/wwwroot/automate/demo/releases/%s; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .', $releaseId))->shouldBeCalled();
-        $ssh->exec(sprintf('cd /home/wwwroot/automate/demo/releases/%s; php -v', $releaseId))->shouldBeCalled();
-        $ssh->exec(sprintf('cd /home/wwwroot/automate/demo/releases/%s; composer install', $releaseId))->shouldBeCalled();
-        $ssh->exec(sprintf('ln -sfn /home/wwwroot/automate/demo/releases/%s /home/wwwroot/automate/demo/current', $releaseId))->shouldBeCalled();
-
+        $ssh->expects('exec')->with('mkdir -p /home/wwwroot/automate/demo/releases/'.$releaseId)->once();
+        $ssh->expects('exec')->with(sprintf('cd /home/wwwroot/automate/demo/releases/%s; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .', $releaseId))->once();
+        $ssh->expects('exec')->with(sprintf('cd /home/wwwroot/automate/demo/releases/%s; php -v', $releaseId))->once();
+        $ssh->expects('exec')->with(sprintf('cd /home/wwwroot/automate/demo/releases/%s; composer install', $releaseId))->once();
+        $ssh->expects('exec')->with(sprintf('ln -sfn /home/wwwroot/automate/demo/releases/%s /home/wwwroot/automate/demo/current', $releaseId))->once();
 
         $rs = $workflow->deploy();
 
         $this->assertTrue($rs);
-
     }
 
     public function testError()
     {
-        $io = $this->prophesize(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io->reveal());
+        $io = Mockery::spy(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io);
 
-        $ssh = $this->prophesize(SSH2::class);
-        $ssh->setTimeout(0)->shouldBeCalled();
-        $ssh->getExitStatus()->willReturn(1);
-        $ssh->exec(Argument::any())->shouldBeCalled();
+        $ssh = Mockery::spy(SSH2::class);
+        $ssh->shouldReceive()->getExitStatus()->andReturns(1);
+        $ssh->shouldReceive()->setTimeout(0);
 
-        $session = new SSHSession($ssh->reveal());
+        $session = new SSHSession($ssh);
         $context = $this->createContext($session, $logger);
         $workflow = new Workflow\Deployer($context);
 
@@ -71,15 +67,14 @@ class DeployTest extends AbstractContextTest
 
     public function testCheckout()
     {
-        $logger = $this->prophesize(ConsoleLogger::class);
+        $logger = Mockery::spy(ConsoleLogger::class);
 
-        $ssh = $this->prophesize(SSH2::class);
-        $ssh->setTimeout(0)->shouldBeCalled();
-        $ssh->getExitStatus()->willReturn(0);
-        $ssh->exec(Argument::any())->shouldBeCalled();
+        $ssh = Mockery::spy(SSH2::class);
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh->shouldReceive()->setTimeout(0);
 
-        $session = new SSHSession($ssh->reveal());
-        $context = $this->createContext($session, $logger->reveal(), 'master');
+        $session = new SSHSession($ssh);
+        $context = $this->createContext($session, $logger, 'master');
         $workflow = new Workflow\Deployer($context);
 
         $rs = $workflow->deploy();
@@ -89,8 +84,8 @@ class DeployTest extends AbstractContextTest
 
     public function testLocalDeploy()
     {
-        $io = $this->prophesize(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io->reveal());
+        $io = Mockery::spy(SymfonyStyle::class);
+        $logger = new ConsoleLogger($io);
 
         $context = $this->createLocalContext($logger);
 

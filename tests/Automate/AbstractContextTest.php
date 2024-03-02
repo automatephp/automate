@@ -17,9 +17,9 @@ use Automate\Loader;
 use Automate\Logger\LoggerInterface;
 use Automate\Session\SessionInterface;
 use Automate\SessionFactory;
-use PHPUnit\Framework\TestCase;
+use Mockery;
 
-abstract class AbstractContextTest extends TestCase
+abstract class AbstractContextTest extends AbstractMockTestCase
 {
     protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
     {
@@ -27,11 +27,11 @@ abstract class AbstractContextTest extends TestCase
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
-        $sessionFactory = $this->prophesize(SessionFactory::class);
-        $sessionFactory->create(current($platform->getServers()))->willReturn($session);
+        $sessionFactory = Mockery::mock(SessionFactory::class);
+        $sessionFactory->allows()->create(current($platform->getServers()))->andReturns($session);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, false);
-        $context->setSessionFactory($sessionFactory->reveal());
+        $context->setSessionFactory($sessionFactory);
         $context->connect();
 
         return $context;
@@ -54,14 +54,14 @@ abstract class AbstractContextTest extends TestCase
     protected function createContextWithServerSharedPath(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
     {
         $loader = new Loader();
-        $project = $loader->load(__DIR__ . '/../fixtures/simpleWithSharedPath.yml');
+        $project = $loader->load(__DIR__.'/../fixtures/simpleWithSharedPath.yml');
         $platform = $project->getPlatform('development');
 
-        $sessionFactory = $this->prophesize(SessionFactory::class);
-        $sessionFactory->create(current($platform->getServers()))->willReturn($session);
+        $sessionFactory = Mockery::mock(SessionFactory::class);
+        $sessionFactory->allows()->create(current($platform->getServers()))->andReturns($session);
 
         $context = new SSHContext($project, $platform, $gitRef, $logger, false);
-        $context->setSessionFactory($sessionFactory->reveal());
+        $context->setSessionFactory($sessionFactory);
         $context->connect();
 
         return $context;

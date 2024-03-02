@@ -12,28 +12,28 @@
 namespace Automate\Tests\Session;
 
 use Automate\Session\SSHSession;
+use Automate\Tests\AbstractMockTestCase;
+use Mockery;
 use phpseclib\Net\SSH2;
-use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 
-class SSHSessionTest extends TestCase
+class SSHSessionTest extends AbstractMockTestCase
 {
     private $ssh;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
-        $this->ssh = $this->prophesize(SSH2::class);
-        $this->ssh->setTimeout(0)->shouldBeCalled();
+        parent::setUp();
+        $this->ssh = Mockery::spy(SSH2::class);
     }
 
     public function testRun()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
         $command = 'echo "test"';
 
-        $this->ssh->exec($command)->willReturn('test');
-        $this->ssh->getExitStatus()->willReturn(0);
+        $this->ssh->shouldReceive('exec')->with($command)->andReturns('test');
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $rs = $session->run($command);
 
@@ -42,115 +42,109 @@ class SSHSessionTest extends TestCase
 
     public function testRunWithError()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
         $command = 'echo "test"';
 
-        $this->ssh->exec($command)->willReturn('test');
-        $this->ssh->getExitStatus()->willReturn(4);
+        $this->ssh->shouldReceive('exec')->with($command)->andReturns('test');
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(1);
 
         $this->expectException(\RuntimeException::class);
 
-        $rs = $session->run($command);
+        $session->run($command);
     }
 
     public function testMkdir()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->exec('mkdir /path/to/fomder')->shouldBeCalled();
-        $this->ssh->exec('mkdir -p /path/to/fomder')->shouldBeCalled();
-        $this->ssh->getExitStatus()->willReturn(0);
-
+        $this->ssh->expects('exec')->with('mkdir /path/to/fomder')->once();
+        $this->ssh->expects('exec')->with('mkdir -p /path/to/fomder')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->mkdir('/path/to/fomder');
         $session->mkdir('/path/to/fomder', true);
-
     }
 
     public function testMv()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec(Argument::any())->shouldBeCalled();
-        $this->ssh->exec('mv /home/a.txt /home/b.txt')->shouldBeCalled();
+        $this->ssh->expects('exec')->with('mv /home/a.txt /home/b.txt')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->mv('/home/a.txt', '/home/b.txt');
     }
 
     public function testMvWithMkdir()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec(Argument::any())->shouldBeCalled();
-        $this->ssh->exec('mkdir -p /data')->shouldBeCalled();
-        $this->ssh->exec('mv /home/a /data/usr')->shouldBeCalled();
+        $this->ssh->expects('exec')->with('mkdir -p /data')->once();
+        $this->ssh->expects('exec')->with('mv /home/a /data/usr')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->mv('/home/a', '/data/usr');
     }
 
     public function testRm()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec('rm /home/a.txt')->shouldBeCalled();
+        $this->ssh->expects('exec')->with('rm /home/a.txt')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->rm('/home/a.txt');
     }
 
-    public function testexistsFolder()
+    public function testFolderExists()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec('if test -d "/home/test"; then echo "Y";fi')->willReturn('Y');
+        $this->ssh->expects('exec')->with('if test -d "/home/test"; then echo "Y";fi')->once()->andReturns('Y');
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $this->assertTrue($session->exists('/home/test'));
     }
 
-    public function testexistsFile()
+    public function testFileExists()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec('if test -d "/home/test.txt"; then echo "Y";fi')->willReturn(null);
-        $this->ssh->exec('if test -f "/home/test.txt"; then echo "Y";fi')->willReturn('Y');
+        $this->ssh->expects('exec')->with('if test -d "/home/test.txt"; then echo "Y";fi')->once()->andReturns('');
+        $this->ssh->expects('exec')->with('if test -f "/home/test.txt"; then echo "Y";fi')->once()->andReturns('Y');
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $this->assertTrue($session->exists('/home/test.txt'));
     }
 
     public function testSymlink()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec('ln -sfn /data/a.txt /data/b.txt')->shouldBeCalled();
+        $this->ssh->expects('exec')->with('ln -sfn /data/a.txt /data/b.txt')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->symlink('/data/a.txt', '/data/b.txt');
     }
 
     public function testTouch()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
+        $this->ssh->expects('exec')->with('mkdir -p /data')->once();
+        $this->ssh->expects('exec')->with('touch /data/a.txt')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->touch('/data/a.txt');
-
-        $this->ssh->exec('mkdir -p /data')->shouldBeCalled();
-        $this->ssh->exec('touch /data/a.txt')->shouldBeCalled();
-
     }
 
     public function testListDirectory()
     {
-        $session = new SSHSession($this->ssh->reveal());
+        $session = new SSHSession($this->ssh);
 
-        $this->ssh->getExitStatus()->willReturn(0);
-        $this->ssh->exec('find /data -maxdepth 1 -mindepth 1 -type d')->shouldBeCalled();
+        $this->ssh->expects('exec')->with('find /data -maxdepth 1 -mindepth 1 -type d')->once();
+        $this->ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session->listDirectory('/data');
     }

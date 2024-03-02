@@ -7,19 +7,19 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Model\Server;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
-use Phake;
+use Mockery;
 use phpseclib\Net\SSH2;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ContextTest extends AbstractContextTest
 {
     public function testSimpleContext()
     {
-        $logger = $this->prophesize(ConsoleLogger::class);
-        $ssh = $this->prophesize(SSH2::class);
+        $logger = Mockery::spy(ConsoleLogger::class);
+        $ssh = Mockery::mock(SSH2::class);
+        $ssh->expects()->setTimeout(0);
 
-        $session = new SSHSession($ssh->reveal());
-        $context = $this->createContext($session, $logger->reveal());
+        $session = new SSHSession($ssh);
+        $context = $this->createContext($session, $logger);
 
         $server = $this->getServerFromContext($context);
 
@@ -28,11 +28,12 @@ class ContextTest extends AbstractContextTest
 
     public function testSimpleWithSharedPathContext()
     {
-        $logger = $this->prophesize(ConsoleLogger::class);
-        $ssh = $this->prophesize(SSH2::class);
+        $logger = Mockery::spy(ConsoleLogger::class);
+        $ssh = Mockery::mock(SSH2::class);
+        $ssh->expects()->setTimeout(0);
 
-        $session = new SSHSession($ssh->reveal());
-        $context = $this->createContextWithServerSharedPath($session, $logger->reveal());
+        $session = new SSHSession($ssh);
+        $context = $this->createContextWithServerSharedPath($session, $logger);
 
         $server = $this->getServerFromContext($context);
 
@@ -40,8 +41,6 @@ class ContextTest extends AbstractContextTest
     }
 
     /**
-     * @param ContextInterface $context
-     *
      * @return Server
      */
     private function getServerFromContext(ContextInterface $context)
