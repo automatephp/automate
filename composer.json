@@ -19,7 +19,8 @@
         "phpunit/phpunit": "8.*",
         "phpspec/prophecy": "^1.10",
         "phpstan/phpstan": "^1.10",
-        "friendsofphp/php-cs-fixer": "^2.19"
+        "friendsofphp/php-cs-fixer": "^2.19",
+        "rector/rector": "^1.0"
     },
     "license": "MIT",
     "authors": [

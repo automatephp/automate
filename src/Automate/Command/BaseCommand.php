@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 abstract class BaseCommand extends Command
 {
-    const CONFIG_FILE = '.automate.yml';
+    public const CONFIG_FILE = '.automate.yml';
 
     /**
      * Get Logger.

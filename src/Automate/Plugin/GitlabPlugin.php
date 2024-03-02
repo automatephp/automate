@@ -40,8 +40,9 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
  */
 class GitlabPlugin implements PluginInterface
 {
-    const MESSAGE_SUCCESS = 'Success deployment of "%ref%" on platform "%platform%"';
-    const MESSAGE_FAILED = 'Failed deployment of "%ref%" on platform "%platform%"';
+    public const MESSAGE_SUCCESS = 'Success deployment of "%ref%" on platform "%platform%"';
+
+    public const MESSAGE_FAILED = 'Failed deployment of "%ref%" on platform "%platform%"';
 
     /**
      * @var ?Project
@@ -84,7 +85,7 @@ class GitlabPlugin implements PluginInterface
     {
         if ($this->project) {
             $configuration = $this->project->getPlugin($this->getName());
-            $message = isset($configuration['message']['success']) ? $configuration['message']['success'] : self::MESSAGE_SUCCESS;
+            $message = $configuration['message']['success'] ?? self::MESSAGE_SUCCESS;
             $this->send($event->getContext(), $message, 'DEPLOY_SUCCESS_MSG');
         }
     }
@@ -96,7 +97,7 @@ class GitlabPlugin implements PluginInterface
     {
         if ($this->project) {
             $configuration = $this->project->getPlugin($this->getName());
-            $message = isset($configuration['message']['failed']) ? $configuration['message']['failed'] : self::MESSAGE_FAILED;
+            $message = $configuration['message']['failed'] ?? self::MESSAGE_FAILED;
             $message .= "\n\n\n".$event->getException()->getMessage();
             $this->send($event->getContext(), $message, 'DEPLOY_FAILED_MSG');
         }
@@ -141,7 +142,7 @@ class GitlabPlugin implements PluginInterface
     {
         $treeBuilder = new TreeBuilder('gitlab');
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('uri')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('id_project')->isRequired()->cannotBeEmpty()->end()
@@ -153,7 +154,5 @@ class GitlabPlugin implements PluginInterface
                     ->end()
                 ->end()
             ->end();
-
-        return $node;
     }
 }

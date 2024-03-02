@@ -17,7 +17,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class CacheToolPlugin implements PluginInterface
 {
-    const PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/';
+    public const PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/';
 
     /**
      * @var array
@@ -86,7 +86,7 @@ class CacheToolPlugin implements PluginInterface
     {
         $treeBuilder = new TreeBuilder('cache_tool');
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('version')->end()
                 ->scalarNode('fastcgi')->end()
@@ -94,7 +94,5 @@ class CacheToolPlugin implements PluginInterface
                 ->booleanNode('apcu')->end()
                 ->booleanNode('apc')->end()
             ->end();
-
-        return $node;
     }
 }

@@ -29,14 +29,12 @@ class GitterPlugin extends AbstractNotificationPlugin
     {
         $treeBuilder = new TreeBuilder('gitter');
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('token')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('room')->isRequired()->cannotBeEmpty()->end()
                 ->append($this->getMessagesNode())
             ->end();
-
-        return $node;
     }
 
     /**

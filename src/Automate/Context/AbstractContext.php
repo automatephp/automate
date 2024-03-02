@@ -158,7 +158,7 @@ abstract class AbstractContext implements ContextInterface
                 $date->format('d'),
                 $date->format('H'),
                 $date->format('i'),
-                rand(100, 999)
+                random_int(100, 999)
             );
         }
 
@@ -176,6 +176,7 @@ abstract class AbstractContext implements ContextInterface
             if ($specificServers && !in_array($server->getName(), $specificServers)) {
                 continue;
             }
+
             $this->logger->command($command, $verbose);
             $this->doRun($server, $command, $addWorkingDir, $verbose);
         }

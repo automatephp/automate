@@ -43,11 +43,13 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder($name);
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->arrayPrototype()
                 ->beforeNormalization()
                     ->ifString()
-                    ->then(function ($v) { return ['cmd' => $v]; })
+                    ->then(static function ($v) {
+                        return ['cmd' => $v];
+                    })
                 ->end()
                 ->children()
                     ->scalarNode('cmd')->isRequired()->cannotBeEmpty()->end()
@@ -55,22 +57,21 @@ class Configuration implements ConfigurationInterface
                         ->defaultValue([])
                         ->beforeNormalization()
                         ->ifString()
-                            ->then(function ($v) { return [$v]; })
+                            ->then(static function ($v) {
+                                return [$v];
+                            })
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
                 ->end()
-            ->end()
-        ;
-
-        return $node;
+            ->end();
     }
 
     private function addPlatformsNode()
     {
         $treeBuilder = new TreeBuilder('platforms');
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->isRequired()
             ->requiresAtLeastOneElement()
             ->normalizeKeys(false)
@@ -82,15 +83,13 @@ class Configuration implements ConfigurationInterface
                     ->append($this->addServersNode())
                 ->end()
             ->end();
-
-        return $node;
     }
 
     private function addServersNode()
     {
         $treeBuilder = new TreeBuilder('servers');
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->isRequired()
             ->requiresAtLeastOneElement()
             ->normalizeKeys(false)
@@ -106,8 +105,6 @@ class Configuration implements ConfigurationInterface
                     ->integerNode('port')->end()
                 ->end()
             ->end();
-
-        return $node;
     }
 
     private function addPluginsNode()

@@ -193,11 +193,7 @@ class Project
      */
     public function getPlugin($name)
     {
-        if (isset($this->plugins[$name])) {
-            return $this->plugins[$name];
-        }
-
-        return null;
+        return $this->plugins[$name] ?? null;
     }
 
     /**

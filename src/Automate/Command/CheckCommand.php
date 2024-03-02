@@ -31,7 +31,7 @@ class CheckCommand extends BaseCommand
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $loader = new Loader();
         $project = $loader->load($input->getOption('config'));

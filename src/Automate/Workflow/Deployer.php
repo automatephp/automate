@@ -65,11 +65,11 @@ class Deployer
             $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::TERMINATE);
 
             return true;
-        } catch (\Exception $e) {
-            $this->context->getLogger()->error($e->getMessage());
+        } catch (\Exception $exception) {
+            $this->context->getLogger()->error($exception->getMessage());
             try {
-                $dispatcher->dispatch(new FailedDeployEvent($this->context, $e), DeployEvents::FAILED);
-            } catch (\Exception $e) {
+                $dispatcher->dispatch(new FailedDeployEvent($this->context, $exception), DeployEvents::FAILED);
+            } catch (\Exception $exception) {
                 // ignore exception
             }
         }
@@ -100,7 +100,7 @@ class Deployer
         $gitRef = $this->context->getGitRef();
 
         if ($gitRef) {
-            $listTagsCommand = sprintf('git tag --list \'%s\'', $gitRef);
+            $listTagsCommand = sprintf("git tag --list '%s'", $gitRef);
             $this->context->getLogger()->command($listTagsCommand);
             foreach ($this->context->getPlatform()->getServers() as $server) {
                 if ($this->context->doRun($server, $listTagsCommand, true)) {
@@ -124,7 +124,7 @@ class Deployer
      */
     private function runHooks(array $commands, $name)
     {
-        if (count($commands)) {
+        if ($commands !== []) {
             $this->context->getLogger()->section($name);
             foreach ($commands as $command) {
                 if ('' !== $command->getCmd() && '#' !== substr(trim($command->getCmd()), 0, 1)) {
@@ -148,6 +148,7 @@ class Deployer
                 foreach ($folders as $folder) {
                     $this->doShared($folder, $server, true);
                 }
+
                 foreach ($files as $file) {
                     $this->doShared($file, $server, false);
                 }
@@ -165,6 +166,7 @@ class Deployer
 
         $path = trim($path);
         $path = ltrim($path, '/');
+
         $releasePath = $this->context->getReleasePath($server).'/'.$path;
         $sharedPath = $this->context->getSharedPath($server).'/'.$path;
 
