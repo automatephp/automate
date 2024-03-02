@@ -16,6 +16,7 @@ use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\HttpClient\HttpClient;
 
 /**
  * Allow to send a trigger job to Gitlab
@@ -114,7 +115,7 @@ class GitlabPlugin implements PluginInterface
         if (false === getenv('GITLAB_CI')) {
             $configuration = $this->project->getPlugin($this->getName());
 
-            $client = new \GuzzleHttp\Client();
+            $client = HttpClient::create();
 
             $ref = $context->getGitRef() ?: $context->getPlatform()->getDefaultBranch();
 
