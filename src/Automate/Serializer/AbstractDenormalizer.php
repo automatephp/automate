@@ -21,7 +21,7 @@ abstract class AbstractDenormalizer implements DenormalizerInterface, Normalizer
 
     abstract public function denormalize($data, $class, $format = null, array $context = []);
 
-    abstract public function supportsDenormalization($data, $type, $format = null);
+    abstract public function supportsDenormalization($data, $type, $format = null): bool;
 
     protected function extractValue(array $data, string $key, mixed $default = null)
     {

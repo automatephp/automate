@@ -15,7 +15,7 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
-use phpseclib\Net\SSH2;
+use phpseclib3\Net\SSH2;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest

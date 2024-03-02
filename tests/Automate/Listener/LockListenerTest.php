@@ -16,7 +16,7 @@ use Automate\Listener\LockListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
-use phpseclib\Net\SSH2;
+use phpseclib3\Net\SSH2;
 
 class LockListenerTest extends AbstractContextTest
 {

@@ -14,7 +14,7 @@ use Symfony\Component\Process\Process;
 
 class LocalSession extends AbstractSession
 {
-    public function run($command)
+    public function run($command): string
     {
         $process = Process::fromShellCommandline($command);
         $process->setTimeout(3600);

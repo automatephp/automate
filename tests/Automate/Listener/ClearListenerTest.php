@@ -17,7 +17,7 @@ use Automate\Listener\ClearListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
-use phpseclib\Net\SSH2;
+use phpseclib3\Net\SSH2;
 
 class ClearListenerTest extends AbstractContextTest
 {
