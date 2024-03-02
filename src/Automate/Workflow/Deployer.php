@@ -11,7 +11,6 @@
 
 namespace Automate\Workflow;
 
-use Automate\Context\Context;
 use Automate\Context\ContextInterface;
 use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
@@ -30,9 +29,6 @@ class Deployer
      */
     private $context;
 
-    /**
-     * @param ContextInterface $context
-     */
     public function __construct(ContextInterface $context)
     {
         $this->context = $context;

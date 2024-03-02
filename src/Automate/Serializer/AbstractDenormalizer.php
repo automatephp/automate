@@ -14,12 +14,11 @@ namespace Automate\Serializer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Serializer;
 
 abstract class AbstractDenormalizer implements DenormalizerInterface, NormalizerAwareInterface
 {
     /**
-     * @var NormalizerInterface|DenormalizerInterface
+     * @var DenormalizerInterface|NormalizerInterface
      */
     protected $normalizer;
 

@@ -30,10 +30,13 @@ install: ## Install project
 	@$(PHP_CONT) composer install
 
 ## —— CI ✨ ————————————————————————————————————————————————————————————————————
-ci: cs test
+ci: cs phpstan test
 
 test: ## Run tests
 	$(PHP) vendor/bin/phpunit
 
 cs: ## Run tests
 	$(PHP) vendor/bin/php-cs-fixer fix
+
+phpstan:
+	$(PHP) vendor/bin/phpstan
