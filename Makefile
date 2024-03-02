@@ -30,7 +30,10 @@ install: ## Install project
 	@$(PHP_CONT) composer install
 
 ## —— CI ✨ ————————————————————————————————————————————————————————————————————
-ci: test
+ci: cs test
 
 test: ## Run tests
 	$(PHP) vendor/bin/phpunit
+
+cs: ## Run tests
+	$(PHP) vendor/bin/php-cs-fixer fix
