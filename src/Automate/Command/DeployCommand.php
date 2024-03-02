@@ -67,6 +67,8 @@ class DeployCommand extends BaseCommand
         }
 
         $io->success('All is OK');
+
+        return 0;
     }
 
     private function getServersList(Platform $platform)

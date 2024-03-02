@@ -32,7 +32,7 @@ class Platform
     private $maxReleases;
 
     /**
-     * @return string
+     * @return ?string
      */
     public function getName()
     {

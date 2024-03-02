@@ -19,7 +19,7 @@ class LocalSession extends AbstractSession
      */
     public function run($command)
     {
-        $process = new Process($command);
+        $process = Process::fromShellCommandline($command);
         $process->setTimeout(3600);
         $process->run();
         if (!$process->isSuccessful()) {

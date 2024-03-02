@@ -68,6 +68,8 @@ class LocalDeployCommand extends BaseCommand
         }
 
         $io->success('All is OK');
+
+        return 0;
     }
 
     private function createLocalPlatforme($path, $maxReleases)

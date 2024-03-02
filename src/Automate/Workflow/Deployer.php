@@ -11,7 +11,6 @@
 
 namespace Automate\Workflow;
 
-use Automate\Context\Context;
 use Automate\Context\ContextInterface;
 use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
@@ -26,13 +25,10 @@ use Automate\PluginManager;
 class Deployer
 {
     /**
-     * @var Context
+     * @var ContextInterface
      */
     private $context;
 
-    /**
-     * @param Context $context
-     */
     public function __construct(ContextInterface $context)
     {
         $this->context = $context;
@@ -50,29 +46,29 @@ class Deployer
         try {
             $this->context->connect();
 
-            $dispatcher->dispatch(DeployEvents::INIT, new DeployEvent($this->context));
+            $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::INIT);
             $this->createReleaseDirectory();
 
-            $dispatcher->dispatch(DeployEvents::BUILD, new DeployEvent($this->context));
+            $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::BUILD);
             $this->deployWithGit();
             $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
             $this->initShared();
             $this->runHooks($this->context->getProject()->getOnDeploy(), 'On deploy');
 
-            $dispatcher->dispatch(DeployEvents::DEPLOY, new DeployEvent($this->context));
+            $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::DEPLOY);
             $this->activateSymlink();
             $this->context->setDeployed(true);
 
-            $dispatcher->dispatch(DeployEvents::FINISH, new DeployEvent($this->context));
+            $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::FINISH);
             $this->runHooks($this->context->getProject()->getPostDeploy(), 'Post deploy');
 
-            $dispatcher->dispatch(DeployEvents::TERMINATE, new DeployEvent($this->context));
+            $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::TERMINATE);
 
             return true;
         } catch (\Exception $e) {
             $this->context->getLogger()->error($e->getMessage());
             try {
-                $dispatcher->dispatch(DeployEvents::FAILED, new FailedDeployEvent($this->context, $e));
+                $dispatcher->dispatch(new FailedDeployEvent($this->context, $e), DeployEvents::FAILED);
             } catch (\Exception $e) {
                 // ignore exception
             }
@@ -107,7 +103,7 @@ class Deployer
             $listTagsCommand = sprintf('git tag --list \'%s\'', $gitRef);
             $this->context->getLogger()->command($listTagsCommand);
             foreach ($this->context->getPlatform()->getServers() as $server) {
-                if ($gitRef && $this->context->doRun($server, $listTagsCommand, true)) {
+                if ($this->context->doRun($server, $listTagsCommand, true)) {
                     // checkout a tag
                     $command = sprintf('git checkout tags/%s', $gitRef);
                 } else {

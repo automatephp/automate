@@ -53,9 +53,11 @@ class CheckCommand extends BaseCommand
         } catch (\Exception $exception) {
             $io->error($exception->getMessage());
 
-            return;
+            return 1;
         }
 
         $io->success('All is OK');
+
+        return 0;
     }
 }

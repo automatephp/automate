@@ -27,7 +27,7 @@ class Server
     private $host;
 
     /**
-     * @var int
+     * @var string
      */
     private $user;
 
@@ -37,12 +37,12 @@ class Server
     private $sshKey;
 
     /**
-     * @var int
+     * @var string
      */
     private $password;
 
     /**
-     * @var int
+     * @var string
      */
     private $path;
 
@@ -97,7 +97,7 @@ class Server
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getUser()
     {
@@ -105,7 +105,7 @@ class Server
     }
 
     /**
-     * @param int $user
+     * @param string $user
      *
      * @return Server
      */
@@ -137,7 +137,7 @@ class Server
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getPassword()
     {
@@ -145,7 +145,7 @@ class Server
     }
 
     /**
-     * @param int $password
+     * @param string $password
      *
      * @return Server
      */
@@ -157,7 +157,7 @@ class Server
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getPath()
     {
@@ -165,7 +165,7 @@ class Server
     }
 
     /**
-     * @param int $path
+     * @param string $path
      *
      * @return Server
      */
