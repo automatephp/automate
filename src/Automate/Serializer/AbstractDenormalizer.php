@@ -42,7 +42,7 @@ abstract class AbstractDenormalizer implements DenormalizerInterface, Normalizer
      */
     protected function extractValue(array $data, $key, $default = null)
     {
-        return isset($data[$key]) ? $data[$key] : $default;
+        return $data[$key] ?? $default;
     }
 
     /**

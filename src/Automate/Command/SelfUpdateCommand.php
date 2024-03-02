@@ -19,9 +19,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateCommand extends BaseCommand
 {
-    const PACKAGE_NAME = 'automate/automate';
+    public const PACKAGE_NAME = 'automate/automate';
 
-    const FILE_NAME = 'automate.phar';
+    public const FILE_NAME = 'automate.phar';
 
     protected function configure()
     {
@@ -36,7 +36,7 @@ class SelfUpdateCommand extends BaseCommand
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $updater = new Updater(null, false, Updater::STRATEGY_GITHUB);
         /** @var GithubStrategy $strategy */
@@ -58,6 +58,7 @@ class SelfUpdateCommand extends BaseCommand
             if (40 == strlen($newVersion)) {
                 $newVersion = 'dev-'.$newVersion;
             }
+
             if (40 == strlen($oldVersion)) {
                 $oldVersion = 'dev-'.$oldVersion;
             }
@@ -79,8 +80,8 @@ class SelfUpdateCommand extends BaseCommand
                     $oldVersion
                 ));
             }
-        } catch (\Exception $e) {
-            $output->writeln(sprintf('Error: <fg=yellow>%s</fg=yellow>', $e->getMessage()));
+        } catch (\Exception $exception) {
+            $output->writeln(sprintf('Error: <fg=yellow>%s</fg=yellow>', $exception->getMessage()));
         }
 
         if (!$input->getOption('unstable')) {

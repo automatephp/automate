@@ -31,6 +31,7 @@ class VariableResolverTest extends TestCase
         $server = new Server();
 
         $server->setPassword('%server_password%');
+
         $platform->addServer($server);
 
         $resolver->resolvePlatform($platform);
@@ -47,6 +48,7 @@ class VariableResolverTest extends TestCase
         $server = new Server();
 
         $server->setPassword('%server_password%');
+
         $platform->addServer($server);
 
         putenv('AUTOMATE__server_password=sessionPassword');
@@ -65,6 +67,7 @@ class VariableResolverTest extends TestCase
         $project = new Project();
 
         $project->setRepository('https://user:%git_password%@exemple.com');
+
         $resolver->resolveRepository($project);
         $this->assertEquals('https://user:sessionPassword@exemple.com', $project->getRepository());
 

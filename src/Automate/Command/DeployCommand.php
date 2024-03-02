@@ -35,7 +35,7 @@ class DeployCommand extends BaseCommand
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $loader = new Loader();
         $project = $loader->load($input->getOption('config'));

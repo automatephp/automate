@@ -40,13 +40,11 @@ class SentryPlugin extends AbstractNotificationPlugin
         $treeBuilder = new TreeBuilder('sentry');
         $treeBuilder = new TreeBuilder("sentry");
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('hook_uri')->isRequired()->cannotBeEmpty()->end()
                 ->append($this->getMessagesNode())
             ->end();
-
-        return $node;
 
     }
 
@@ -81,7 +79,7 @@ class SentryPlugin extends AbstractNotificationPlugin
     protected function checkUri($uri)
     {
         if ('/' !== substr($uri, -1)) {
-            $uri = $uri.'/';
+            $uri .= '/';
         }
 
         return $uri;

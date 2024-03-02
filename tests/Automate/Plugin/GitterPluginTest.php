@@ -63,7 +63,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer 123')
+                'Authorization' => 'Bearer 123'
             ],
             'json' => [
                 'text' => ':hourglass: [Automate] [development] Deployment start'
@@ -73,7 +73,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer 123')
+                'Authorization' => 'Bearer 123'
             ],
             'json' => [
                 'text' => ':sunny: [Automate] [development] End of deployment with success'
@@ -83,7 +83,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer 123')
+                'Authorization' => 'Bearer 123'
             ],
             'json' => [
                 'text' => ':exclamation: [Automate] [development] Deployment failed with error'
@@ -122,7 +122,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer 123')
+                'Authorization' => 'Bearer 123'
             ],
             'json' => [
                 'text' => '[development] start'
@@ -132,7 +132,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer 123')
+                'Authorization' => 'Bearer 123'
             ],
             'json' => [
                 'text' => '[development] success'
@@ -142,7 +142,7 @@ class GitterPluginTest extends AbstractContextTest
 
         $client->request('POST', $uri, [
             'headers' => [
-                'Authorization' => sprintf('Bearer 123')
+                'Authorization' => 'Bearer 123'
             ],
             'json' => [
                 'text' => '[development] failed'

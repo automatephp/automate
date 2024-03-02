@@ -27,8 +27,8 @@ class LoaderTest extends TestCase
 
         $this->assertInstanceOf(Project::class, $project);
         $this->assertEquals('git@github.com:julienj/symfony-demo.git', $project->getRepository());
-        $this->assertEquals(array('app/data'), $project->getSharedFolders());
-        $this->assertEquals(array('app/config/parameters.yml'), $project->getSharedFiles());
+        $this->assertEquals(['app/data'], $project->getSharedFolders());
+        $this->assertEquals(['app/config/parameters.yml'], $project->getSharedFiles());
 
         $this->assertcount(1, $project->getPreDeploy());
         $preDeploy = current($project->getPreDeploy());

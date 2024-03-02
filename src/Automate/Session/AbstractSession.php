@@ -56,11 +56,7 @@ abstract class AbstractSession implements SessionInterface
             return true;
         }
 
-        if ('Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)))) {
-            return true;
-        }
-
-        return false;
+        return 'Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)));
     }
 
     /**

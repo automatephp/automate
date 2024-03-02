@@ -37,11 +37,11 @@ class DeployTest extends AbstractContextTest
 
         $releaseId = $context->getReleaseId();
 
-        $ssh->exec("mkdir -p /home/wwwroot/automate/demo/releases/$releaseId")->shouldBeCalled();
-        $ssh->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .")->shouldBeCalled();
-        $ssh->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; php -v")->shouldBeCalled();
-        $ssh->exec("cd /home/wwwroot/automate/demo/releases/$releaseId; composer install")->shouldBeCalled();
-        $ssh->exec("ln -sfn /home/wwwroot/automate/demo/releases/$releaseId /home/wwwroot/automate/demo/current")->shouldBeCalled();
+        $ssh->exec('mkdir -p /home/wwwroot/automate/demo/releases/' . $releaseId)->shouldBeCalled();
+        $ssh->exec(sprintf('cd /home/wwwroot/automate/demo/releases/%s; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .', $releaseId))->shouldBeCalled();
+        $ssh->exec(sprintf('cd /home/wwwroot/automate/demo/releases/%s; php -v', $releaseId))->shouldBeCalled();
+        $ssh->exec(sprintf('cd /home/wwwroot/automate/demo/releases/%s; composer install', $releaseId))->shouldBeCalled();
+        $ssh->exec(sprintf('ln -sfn /home/wwwroot/automate/demo/releases/%s /home/wwwroot/automate/demo/current', $releaseId))->shouldBeCalled();
 
 
         $rs = $workflow->deploy();
@@ -82,7 +82,7 @@ class DeployTest extends AbstractContextTest
         $context = $this->createContext($session, $logger->reveal(), 'master');
         $workflow = new Workflow\Deployer($context);
 
-        $rs = $workflow->deploy('1.0.0');
+        $rs = $workflow->deploy();
 
         $this->assertTrue($rs);
     }

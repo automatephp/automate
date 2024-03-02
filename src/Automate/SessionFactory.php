@@ -39,14 +39,11 @@ class SessionFactory
             $key = new RSA();
             $key->setPassword($server->getPassword());
             $key->loadKey(file_get_contents($server->getSshKey()));
-
             if (!$ssh->login($server->getUser(), $key)) {
                 throw new \Exception(sprintf('[%s] SSH key or passphrase is invalid', $server->getName()));
             }
-        } else {
-            if (!$ssh->login($server->getUser(), $server->getPassword())) {
-                throw new \Exception(sprintf('[%s] Invalid user or password', $server->getName()));
-            }
+        } elseif (!$ssh->login($server->getUser(), $server->getPassword())) {
+            throw new \Exception(sprintf('[%s] Invalid user or password', $server->getName()));
         }
 
         return new SSHSession($ssh);

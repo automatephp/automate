@@ -87,8 +87,8 @@ class ClearListener implements EventSubscriberInterface
             rsort($releases);
 
             // ignore others folders
-            $releases = array_filter($releases, function ($release) {
-                return preg_match('/[0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9]{4}\./', $release);
+            $releases = array_filter($releases, static function ($release) {
+                return preg_match('/\d{4}\.\d{2}\.\d{2}-\d{4}\./', $release);
             });
 
             $keep = $context->getPlatform()->getMaxReleases();

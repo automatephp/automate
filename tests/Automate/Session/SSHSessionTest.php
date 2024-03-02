@@ -20,7 +20,7 @@ class SSHSessionTest extends TestCase
 {
     private $ssh;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         $this->ssh = $this->prophesize(SSH2::class);
         $this->ssh->setTimeout(0)->shouldBeCalled();

@@ -21,13 +21,17 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 abstract class AbstractNotificationPlugin implements PluginInterface
 {
-    const MESSAGE_START = ':hourglass: [Automate] [%platform%] Deployment start';
-    const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] End of deployment with success';
-    const MESSAGE_FAILED = ':exclamation: [Automate] [%platform%] Deployment failed with error';
+    public const MESSAGE_START = ':hourglass: [Automate] [%platform%] Deployment start';
 
-    const INIT = 'onInit';
-    const TERMINATE = 'onFinish';
-    const FAILED = 'onFailed';
+    public const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] End of deployment with success';
+
+    public const MESSAGE_FAILED = ':exclamation: [Automate] [%platform%] Deployment failed with error';
+
+    public const INIT = 'onInit';
+
+    public const TERMINATE = 'onFinish';
+
+    public const FAILED = 'onFailed';
 
     /**
      * @var array
@@ -116,14 +120,12 @@ abstract class AbstractNotificationPlugin implements PluginInterface
     {
         $treeBuilder = new TreeBuilder('messages');
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('start')->end()
                 ->scalarNode('success')->end()
                 ->scalarNode('failed')->end()
             ->end();
-
-        return $node;
     }
 
     /**
@@ -134,7 +136,7 @@ abstract class AbstractNotificationPlugin implements PluginInterface
      */
     private function getMessage($name, $default, ContextInterface $context, \Exception $exception = null)
     {
-        $message = isset($this->configuration['messages'][$name]) ? $this->configuration['messages'][$name] : $default;
+        $message = $this->configuration['messages'][$name] ?? $default;
 
         if (null !== $context->getPlatform()->getName()) {
             $message = str_replace('%platform%', $context->getPlatform()->getName(), $message);
@@ -142,7 +144,7 @@ abstract class AbstractNotificationPlugin implements PluginInterface
             $message = str_replace('[%platform%]', '', $message);
         }
 
-        if ($exception) {
+        if ($exception instanceof \Exception) {
             $message = str_replace('%error%', $exception->getMessage(), $message);
         }
 

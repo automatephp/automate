@@ -23,19 +23,16 @@ class ApplicationTest extends TestCase
     {
         $app = new Application();
         $app->setAutoExit(false);
-        $input = new ArrayInput(array('--version'));
+
+        $input = new ArrayInput(['--version']);
         $stream = fopen('php://memory', 'w', false);
         $output = new StreamOutput($stream);
         $app->run($input, $output);
         rewind($stream);
         $string = trim(fgets($stream));
         $string = preg_replace(
-            array(
-                '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
-                '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
-                '/[\x03|\x1a]/',
-            ),
-            array('', '', ''),
+            ['/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', '/[\x03|\x1a]/'],
+            ['', '', ''],
             $string
         );
         $this->assertEquals('Automate @dev', $string);
@@ -46,12 +43,8 @@ class ApplicationTest extends TestCase
         rewind($stream);
         $string = trim(fgets($stream));
         $string = preg_replace(
-            array(
-                '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
-                '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/',
-                '/[\x03|\x1a]/',
-            ),
-            array('', '', ''),
+            ['/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', '/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', '/[\x03|\x1a]/'],
+            ['', '', ''],
             $string
         );
         $this->assertEquals(

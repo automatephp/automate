@@ -41,13 +41,11 @@ class SlackPlugin extends AbstractNotificationPlugin
         $treeBuilder = new TreeBuilder('slack');
         $treeBuilder = new TreeBuilder("slack");
 
-        $node = $treeBuilder->getRootNode()
+        return $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('hook_uri')->isRequired()->cannotBeEmpty()->end()
                 ->append($this->getMessagesNode())
             ->end();
-
-        return $node;
 
     }
 
