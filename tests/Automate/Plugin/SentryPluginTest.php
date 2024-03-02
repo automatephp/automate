@@ -27,7 +27,7 @@ class SentryPluginTest extends AbstractContextTest
 
     public $context;
 
-    public function testDisablePlugin()
+    public function testDisablePlugin(): void
     {
         $this->initPlugin();
 
@@ -38,7 +38,7 @@ class SentryPluginTest extends AbstractContextTest
         $this->sentry->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
-    public function testSimpleConfig()
+    public function testSimpleConfig(): void
     {
         $this->initPlugin([
             'hook_uri' => 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/',
@@ -58,7 +58,7 @@ class SentryPluginTest extends AbstractContextTest
         $this->sentry->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
-    public function testMessage()
+    public function testMessage(): void
     {
         $this->initPlugin([
             'hook_uri' => 'https://sentry.io/api/hooks/release/builtin/AAA/BBB/',
@@ -81,7 +81,7 @@ class SentryPluginTest extends AbstractContextTest
         $this->sentry->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
-    private function initPlugin(?array $configuration = null)
+    private function initPlugin(?array $configuration = null): void
     {
         $this->client = \Mockery::mock(HttpClientInterface::class);
         $session = \Mockery::mock(SessionInterface::class);

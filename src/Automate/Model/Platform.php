@@ -16,80 +16,50 @@ namespace Automate\Model;
  */
 class Platform
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private ?string $name = null;
 
-    /**
-     * @var string
-     */
-    private $defaultBranch;
+    private ?string $defaultBranch = null;
 
-    /**
-     * @var int
-     */
-    private $maxReleases;
-
-    /**
-     * @return ?string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
+    private ?int $maxReleases = null;
 
     /**
      * @var Server[]
      */
-    private $servers;
+    private ?array $servers = null;
 
     /**
-     * @param string $name
-     *
-     * @return Platform
+     * @return ?string
      */
-    public function setName($name)
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getDefaultBranch()
+    public function getDefaultBranch(): ?string
     {
         return $this->defaultBranch;
     }
 
-    /**
-     * @param string $defaultBranch
-     *
-     * @return Platform
-     */
-    public function setDefaultBranch($defaultBranch)
+    public function setDefaultBranch(string $defaultBranch): self
     {
         $this->defaultBranch = $defaultBranch;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getMaxReleases()
+    public function getMaxReleases(): ?int
     {
         return $this->maxReleases;
     }
 
-    /**
-     * @param int $maxReleases
-     *
-     * @return Platform
-     */
-    public function setMaxReleases($maxReleases)
+    public function setMaxReleases(int $maxReleases): self
     {
         $this->maxReleases = $maxReleases;
 
@@ -99,7 +69,7 @@ class Platform
     /**
      * @return $this
      */
-    public function addServer(Server $server)
+    public function addServer(Server $server): self
     {
         $this->servers[] = $server;
 
@@ -109,7 +79,7 @@ class Platform
     /**
      * @return Server[]
      */
-    public function getServers()
+    public function getServers(): ?array
     {
         return $this->servers;
     }

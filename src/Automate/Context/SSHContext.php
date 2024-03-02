@@ -22,23 +22,17 @@ class SSHContext extends AbstractContext
     /**
      * @var SessionInterface[]
      */
-    protected $sessions = [];
+    protected array $sessions = [];
 
-    /**
-     * @var SessionFactory
-     */
-    protected $sessionFactory;
+    protected SessionFactory $sessionFactory;
 
-    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, $force = false)
+    public function __construct(Project $project, Platform $platform, LoggerInterface $logger, ?string $gitRef = null, bool $force = false)
     {
-        parent::__construct($project, $platform, $gitRef, $logger, $force);
+        parent::__construct($project, $platform, $logger, $gitRef, $force);
         $this->sessionFactory = new SessionFactory();
     }
 
-    /**
-     * Connect servers.
-     */
-    public function connect()
+    public function connect(): void
     {
         $this->logger->section('Remote servers connection');
 
@@ -49,10 +43,7 @@ class SSHContext extends AbstractContext
         }
     }
 
-    /**
-     * @return SessionInterface
-     */
-    public function getSession(Server $server)
+    public function getSession(Server $server): SessionInterface
     {
         if (!isset($this->sessions[$server->getName()])) {
             throw new \RuntimeException('Unable to find session');
@@ -61,10 +52,7 @@ class SSHContext extends AbstractContext
         return $this->sessions[$server->getName()];
     }
 
-    /**
-     * @param SessionFactory $sessionFactory
-     */
-    public function setSessionFactory($sessionFactory)
+    public function setSessionFactory(SessionFactory $sessionFactory): void
     {
         $this->sessionFactory = $sessionFactory;
     }

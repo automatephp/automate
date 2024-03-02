@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 
 class ApplicationTest extends TestCase
 {
-    public function testApp()
+    public function testApp(): void
     {
         $app = new Application();
         $app->setAutoExit(false);

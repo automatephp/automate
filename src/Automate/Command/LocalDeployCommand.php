@@ -44,7 +44,7 @@ class LocalDeployCommand extends BaseCommand
         $loader = new Loader();
         $project = $loader->load($input->getOption('config'));
 
-        $platform = $this->createLocalPlatforme($input->getArgument('path'), $input->getOption('max-releases'));
+        $platform = $this->createLocalPlatform($input->getArgument('path'), $input->getOption('max-releases'));
 
         $io = new SymfonyStyle($input, $output);
 
@@ -62,7 +62,7 @@ class LocalDeployCommand extends BaseCommand
             ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
         ]);
 
-        $context = new LocalContext($project, $platform, $gitRef, $logger, $input->getOption('force'));
+        $context = new LocalContext($project, $platform, $logger, $gitRef, $input->getOption('force'));
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {
@@ -74,7 +74,7 @@ class LocalDeployCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function createLocalPlatforme($path, $maxReleases)
+    private function createLocalPlatform(?string $path, int $maxReleases): Platform
     {
         $serveur = new Server();
         $serveur

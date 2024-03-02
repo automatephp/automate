@@ -25,20 +25,15 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class SlackPlugin extends AbstractNotificationPlugin
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    
+    public function getName(): string
     {
         return 'slack';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationNode()
+    
+    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
     {
-        $treeBuilder = new TreeBuilder('slack');
         $treeBuilder = new TreeBuilder("slack");
 
         return $treeBuilder->getRootNode()
@@ -49,11 +44,8 @@ class SlackPlugin extends AbstractNotificationPlugin
 
     }
 
-    /**
-     * @param string $message
-     * @param mixed  $eventName
-     */
-    protected function sendMessage($message, $eventName)
+    
+    protected function sendMessage(string $message, string $eventName): void
     {
         $this->client->request(
             'POST', $this->configuration['hook_uri'],

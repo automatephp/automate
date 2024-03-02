@@ -41,19 +41,14 @@ use Symfony\Component\HttpClient\HttpClient;
  */
 class GitlabPlugin implements PluginInterface
 {
-    public const MESSAGE_SUCCESS = 'Success deployment of "%ref%" on platform "%platform%"';
+    public const string MESSAGE_SUCCESS = 'Success deployment of "%ref%" on platform "%platform%"';
 
-    public const MESSAGE_FAILED = 'Failed deployment of "%ref%" on platform "%platform%"';
+    public const string MESSAGE_FAILED = 'Failed deployment of "%ref%" on platform "%platform%"';
 
-    /**
-     * @var ?Project
-     */
-    private $project;
+    private ?\Automate\Model\Project $project = null;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    
+    public static function getSubscribedEvents(): array
     {
         return [
             DeployEvents::TERMINATE => 'onSuccess',
@@ -61,18 +56,14 @@ class GitlabPlugin implements PluginInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    
+    public function getName(): string
     {
         return 'gitlab';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function register(Project $project)
+    
+    public function register(Project $project): void
     {
         if (isset($project->getPlugins()['gitlab'])) {
             $this->project = $project;
@@ -82,9 +73,9 @@ class GitlabPlugin implements PluginInterface
     /**
      * Create a successed JOB on Gitlab.
      */
-    public function onSuccess(DeployEvent $event)
+    public function onSuccess(DeployEvent $event): void
     {
-        if ($this->project) {
+        if ($this->project instanceof \Automate\Model\Project) {
             $configuration = $this->project->getPlugin($this->getName());
             $message = $configuration['message']['success'] ?? self::MESSAGE_SUCCESS;
             $this->send($event->getContext(), $message, 'DEPLOY_SUCCESS_MSG');
@@ -94,9 +85,9 @@ class GitlabPlugin implements PluginInterface
     /**
      * Create a failed JOB on Gitlab.
      */
-    public function onFailed(FailedDeployEvent $event)
+    public function onFailed(FailedDeployEvent $event): void
     {
-        if ($this->project) {
+        if ($this->project instanceof \Automate\Model\Project) {
             $configuration = $this->project->getPlugin($this->getName());
             $message = $configuration['message']['failed'] ?? self::MESSAGE_FAILED;
             $message .= "\n\n\n".$event->getException()->getMessage();
@@ -104,13 +95,7 @@ class GitlabPlugin implements PluginInterface
         }
     }
 
-    /**
-     * Create the job.
-     *
-     * @param string $message
-     * @param string $envName
-     */
-    private function send(ContextInterface $context, $message, $envName)
+    private function send(ContextInterface $context, string $message, string $envName): void
     {
         if (false === getenv('GITLAB_CI')) {
             $configuration = $this->project->getPlugin($this->getName());
@@ -135,10 +120,8 @@ class GitlabPlugin implements PluginInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationNode()
+    
+    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
     {
         $treeBuilder = new TreeBuilder('gitlab');
 

@@ -20,7 +20,7 @@ use phpseclib\Net\SSH2;
 
 class LockListenerTest extends AbstractContextTest
 {
-    public function testInitLockFile()
+    public function testInitLockFile(): void
     {
         $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
@@ -37,7 +37,7 @@ class LockListenerTest extends AbstractContextTest
         $listener->initLockFile($event);
     }
 
-    public function testRemoveLockFile()
+    public function testRemoveLockFile(): void
     {
         $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);

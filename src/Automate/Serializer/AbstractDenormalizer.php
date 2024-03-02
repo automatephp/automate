@@ -17,27 +17,18 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 abstract class AbstractDenormalizer implements DenormalizerInterface, NormalizerAwareInterface
 {
-    /**
-     * @var DenormalizerInterface|NormalizerInterface
-     */
-    protected $normalizer;
+    protected DenormalizerInterface|NormalizerInterface $normalizer;
 
     abstract public function denormalize($data, $class, $format = null, array $context = []);
 
     abstract public function supportsDenormalization($data, $type, $format = null);
 
-    /**
-     * Extract a value from a given array.
-     *
-     * @param string     $key
-     * @param null|mixed $default
-     */
-    protected function extractValue(array $data, $key, $default = null)
+    protected function extractValue(array $data, string $key, mixed $default = null)
     {
         return $data[$key] ?? $default;
     }
 
-    public function setNormalizer(NormalizerInterface $normalizer)
+    public function setNormalizer(NormalizerInterface $normalizer): void
     {
         $this->normalizer = $normalizer;
     }

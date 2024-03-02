@@ -18,9 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LockListener implements EventSubscriberInterface
 {
-    private $hasLock = false;
+    private bool $hasLock = false;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             DeployEvents::INIT => 'initLockFile',
@@ -33,7 +33,7 @@ class LockListener implements EventSubscriberInterface
      * Check if a deployment is already in progress
      * and create lock file.
      */
-    public function initLockFile(DeployEvent $event)
+    public function initLockFile(DeployEvent $event): void
     {
         $context = $event->getContext();
 
@@ -55,7 +55,7 @@ class LockListener implements EventSubscriberInterface
     /**
      * Remove lock file.
      */
-    public function clearLockFile(DeployEvent $event)
+    public function clearLockFile(DeployEvent $event): void
     {
         $context = $event->getContext();
 
@@ -69,10 +69,8 @@ class LockListener implements EventSubscriberInterface
 
     /**
      * Get lock file path.
-     *
-     * @return string
      */
-    public function getLockFilePath(Server $server)
+    public function getLockFilePath(Server $server): string
     {
         return $server->getPath().'/automate.lock';
     }

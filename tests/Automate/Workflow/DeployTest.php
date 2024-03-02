@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest
 {
-    public function testRemoteDeploy()
+    public function testRemoteDeploy(): void
     {
         $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
@@ -46,7 +46,7 @@ class DeployTest extends AbstractContextTest
         $this->assertTrue($rs);
     }
 
-    public function testError()
+    public function testError(): void
     {
         $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
@@ -64,7 +64,7 @@ class DeployTest extends AbstractContextTest
         $this->assertFalse($rs);
     }
 
-    public function testCheckout()
+    public function testCheckout(): void
     {
         $logger = \Mockery::spy(ConsoleLogger::class);
 
@@ -81,7 +81,7 @@ class DeployTest extends AbstractContextTest
         $this->assertTrue($rs);
     }
 
-    public function testLocalDeploy()
+    public function testLocalDeploy(): void
     {
         $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);

@@ -19,14 +19,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 abstract class BaseCommand extends Command
 {
-    public const CONFIG_FILE = '.automate.yml';
+    public const string CONFIG_FILE = '.automate.yml';
 
-    /**
-     * Get Logger.
-     *
-     * @return ConsoleLogger
-     */
-    protected function getLogger(SymfonyStyle $io)
+    protected function getLogger(SymfonyStyle $io): LoggerInterface
     {
         $verbosity = $io->getVerbosity() > OutputInterface::VERBOSITY_NORMAL
             ? LoggerInterface::VERBOSITY_DEBUG

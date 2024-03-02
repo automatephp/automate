@@ -16,15 +16,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 interface PluginInterface extends EventSubscriberInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): string;
 
     public function register(Project $project);
 
-    /**
-     * @return NodeDefinition
-     */
-    public function getConfigurationNode();
+    public function getConfigurationNode(): NodeDefinition;
 }

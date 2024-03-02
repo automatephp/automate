@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
 use Rector\Config\RectorConfig;
+use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
@@ -18,6 +19,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
         SetList::CODING_STYLE,
+        SetList::TYPE_DECLARATION,
         LevelSetList::UP_TO_PHP_83,
         PHPUnitSetList::PHPUNIT_90,
         SymfonySetList::SYMFONY_54,
@@ -25,6 +27,7 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->skip([
         __DIR__.'/tests/fixtures/*',
+        AddOverrideAttributeToOverriddenMethodsRector::class,
         JoinStringConcatRector::class => [
             __DIR__ . '/src/Automate/Application.php',
         ],

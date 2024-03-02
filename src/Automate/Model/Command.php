@@ -16,48 +16,28 @@ namespace Automate\Model;
  */
 class Command
 {
-    /**
-     * @var string
-     */
-    private $cmd;
+    private ?string $cmd = null;
 
-    /**
-     * @var array
-     */
-    private $only;
+    private ?array $only = null;
 
-    /**
-     * @return string
-     */
-    public function getCmd()
+    public function getCmd(): ?string
     {
         return $this->cmd;
     }
 
-    /**
-     * @param string $cmd
-     *
-     * @return Command
-     */
-    public function setCmd($cmd)
+    public function setCmd(string $cmd): self
     {
         $this->cmd = $cmd;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getOnly()
+    public function getOnly(): ?array
     {
         return $this->only;
     }
 
-    /**
-     * @return Command
-     */
-    public function setOnly(array $only)
+    public function setOnly(array $only): self
     {
         $this->only = $only;
 

@@ -19,7 +19,7 @@ use Automate\Tests\AbstractContextTest;
 
 class CacheToolPluginTest extends AbstractContextTest
 {
-    public function testSimpleConfig()
+    public function testSimpleConfig(): void
     {
         $cacheTool = new CacheToolPlugin();
         $session = \Mockery::spy(SessionInterface::class);
@@ -43,7 +43,7 @@ class CacheToolPluginTest extends AbstractContextTest
         $cacheTool->onTerminate(new DeployEvent($context));
     }
 
-    public function testVersionConfig()
+    public function testVersionConfig(): void
     {
         $cacheTool = new CacheToolPlugin();
         $session = \Mockery::spy(SessionInterface::class);

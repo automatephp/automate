@@ -14,18 +14,14 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class GitterPlugin extends AbstractNotificationPlugin
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    
+    public function getName(): string
     {
         return 'gitter';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationNode()
+    
+    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
     {
         $treeBuilder = new TreeBuilder('gitter');
 
@@ -37,11 +33,8 @@ class GitterPlugin extends AbstractNotificationPlugin
             ->end();
     }
 
-    /**
-     * @param string $message
-     * @param mixed  $eventName
-     */
-    protected function sendMessage($message, $eventName)
+    
+    protected function sendMessage(string $message, string $eventName): void
     {
         $uri = sprintf('https://api.gitter.im/v1/rooms/%s/chatMessages', $this->configuration['room']);
 

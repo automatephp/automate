@@ -15,22 +15,12 @@ use Automate\Context\ContextInterface;
 
 class FailedDeployEvent extends DeployEvent
 {
-    /**
-     * @var \Exception
-     */
-    private $exception;
-
-    public function __construct(ContextInterface $context, \Exception $exception)
+    public function __construct(ContextInterface $context, private readonly \Exception $exception)
     {
-        $this->exception = $exception;
-
         parent::__construct($context);
     }
 
-    /**
-     * @return \Exception
-     */
-    public function getException()
+    public function getException(): \Exception
     {
         return $this->exception;
     }

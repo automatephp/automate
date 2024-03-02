@@ -27,7 +27,7 @@ class SlackPluginTest extends AbstractContextTest
 
     public $context;
 
-    public function testDisablePlugin()
+    public function testDisablePlugin(): void
     {
         $this->initPlugin();
         $this->client->expects('request')->never();
@@ -37,7 +37,7 @@ class SlackPluginTest extends AbstractContextTest
         $this->slack->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
-    public function testSimpleConfig()
+    public function testSimpleConfig(): void
     {
         $this->initPlugin([
             'hook_uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
@@ -66,7 +66,7 @@ class SlackPluginTest extends AbstractContextTest
         $this->slack->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
-    public function testMessage()
+    public function testMessage(): void
     {
         $this->initPlugin([
             'hook_uri' => 'https://hooks.slack.com/services/AAAA/BBBB/CCCC',
@@ -100,7 +100,7 @@ class SlackPluginTest extends AbstractContextTest
         $this->slack->onFailed(new FailedDeployEvent($this->context, new \Exception()));
     }
 
-    private function initPlugin(?array $configuration = null)
+    private function initPlugin(?array $configuration = null): void
     {
         $this->client = \Mockery::mock(HttpClientInterface::class);
         $session = \Mockery::mock(SessionInterface::class);

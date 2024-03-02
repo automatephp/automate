@@ -16,22 +16,14 @@ use Automate\Model\Project;
 use Automate\Plugin\PluginInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class DispatcherFactory
+readonly class DispatcherFactory
 {
-    /**
-     * @var PluginManager
-     */
-    private $pluginManager;
-
-    public function __construct(PluginManager $pluginManager)
-    {
-        $this->pluginManager = $pluginManager;
+    public function __construct(
+        private PluginManager $pluginManager,
+    ) {
     }
 
-    /**
-     * @return EventDispatcher
-     */
-    public function create(Project $project)
+    public function create(Project $project): EventDispatcher
     {
         $dispatcher = new EventDispatcher();
 

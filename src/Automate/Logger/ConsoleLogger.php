@@ -16,43 +16,28 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConsoleLogger implements LoggerInterface
 {
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
-
-    /**
-     * @var int
-     */
-    private $verbosity;
-
-    /**
-     * ConsoleLogger constructor.
-     *
-     * @param int $verbosity
-     */
-    public function __construct(SymfonyStyle $io, $verbosity = self::VERBOSITY_NORMAL)
-    {
-        $this->io = $io;
-        $this->verbosity = $verbosity;
+    public function __construct(
+        private readonly SymfonyStyle $io,
+        private readonly int $verbosity = self::VERBOSITY_NORMAL,
+    ) {
     }
 
-    public function section($title)
+    public function section($title): void
     {
         $this->io->block($title, '*', 'fg=white;bg=blue', ' ', true);
     }
 
-    public function command($name, $verbose = false)
+    public function command($name, $verbose = false): void
     {
         if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
             $this->io->text(sprintf('<info>%s</info>', $name));
         }
     }
 
-    public function response($response, $server, $verbose = false)
+    public function response($response, $server, $verbose = false): void
     {
         if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
-            if (substr_count($response, "\n") > 0) {
+            if (substr_count((string) $response, "\n") > 0) {
                 $this->io->text(sprintf('<comment>[%s]</comment>', $server));
                 $this->io->text($response);
             } else {
@@ -61,7 +46,7 @@ class ConsoleLogger implements LoggerInterface
         }
     }
 
-    public function error($message)
+    public function error($message): void
     {
         $this->io->error($message);
     }

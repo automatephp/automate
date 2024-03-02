@@ -14,14 +14,14 @@ abstract class AbstractSession implements SessionInterface
 {
     abstract public function run($command);
 
-    public function mkdir($path, $recursive = false)
+    public function mkdir($path, $recursive = false): void
     {
         $command = sprintf('mkdir%s %s', $recursive ? ' -p' : '', $path);
 
         $this->run($command);
     }
 
-    public function mv($from, $to)
+    public function mv($from, $to): void
     {
         if (!$this->exists(dirname($to))) {
             $this->run(sprintf('mkdir -p %s', dirname($to)));
@@ -30,12 +30,12 @@ abstract class AbstractSession implements SessionInterface
         $this->run(sprintf('mv %s %s', $from, $to));
     }
 
-    public function rm($path, $recursive = false)
+    public function rm($path, $recursive = false): void
     {
         $this->run(sprintf('rm%s %s', $recursive ? ' -R' : '', $path));
     }
 
-    public function exists($path)
+    public function exists($path): bool
     {
         if ('Y' === trim((string) $this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
             return true;
@@ -44,18 +44,18 @@ abstract class AbstractSession implements SessionInterface
         return 'Y' === trim((string) $this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)));
     }
 
-    public function symlink($target, $link)
+    public function symlink($target, $link): void
     {
         $this->run(sprintf('ln -sfn %s %s', $target, $link));
     }
 
-    public function touch($path)
+    public function touch($path): void
     {
         $this->run(sprintf('mkdir -p %s', dirname($path)));
         $this->run(sprintf('touch %s', $path));
     }
 
-    public function listDirectory($path)
+    public function listDirectory($path): array
     {
         $rs = (string) $this->run(sprintf('find %s -maxdepth 1 -mindepth 1 -type d', $path));
 

@@ -11,7 +11,7 @@ use phpseclib\Net\SSH2;
 
 class ContextTest extends AbstractContextTest
 {
-    public function testSimpleContext()
+    public function testSimpleContext(): void
     {
         $logger = \Mockery::spy(ConsoleLogger::class);
         $ssh = \Mockery::mock(SSH2::class);
@@ -25,7 +25,7 @@ class ContextTest extends AbstractContextTest
         $this->assertEquals('/home/wwwroot/automate/demo/shared', $context->getSharedPath($server));
     }
 
-    public function testSimpleWithSharedPathContext()
+    public function testSimpleWithSharedPathContext(): void
     {
         $logger = \Mockery::spy(ConsoleLogger::class);
         $ssh = \Mockery::mock(SSH2::class);

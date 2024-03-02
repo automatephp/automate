@@ -15,61 +15,44 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractNotificationPlugin implements PluginInterface
 {
-    public const MESSAGE_START = ':hourglass: [Automate] [%platform%] Deployment start';
+    public const string MESSAGE_START = ':hourglass: [Automate] [%platform%] Deployment start';
 
-    public const MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] End of deployment with success';
+    public const string MESSAGE_SUCCESS = ':sunny: [Automate] [%platform%] End of deployment with success';
 
-    public const MESSAGE_FAILED = ':exclamation: [Automate] [%platform%] Deployment failed with error';
+    public const string MESSAGE_FAILED = ':exclamation: [Automate] [%platform%] Deployment failed with error';
 
-    public const INIT = 'onInit';
+    public const string INIT = 'onInit';
 
-    public const TERMINATE = 'onFinish';
+    public const string TERMINATE = 'onFinish';
 
-    public const FAILED = 'onFailed';
+    public const string FAILED = 'onFailed';
 
-    /**
-     * @var array
-     */
-    protected $configuration;
+    protected ?array $configuration = null;
 
-    /**
-     * @var HttpClientInterface
-     */
-    protected $client;
+    protected HttpClientInterface $client;
 
     public function __construct($client = null)
     {
         $this->client = $client ?: HttpClient::create();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function getName();
+    
+    abstract public function getName(): string;
 
-    /**
-     * Send message to chat service.
-     *
-     * @param string $message
-     * @param string $eventName
-     */
-    abstract protected function sendMessage($message, $eventName);
+    abstract protected function sendMessage(string $message, string $eventName);
 
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function getConfigurationNode();
+    
+    abstract public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    
+    public static function getSubscribedEvents(): array
     {
         return [
             DeployEvents::INIT => self::INIT,
@@ -78,45 +61,34 @@ abstract class AbstractNotificationPlugin implements PluginInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function register(Project $project)
+    
+    public function register(Project $project): void
     {
         $this->configuration = $project->getPlugin($this->getName());
     }
 
-    /**
-     * Send start deploy message.
-     */
-    public function onInit(DeployEvent $event)
+    public function onInit(DeployEvent $event): void
     {
         if ($this->configuration) {
             $this->sendMessage($this->getMessage('start', self::MESSAGE_START, $event->getContext()), self::INIT);
         }
     }
 
-    /**
-     * Send success deploy message.
-     */
-    public function onFinish(DeployEvent $event)
+    public function onFinish(DeployEvent $event): void
     {
         if ($this->configuration) {
             $this->sendMessage($this->getMessage('success', self::MESSAGE_SUCCESS, $event->getContext()), self::TERMINATE);
         }
     }
 
-    /**
-     * Send failed deploy message.
-     */
-    public function onFailed(FailedDeployEvent $event)
+    public function onFailed(FailedDeployEvent $event): void
     {
         if ($this->configuration) {
             $this->sendMessage($this->getMessage('failed', self::MESSAGE_FAILED, $event->getContext(), $event->getException()), self::FAILED);
         }
     }
 
-    protected function getMessagesNode()
+    protected function getMessagesNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('messages');
 
@@ -128,20 +100,14 @@ abstract class AbstractNotificationPlugin implements PluginInterface
             ->end();
     }
 
-    /**
-     * @param string $name
-     * @param string $default
-     *
-     * @return mixed|string
-     */
-    private function getMessage($name, $default, ContextInterface $context, \Exception $exception = null)
+    private function getMessage(string $name, string $default, ContextInterface $context, \Exception $exception = null): string
     {
         $message = $this->configuration['messages'][$name] ?? $default;
 
         if (null !== $context->getPlatform()->getName()) {
-            $message = str_replace('%platform%', $context->getPlatform()->getName(), $message);
+            $message = str_replace('%platform%', $context->getPlatform()->getName(), (string) $message);
         } else {
-            $message = str_replace('[%platform%]', '', $message);
+            $message = str_replace('[%platform%]', '', (string) $message);
         }
 
         if ($exception instanceof \Exception) {

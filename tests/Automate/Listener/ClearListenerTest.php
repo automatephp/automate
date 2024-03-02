@@ -21,7 +21,7 @@ use phpseclib\Net\SSH2;
 
 class ClearListenerTest extends AbstractContextTest
 {
-    public function testClearReleases()
+    public function testClearReleases(): void
     {
         $ssh = \Mockery::mock(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
@@ -52,7 +52,7 @@ class ClearListenerTest extends AbstractContextTest
         $listener->clearReleases($event);
     }
 
-    public function testRemoveFailedRelease()
+    public function testRemoveFailedRelease(): void
     {
         $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
@@ -70,7 +70,7 @@ class ClearListenerTest extends AbstractContextTest
         $listener->removeFailedRelease($event);
     }
 
-    public function testMoveFailedRelease()
+    public function testMoveFailedRelease(): void
     {
         $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);

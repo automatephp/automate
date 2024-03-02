@@ -22,24 +22,17 @@ use Automate\PluginManager;
 /**
  * Deployment workflow.
  */
-class Deployer
+readonly class Deployer
 {
-    /**
-     * @var ContextInterface
-     */
-    private $context;
-
-    public function __construct(ContextInterface $context)
-    {
-        $this->context = $context;
+    public function __construct(
+        private ContextInterface $context,
+    ) {
     }
 
     /**
      * Deploy project.
-     *
-     * @return bool
      */
-    public function deploy()
+    public function deploy(): bool
     {
         $dispatcher = (new DispatcherFactory(new PluginManager()))->create($this->context->getProject());
 
@@ -69,7 +62,7 @@ class Deployer
             $this->context->getLogger()->error($exception->getMessage());
             try {
                 $dispatcher->dispatch(new FailedDeployEvent($this->context, $exception), DeployEvents::FAILED);
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 // ignore exception
             }
         }
@@ -80,7 +73,7 @@ class Deployer
     /**
      * Prepare release.
      */
-    private function deployWithGit()
+    private function deployWithGit(): void
     {
         $this->context->getLogger()->section('Prepare Release');
 
@@ -99,11 +92,11 @@ class Deployer
 
         $gitRef = $this->context->getGitRef();
 
-        if ($gitRef) {
+        if (null !== $gitRef) {
             $listTagsCommand = sprintf("git tag --list '%s'", $gitRef);
             $this->context->getLogger()->command($listTagsCommand);
             foreach ($this->context->getPlatform()->getServers() as $server) {
-                if ($this->context->doRun($server, $listTagsCommand, true)) {
+                if (null !== $this->context->doRun($server, $listTagsCommand, true)) {
                     // checkout a tag
                     $command = sprintf('git checkout tags/%s', $gitRef);
                 } else {
@@ -122,12 +115,12 @@ class Deployer
      *
      * @param string $name section name
      */
-    private function runHooks(array $commands, $name)
+    private function runHooks(array $commands, string $name): void
     {
         if ([] !== $commands) {
             $this->context->getLogger()->section($name);
             foreach ($commands as $command) {
-                if ('' !== $command->getCmd() && '#' !== substr(trim($command->getCmd()), 0, 1)) {
+                if ('' !== $command->getCmd() && !str_starts_with(trim((string) $command->getCmd()), '#')) {
                     $this->context->run($command->getCmd(), true, $command->getOnly());
                 }
             }
@@ -137,7 +130,7 @@ class Deployer
     /**
      * Setting up shared items.
      */
-    private function initShared()
+    private function initShared(): void
     {
         $folders = $this->context->getProject()->getSharedFolders();
         $files = $this->context->getProject()->getSharedFiles();
@@ -156,14 +149,11 @@ class Deployer
         }
     }
 
-    /**
-     * @param bool $isDirectory
-     */
-    private function doShared($path, Server $server, $isDirectory)
+    private function doShared($path, Server $server, bool $isDirectory): void
     {
         $session = $this->context->getSession($server);
 
-        $path = trim($path);
+        $path = trim((string) $path);
         $path = ltrim($path, '/');
 
         $releasePath = $this->context->getReleasePath($server).'/'.$path;
@@ -202,7 +192,7 @@ class Deployer
     /**
      * deploy.
      */
-    private function activateSymlink()
+    private function activateSymlink(): void
     {
         $this->context->getLogger()->section('Publish new release');
 
@@ -218,7 +208,7 @@ class Deployer
     /**
      * Create release directory.
      */
-    private function createReleaseDirectory()
+    private function createReleaseDirectory(): void
     {
         foreach ($this->context->getPlatform()->getServers() as $server) {
             $this->context->getSession($server)->mkdir($this->context->getReleasePath($server), true);

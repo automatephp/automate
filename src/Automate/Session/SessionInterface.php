@@ -14,10 +14,8 @@ interface SessionInterface
 {
     /**
      * Execute e command.
-     *
-     * @param string $command
      */
-    public function run($command);
+    public function run(string $command);
 
     /**
      * Creates a directory.
@@ -26,7 +24,7 @@ interface SessionInterface
      * @param bool   $recursive Whether to automatically create any required
      *                          parent directory
      */
-    public function mkdir($path, $recursive = false);
+    public function mkdir(string $path, bool $recursive = false);
 
     /**
      * Move a file or a directory.
@@ -34,24 +32,21 @@ interface SessionInterface
      * @param string $from The current name of the directory or file
      * @param string $to   The new name of the directory or file
      */
-    public function mv($from, $to);
+    public function mv(string $from, string $to);
 
     /**
      * Removes a directory or a file.
      *
-     * @param string $path      The directory or file that is being removed
-     * @param bool   $recursive
+     * @param string $path The directory or file that is being removed
      */
-    public function rm($path, $recursive = false);
+    public function rm(string $path, bool $recursive = false);
 
     /**
      * Indicates whether the specified distant file or directory exists.
      *
      * @param string $path The distant filename ou directory
-     *
-     * @return bool
      */
-    public function exists($path);
+    public function exists(string $path): bool;
 
     /**
      * Creates a symlink.
@@ -59,21 +54,17 @@ interface SessionInterface
      * @param string $target The target of the symlink
      * @param string $link   The path of the link
      */
-    public function symlink($target, $link);
+    public function symlink(string $target, string $link);
 
     /**
      * Touch file.
      *
      * @param string $path FIle path
      */
-    public function touch($path);
+    public function touch(string $path);
 
     /**
      * Lists directories of the specified path.
-     *
-     * @param string $path
-     *
-     * @return array
      */
-    public function listDirectory($path);
+    public function listDirectory(string $path): array;
 }

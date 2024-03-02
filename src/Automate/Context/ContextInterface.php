@@ -29,113 +29,70 @@ interface ContextInterface
 
     /**
      * Get GitRef.
-     *
-     * @return string
      */
-    public function getGitRef();
+    public function getGitRef(): ?string;
 
     /**
      * Get Project.
-     *
-     * @return Project
      */
-    public function getProject();
+    public function getProject(): Project;
 
     /**
      * Get Platform.
-     *
-     * @return Platform
      */
-    public function getPlatform();
+    public function getPlatform(): Platform;
 
     /**
      * Get Logger.
-     *
-     * @return LoggerInterface
      */
-    public function getLogger();
+    public function getLogger(): LoggerInterface;
 
     /**
      * Is Deployed.
-     *
-     * @return bool
      */
-    public function isDeployed();
+    public function isDeployed(): ?bool;
 
-    /**
-     * @param bool $isDeployed
-     *
-     * @return ContextInterface
-     */
-    public function setDeployed($isDeployed);
+    public function setDeployed(bool $isDeployed): static;
 
     /**
      * Is Force.
-     *
-     * @return bool
      */
-    public function isForce();
+    public function isForce(): bool;
 
-    /**
-     * @param bool $force
-     *
-     * @return ContextInterface
-     */
-    public function setForce($force);
+    public function setForce(bool $force): static;
 
     /**
      * Get a release ID.
-     *
-     * @return string
      */
-    public function getReleaseId();
+    public function getReleaseId(): string;
 
     /**
      * Execute e command.
-     *
-     * @param string     $command
-     * @param bool       $verbose
-     * @param null|array $specificServers
-     * @param bool       $addWorkingDir
      */
-    public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true);
+    public function run(string $command, bool $verbose = false, ?array $specificServers = null, bool $addWorkingDir = true);
 
     /**
      * Run on server.
-     *
-     * @param string $command
-     * @param bool   $addWorkingDir
-     * @param bool   $verbose
-     *
-     * @return string
      */
-    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false);
+    public function doRun(Server $server, string $command, bool $addWorkingDir = true, bool $verbose = false): ?string;
 
     /**
      * Get release path.
-     *
-     * @return string
      */
-    public function getReleasePath(Server $server);
+    public function getReleasePath(Server $server): string;
 
     /**
      * Get releases path.
-     *
-     * @return string
      */
-    public function getReleasesPath(Server $server);
+    public function getReleasesPath(Server $server): string;
 
     /**
      * Get shared path.
-     *
-     * @return string
      */
-    public function getSharedPath(Server $server);
+    public function getSharedPath(Server $server): string;
 
     /**
      * Get current path.
-     *
-     * @return string
      */
-    public function getCurrentPath(Server $server);
+    public function getCurrentPath(Server $server): string;
 }

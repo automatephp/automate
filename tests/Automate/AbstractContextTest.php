@@ -20,7 +20,7 @@ use Automate\SessionFactory;
 
 abstract class AbstractContextTest extends AbstractMockTestCase
 {
-    protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
+    protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null): SSHContext
     {
         $loader = new Loader();
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
@@ -29,20 +29,20 @@ abstract class AbstractContextTest extends AbstractMockTestCase
         $sessionFactory = \Mockery::mock(SessionFactory::class);
         $sessionFactory->allows()->create(current($platform->getServers()))->andReturns($session);
 
-        $context = new SSHContext($project, $platform, $gitRef, $logger, false);
+        $context = new SSHContext($project, $platform, $logger, $gitRef, false);
         $context->setSessionFactory($sessionFactory);
         $context->connect();
 
         return $context;
     }
 
-    protected function createLocalContext(LoggerInterface $logger, $gitRef = null)
+    protected function createLocalContext(LoggerInterface $logger, $gitRef = null): LocalContext
     {
         $loader = new Loader();
         $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
         $platform = $project->getPlatform('development');
 
-        $context = new LocalContext($project, $platform, $gitRef, $logger);
+        $context = new LocalContext($project, $platform, $logger, $gitRef);
         $context->connect();
         $context->setForce(true);
         $this->assertTrue($context->isForce());
@@ -50,7 +50,7 @@ abstract class AbstractContextTest extends AbstractMockTestCase
         return $context;
     }
 
-    protected function createContextWithServerSharedPath(SessionInterface $session, LoggerInterface $logger, $gitRef = null)
+    protected function createContextWithServerSharedPath(SessionInterface $session, LoggerInterface $logger, $gitRef = null): SSHContext
     {
         $loader = new Loader();
         $project = $loader->load(__DIR__.'/../fixtures/simpleWithSharedPath.yml');
@@ -59,7 +59,7 @@ abstract class AbstractContextTest extends AbstractMockTestCase
         $sessionFactory = \Mockery::mock(SessionFactory::class);
         $sessionFactory->allows()->create(current($platform->getServers()))->andReturns($session);
 
-        $context = new SSHContext($project, $platform, $gitRef, $logger, false);
+        $context = new SSHContext($project, $platform, $logger, $gitRef, false);
         $context->setSessionFactory($sessionFactory);
         $context->connect();
 
