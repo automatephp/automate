@@ -16,6 +16,7 @@ use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,11 +25,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployCommand extends BaseCommand
 {
+    protected static $defaultDescription = 'Start remote deployment.';
+
     protected function configure()
     {
         $this
             ->setName('deploy')
-            ->setDescription('Start remote deployment.')
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
@@ -68,7 +70,7 @@ class DeployCommand extends BaseCommand
 
         $io->success('All is OK');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getServersList(Platform $platform)

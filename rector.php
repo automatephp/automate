@@ -20,7 +20,7 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::CODING_STYLE,
         LevelSetList::UP_TO_PHP_72,
         PHPUnitSetList::PHPUNIT_80,
-        SymfonySetList::SYMFONY_44,
+        SymfonySetList::SYMFONY_54,
     ]);
 
     $rectorConfig->skip([
