@@ -53,7 +53,6 @@ class GitterPluginTest extends AbstractContextTest
             'json' => [
                 'text' => ':hourglass: [Automate] [development] Deployment start',
             ],
-            'verify' => false,
         ])->once();
 
         $this->client->expects('request')->with('POST', 'https://api.gitter.im/v1/rooms/456/chatMessages', [
@@ -63,7 +62,6 @@ class GitterPluginTest extends AbstractContextTest
             'json' => [
                 'text' => ':sunny: [Automate] [development] End of deployment with success',
             ],
-            'verify' => false,
         ])->once();
 
         $this->client->expects('request')->with('POST', 'https://api.gitter.im/v1/rooms/456/chatMessages', [
@@ -73,7 +71,6 @@ class GitterPluginTest extends AbstractContextTest
             'json' => [
                 'text' => ':exclamation: [Automate] [development] Deployment failed with error',
             ],
-            'verify' => false,
         ])->once();
 
         $this->gitter->onInit(new DeployEvent($this->context));
@@ -100,7 +97,6 @@ class GitterPluginTest extends AbstractContextTest
             'json' => [
                 'text' => '[development] start',
             ],
-            'verify' => false,
         ])->once();
 
         $this->client->expects('request')->with('POST', 'https://api.gitter.im/v1/rooms/456/chatMessages', [
@@ -110,7 +106,6 @@ class GitterPluginTest extends AbstractContextTest
             'json' => [
                 'text' => '[development] success',
             ],
-            'verify' => false,
         ])->once();
 
         $this->client->expects('request')->with('POST', 'https://api.gitter.im/v1/rooms/456/chatMessages', [
@@ -120,7 +115,6 @@ class GitterPluginTest extends AbstractContextTest
             'json' => [
                 'text' => '[development] failed',
             ],
-            'verify' => false,
         ])->once();
 
         $this->gitter->onInit(new DeployEvent($this->context));

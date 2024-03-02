@@ -131,7 +131,6 @@ class GitlabPlugin implements PluginInterface
                     'variables[ENVIRONMENT_NAME]' => $context->getPlatform()->getName(),
                     'variables['.$envName.']' => $message,
                 ],
-                'verify' => false,
             ]);
         }
     }

@@ -61,7 +61,6 @@ class SlackPlugin extends AbstractNotificationPlugin
                 'json' => [
                     'text' => $message,
                 ],
-                'verify' => false,
             ]
         );
     }

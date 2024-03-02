@@ -52,8 +52,6 @@ class SentryPluginTest extends AbstractContextTest
             'json' => [
                 'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.':sunny: [Automate] [development] End of deployment with success',
             ],
-            'http_errors' => false,
-            'verify' => false,
         ])->once();
 
         $this->sentry->onInit(new DeployEvent($this->context));
@@ -77,8 +75,6 @@ class SentryPluginTest extends AbstractContextTest
             'json' => [
                 'version' => (new \DateTime('now'))->format('Y-m-d H:i:s').' '.'success',
             ],
-            'http_errors' => false,
-            'verify' => false,
         ])->once();
 
         $this->sentry->onInit(new DeployEvent($this->context));
