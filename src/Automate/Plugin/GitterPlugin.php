@@ -10,6 +10,7 @@
 
 namespace Automate\Plugin;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class GitterPlugin extends AbstractNotificationPlugin
@@ -21,7 +22,7 @@ class GitterPlugin extends AbstractNotificationPlugin
     }
 
     
-    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
+    public function getConfigurationNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('gitter');
 

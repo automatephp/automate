@@ -15,6 +15,7 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -45,7 +46,7 @@ class GitlabPlugin implements PluginInterface
 
     public const string MESSAGE_FAILED = 'Failed deployment of "%ref%" on platform "%platform%"';
 
-    private ?\Automate\Model\Project $project = null;
+    private ?Project $project = null;
 
     
     public static function getSubscribedEvents(): array
@@ -75,7 +76,7 @@ class GitlabPlugin implements PluginInterface
      */
     public function onSuccess(DeployEvent $event): void
     {
-        if ($this->project instanceof \Automate\Model\Project) {
+        if ($this->project instanceof Project) {
             $configuration = $this->project->getPlugin($this->getName());
             $message = $configuration['message']['success'] ?? self::MESSAGE_SUCCESS;
             $this->send($event->getContext(), $message, 'DEPLOY_SUCCESS_MSG');
@@ -87,7 +88,7 @@ class GitlabPlugin implements PluginInterface
      */
     public function onFailed(FailedDeployEvent $event): void
     {
-        if ($this->project instanceof \Automate\Model\Project) {
+        if ($this->project instanceof Project) {
             $configuration = $this->project->getPlugin($this->getName());
             $message = $configuration['message']['failed'] ?? self::MESSAGE_FAILED;
             $message .= "\n\n\n".$event->getException()->getMessage();
@@ -121,7 +122,7 @@ class GitlabPlugin implements PluginInterface
     }
 
     
-    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
+    public function getConfigurationNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('gitlab');
 

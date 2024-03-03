@@ -10,6 +10,7 @@
 
 namespace Automate\Plugin;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
@@ -21,8 +22,6 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
  * @author Romaric Paul <romaric.paul@gmail.com>
  *
  */
-
-
 class SlackPlugin extends AbstractNotificationPlugin
 {
     
@@ -32,7 +31,7 @@ class SlackPlugin extends AbstractNotificationPlugin
     }
 
     
-    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
+    public function getConfigurationNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder("slack");
 

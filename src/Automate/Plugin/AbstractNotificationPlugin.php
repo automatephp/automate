@@ -49,7 +49,7 @@ abstract class AbstractNotificationPlugin implements PluginInterface
     abstract protected function sendMessage(string $message, string $eventName);
 
     
-    abstract public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition;
+    abstract public function getConfigurationNode(): NodeDefinition;
 
     
     public static function getSubscribedEvents(): array

@@ -13,6 +13,7 @@ namespace Automate\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class CacheToolPlugin implements PluginInterface
@@ -71,7 +72,7 @@ class CacheToolPlugin implements PluginInterface
     }
 
     
-    public function getConfigurationNode(): \Symfony\Component\Config\Definition\Builder\NodeDefinition
+    public function getConfigurationNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('cache_tool');
 
