@@ -32,8 +32,15 @@ class CommandDenormalizer extends AbstractDenormalizer
         return $command;
     }
 
-    public function supportsDenormalization($data, $type, $format = null): bool
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return Command::class === $type;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Command::class => true,
+        ];
     }
 }

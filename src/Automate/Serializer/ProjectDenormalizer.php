@@ -62,8 +62,15 @@ class ProjectDenormalizer extends AbstractDenormalizer
         return $commands;
     }
 
-    public function supportsDenormalization($data, $type, $format = null): bool
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return Project::class === $type;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Project::class => true,
+        ];
     }
 }

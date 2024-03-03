@@ -16,10 +16,10 @@ use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
 use Automate\Plugin\SlackPlugin;
 use Automate\Session\SessionInterface;
-use Automate\Tests\AbstractContextTest;
+use Automate\Tests\AbstractContextTestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class SlackPluginTest extends AbstractContextTest
+class SlackPluginTest extends AbstractContextTestCase
 {
     public $client;
 

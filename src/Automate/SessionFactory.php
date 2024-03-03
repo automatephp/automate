@@ -14,8 +14,8 @@ namespace Automate;
 use Automate\Model\Server;
 use Automate\Session\SessionInterface;
 use Automate\Session\SSHSession;
-use phpseclib\Crypt\RSA;
-use phpseclib\Net\SSH2;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Net\SSH2;
 
 class SessionFactory
 {
@@ -34,9 +34,7 @@ class SessionFactory
                 throw new \Exception(sprintf('[%s] File "'.$server->getSshKey().'" not found', $server->getName()));
             }
 
-            $key = new RSA();
-            $key->setPassword($server->getPassword());
-            $key->loadKey(file_get_contents($server->getSshKey()));
+            $key = PublicKeyLoader::load(file_get_contents($server->getSshKey()), $server->getPassword());
             if (!$ssh->login($server->getUser(), $key)) {
                 throw new \Exception(sprintf('[%s] SSH key or passphrase is invalid', $server->getName()));
             }

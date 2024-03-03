@@ -21,8 +21,8 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::CODING_STYLE,
         SetList::TYPE_DECLARATION,
         LevelSetList::UP_TO_PHP_83,
-        PHPUnitSetList::PHPUNIT_90,
-        SymfonySetList::SYMFONY_54,
+        PHPUnitSetList::PHPUNIT_100,
+        SymfonySetList::SYMFONY_64,
     ]);
 
     $rectorConfig->skip([

@@ -19,9 +19,11 @@ abstract class AbstractDenormalizer implements DenormalizerInterface, Normalizer
 {
     protected DenormalizerInterface|NormalizerInterface $normalizer;
 
-    abstract public function denormalize($data, $class, $format = null, array $context = []);
+    abstract public function denormalize($data, $class, $format = null, array $context = []): mixed;
 
-    abstract public function supportsDenormalization($data, $type, $format = null);
+    abstract public function supportsDenormalization($data, $type, $format = null, array $context = []): bool;
+
+    abstract public function getSupportedTypes(?string $format): array;
 
     protected function extractValue(array $data, string $key, mixed $default = null)
     {

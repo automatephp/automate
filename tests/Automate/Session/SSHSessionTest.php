@@ -13,7 +13,7 @@ namespace Automate\Tests\Session;
 
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractMockTestCase;
-use phpseclib\Net\SSH2;
+use phpseclib3\Net\SSH2;
 
 class SSHSessionTest extends AbstractMockTestCase
 {

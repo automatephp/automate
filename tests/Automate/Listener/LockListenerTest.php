@@ -15,10 +15,10 @@ use Automate\Event\DeployEvent;
 use Automate\Listener\LockListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
-use Automate\Tests\AbstractContextTest;
-use phpseclib\Net\SSH2;
+use Automate\Tests\AbstractContextTestCase;
+use phpseclib3\Net\SSH2;
 
-class LockListenerTest extends AbstractContextTest
+class LockListenerTest extends AbstractContextTestCase
 {
     public function testInitLockFile(): void
     {
