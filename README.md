@@ -1,8 +1,6 @@
 # Automate
 
-[![Build Status](https://travis-ci.org/automatephp/automate.svg?branch=master)](https://travis-ci.org/automatephp/automate)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/automatephp/automate/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/automatephp/automate/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/automatephp/automate/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/automatephp/automate/?branch=master)
+![Status](https://github.com/automatephp/automate/actions/workflows/ci.yaml/badge.svg)
 
 Automate allows you to automate your deployments to remote Linux servers simply.
 You can use Automate from your workstation or through an integration server like Travis or Gitlab-ci
