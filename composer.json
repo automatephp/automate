@@ -10,9 +10,9 @@
         "symfony/serializer": "^7.0",
         "symfony/config": "^7.0",
         "symfony/filesystem": "^7.0",
-        "phpseclib/phpseclib": "^3.0",
         "symfony/process": "^7.0",
-        "symfony/http-client": "^7.0"
+        "symfony/http-client": "^7.0",
+        "phpseclib/phpseclib": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.0",

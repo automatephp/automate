@@ -17,6 +17,7 @@ use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,14 +25,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'run',
+    description: 'Start local deployment.',
+)]
 class LocalDeployCommand extends BaseCommand
 {
-    protected static $defaultDescription = 'Start local deployment.';
-
     protected function configure()
     {
         $this
-            ->setName('run')
             ->addArgument('path', InputArgument::REQUIRED, "Project's local path")
             ->addArgument('gitRef', InputArgument::REQUIRED, 'Branch or tag name')
             ->addOption('max-releases', null, InputOption::VALUE_REQUIRED, 'The number of releases to be kept', 3)

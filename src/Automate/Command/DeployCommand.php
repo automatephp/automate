@@ -16,6 +16,7 @@ use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,14 +24,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'deploy',
+    description: 'Start remote deployment.',
+)]
 class DeployCommand extends BaseCommand
 {
-    protected static $defaultDescription = 'Start remote deployment.';
-
     protected function configure(): void
     {
         $this
-            ->setName('deploy')
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
