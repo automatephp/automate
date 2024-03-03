@@ -18,7 +18,7 @@ use Automate\Logger\LoggerInterface;
 use Automate\Session\SessionInterface;
 use Automate\SessionFactory;
 
-abstract class AbstractContextTest extends AbstractMockTestCase
+abstract class AbstractContextTestCase extends AbstractMockTestCase
 {
     protected function createContext(SessionInterface $session, LoggerInterface $logger, $gitRef = null): SSHContext
     {

@@ -5,4 +5,4 @@ box.phar
 build
 test.yml
 .php-cs-fixer.cache
-.phpunit.result.cache
+.phpunit.cache

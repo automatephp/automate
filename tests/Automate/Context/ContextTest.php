@@ -6,10 +6,10 @@ use Automate\Context\ContextInterface;
 use Automate\Logger\ConsoleLogger;
 use Automate\Model\Server;
 use Automate\Session\SSHSession;
-use Automate\Tests\AbstractContextTest;
+use Automate\Tests\AbstractContextTestCase;
 use phpseclib3\Net\SSH2;
 
-class ContextTest extends AbstractContextTest
+class ContextTest extends AbstractContextTestCase
 {
     public function testSimpleContext(): void
     {

@@ -13,12 +13,12 @@ namespace Automate\Tests\Workflow;
 
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
-use Automate\Tests\AbstractContextTest;
+use Automate\Tests\AbstractContextTestCase;
 use Automate\Workflow;
 use phpseclib3\Net\SSH2;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class DeployTest extends AbstractContextTest
+class DeployTest extends AbstractContextTestCase
 {
     public function testRemoteDeploy(): void
     {

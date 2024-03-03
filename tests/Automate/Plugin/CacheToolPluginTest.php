@@ -15,9 +15,9 @@ use Automate\Event\DeployEvent;
 use Automate\Logger\ConsoleLogger;
 use Automate\Plugin\CacheToolPlugin;
 use Automate\Session\SessionInterface;
-use Automate\Tests\AbstractContextTest;
+use Automate\Tests\AbstractContextTestCase;
 
-class CacheToolPluginTest extends AbstractContextTest
+class CacheToolPluginTest extends AbstractContextTestCase
 {
     public function testSimpleConfig(): void
     {

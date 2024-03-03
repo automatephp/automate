@@ -16,10 +16,10 @@ use Automate\Event\FailedDeployEvent;
 use Automate\Logger\LoggerInterface;
 use Automate\Plugin\SentryPlugin;
 use Automate\Session\SessionInterface;
-use Automate\Tests\AbstractContextTest;
+use Automate\Tests\AbstractContextTestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class SentryPluginTest extends AbstractContextTest
+class SentryPluginTest extends AbstractContextTestCase
 {
     public $client;
 

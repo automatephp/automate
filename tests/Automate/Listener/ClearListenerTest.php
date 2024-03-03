@@ -16,10 +16,10 @@ use Automate\Event\FailedDeployEvent;
 use Automate\Listener\ClearListener;
 use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
-use Automate\Tests\AbstractContextTest;
+use Automate\Tests\AbstractContextTestCase;
 use phpseclib3\Net\SSH2;
 
-class ClearListenerTest extends AbstractContextTest
+class ClearListenerTest extends AbstractContextTestCase
 {
     public function testClearReleases(): void
     {
