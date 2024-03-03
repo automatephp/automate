@@ -21,10 +21,7 @@ use Automate\Model\Project;
  */
 class CommandDenormalizer extends AbstractDenormalizer
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function denormalize($data, $class, $format = null, array $context = [])
+    public function denormalize($data, $class, $format = null, array $context = []): Command
     {
         $command = new Command();
 
@@ -35,10 +32,7 @@ class CommandDenormalizer extends AbstractDenormalizer
         return $command;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null): bool
     {
         return Command::class === $type;
     }

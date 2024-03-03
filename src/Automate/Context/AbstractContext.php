@@ -17,138 +17,70 @@ use Automate\Model\Server;
 
 abstract class AbstractContext implements ContextInterface
 {
-    /**
-     * @var string
-     */
-    protected $releaseId;
+    protected ?string $releaseId = null;
 
-    /**
-     * @var string
-     */
-    protected $gitRef;
+    protected ?bool $isDeployed = null;
 
-    /**
-     * @var Project
-     */
-    protected $project;
-
-    /**
-     * @var Platform
-     */
-    protected $platform;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @var bool
-     */
-    protected $isDeployed;
-
-    /**
-     * @var bool
-     */
-    protected $force;
-
-    /**
-     * @param string $gitRef
-     * @param bool   $force
-     */
-    public function __construct(Project $project, Platform $platform, $gitRef, LoggerInterface $logger, $force = false)
-    {
-        $this->project = $project;
-        $this->platform = $platform;
-        $this->gitRef = $gitRef;
-        $this->logger = $logger;
-        $this->force = $force;
+    public function __construct(
+        protected Project $project,
+        protected Platform $platform,
+        protected LoggerInterface $logger,
+        protected ?string $gitRef = null,
+        protected bool $force = false,
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     abstract public function connect();
 
-    /**
-     * {@inheritdoc}
-     */
     abstract public function getSession(Server $server);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getGitRef()
+    public function getGitRef(): ?string
     {
         return $this->gitRef;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getProject()
+    public function getProject(): Project
     {
         return $this->project;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPlatform()
+    public function getPlatform(): Platform
     {
         return $this->platform;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isDeployed()
+    public function isDeployed(): ?bool
     {
         return $this->isDeployed;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setDeployed($isDeployed)
+    public function setDeployed($isDeployed): static
     {
         $this->isDeployed = $isDeployed;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isForce()
+    public function isForce(): bool
     {
         return $this->force;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setForce($force)
+    public function setForce($force): static
     {
         $this->force = $force;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReleaseId()
+    public function getReleaseId(): string
     {
-        if (!$this->releaseId) {
+        if (null === $this->releaseId) {
             $date = new \DateTime();
 
             $this->releaseId = sprintf(
@@ -165,10 +97,7 @@ abstract class AbstractContext implements ContextInterface
         return $this->releaseId;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true)
+    public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true): void
     {
         $servers = $this->platform->getServers();
 
@@ -182,10 +111,7 @@ abstract class AbstractContext implements ContextInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false)
+    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false): ?string
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
 
@@ -198,41 +124,29 @@ abstract class AbstractContext implements ContextInterface
         return $response;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReleasePath(Server $server)
+    public function getReleasePath(Server $server): string
     {
         return $this->getReleasesPath($server).'/'.$this->getReleaseId();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReleasesPath(Server $server)
+    public function getReleasesPath(Server $server): string
     {
         return $server->getPath().'/releases';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSharedPath(Server $server)
+    public function getSharedPath(Server $server): string
     {
         $serverSharedPath = $server->getSharedPath();
 
         // if the shared path is not configured on the server configuration
-        if (empty($serverSharedPath)) {
+        if (null === $serverSharedPath) {
             $serverSharedPath = $server->getPath().'/shared';
         }
 
         return $serverSharedPath;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCurrentPath(Server $server)
+    public function getCurrentPath(Server $server): string
     {
         return $server->getPath().'/current';
     }

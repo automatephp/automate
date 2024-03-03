@@ -15,14 +15,13 @@ use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
 use Automate\VariableResolver;
-use Mockery;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class VariableResolverTest extends AbstractMockTestCase
 {
-    public function testAskPassword()
+    public function testAskPassword(): void
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $io->expects('askHidden')->with('Enter a value for password "server_password"')->andReturns('mypassword');
 
         $resolver = new VariableResolver($io);
@@ -38,9 +37,9 @@ class VariableResolverTest extends AbstractMockTestCase
         $this->assertEquals('mypassword', $server->getPassword());
     }
 
-    public function testSessionPassword()
+    public function testSessionPassword(): void
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
 
         $resolver = new VariableResolver($io);
         $platform = new Platform();
@@ -56,9 +55,9 @@ class VariableResolverTest extends AbstractMockTestCase
         $this->assertEquals('sessionPassword', $server->getPassword());
     }
 
-    public function testRepository()
+    public function testRepository(): void
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
 
         $resolver = new VariableResolver($io);
         putenv('AUTOMATE__git_password=sessionPassword');

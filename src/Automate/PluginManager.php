@@ -18,7 +18,7 @@ class PluginManager
     /**
      * @var PluginInterface[]
      */
-    private $plugins = [];
+    private array $plugins = [];
 
     public function __construct()
     {
@@ -36,7 +36,7 @@ class PluginManager
     /**
      * @return PluginInterface[]
      */
-    public function getPlugins()
+    public function getPlugins(): array
     {
         return $this->plugins;
     }

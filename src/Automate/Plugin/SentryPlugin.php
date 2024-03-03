@@ -10,6 +10,7 @@
 
 namespace Automate\Plugin;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
@@ -24,18 +25,14 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class SentryPlugin extends AbstractNotificationPlugin
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    
+    public function getName(): string
     {
         return 'sentry';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationNode()
+    
+    public function getConfigurationNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('sentry');
         $treeBuilder = new TreeBuilder("sentry");
@@ -52,7 +49,8 @@ class SentryPlugin extends AbstractNotificationPlugin
      * @param string $message
      * @param string $eventName
      */
-    protected function sendMessage($message, $eventName)
+    
+    protected function sendMessage(string $message, string $eventName): void
     {
         if (AbstractNotificationPlugin::TERMINATE === $eventName) {
             $this->client->request(
@@ -70,13 +68,11 @@ class SentryPlugin extends AbstractNotificationPlugin
     }
 
     /**
-     * @param string $uri
-     *
      * @return string
      */
-    protected function checkUri($uri)
+    protected function checkUri(string $uri): string
     {
-        if ('/' !== substr($uri, -1)) {
+        if (!str_ends_with($uri, '/')) {
             $uri .= '/';
         }
 

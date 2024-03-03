@@ -25,7 +25,7 @@ class CheckCommand extends BaseCommand
 {
     protected static $defaultDescription = 'check remote platform.';
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('check')
@@ -47,7 +47,7 @@ class CheckCommand extends BaseCommand
         $logger = $this->getLogger($io);
 
         try {
-            $context = new SSHContext($project, $platform, $platform->getDefaultBranch(), $logger);
+            $context = new SSHContext($project, $platform, $logger, $platform->getDefaultBranch());
 
             $context->connect();
             $logger->section('Check git access');

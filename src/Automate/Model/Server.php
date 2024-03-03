@@ -16,200 +16,112 @@ namespace Automate\Model;
  */
 class Server
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private ?string $name = null;
 
-    /**
-     * @var string
-     */
-    private $host;
+    private ?string $host = null;
 
-    /**
-     * @var string
-     */
-    private $user;
+    private ?string $user = null;
 
-    /**
-     * @var string
-     */
-    private $sshKey;
+    private ?string $sshKey = null;
 
-    /**
-     * @var string
-     */
-    private $password;
+    private ?string $password = null;
 
-    /**
-     * @var string
-     */
-    private $path;
+    private ?string $path = null;
 
-    /**
-     * @var string
-     */
-    private $sharedPath;
+    private ?string $sharedPath = null;
 
-    /**
-     * @var int
-     */
-    private $port;
+    private ?int $port = null;
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Server
-     */
-    public function setName($name)
+    public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getHost()
+    public function getHost(): ?string
     {
         return $this->host;
     }
 
-    /**
-     * @param string $host
-     *
-     * @return Server
-     */
-    public function setHost($host)
+    public function setHost(?string $host): self
     {
         $this->host = $host;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getUser()
+    public function getUser(): ?string
     {
         return $this->user;
     }
 
-    /**
-     * @param string $user
-     *
-     * @return Server
-     */
-    public function setUser($user)
+    public function setUser(?string $user): self
     {
         $this->user = $user;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSshKey()
+    public function getSshKey(): ?string
     {
         return $this->sshKey;
     }
 
-    /**
-     * @param string $sshKey
-     *
-     * @return Server
-     */
-    public function setSshKey($sshKey)
+    public function setSshKey(?string $sshKey): self
     {
         $this->sshKey = $sshKey;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    /**
-     * @param string $password
-     *
-     * @return Server
-     */
-    public function setPassword($password)
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
-    /**
-     * @param string $path
-     *
-     * @return Server
-     */
-    public function setPath($path)
+    public function setPath(?string $path): self
     {
         $this->path = $path;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSharedPath()
+    public function getSharedPath(): ?string
     {
         return $this->sharedPath;
     }
 
-    /**
-     * @param string $sharedPath
-     *
-     * @return Server
-     */
-    public function setSharedPath($sharedPath)
+    public function setSharedPath(?string $sharedPath): self
     {
         $this->sharedPath = $sharedPath;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getPort()
+    public function getPort(): ?int
     {
         return $this->port;
     }
 
-    /**
-     * @param int $port
-     *
-     * @return Server
-     */
-    public function setPort($port)
+    public function setPort(?int $port): self
     {
         $this->port = $port;
 

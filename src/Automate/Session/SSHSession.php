@@ -15,25 +15,17 @@ use phpseclib\Net\SSH2;
 class SSHSession extends AbstractSession
 {
     /**
-     * @var SSH2
-     */
-    private $ssh;
-
-    /**
      * Session constructor.
      */
-    public function __construct(SSH2 $ssh)
-    {
-        $this->ssh = $ssh;
+    public function __construct(
+        private readonly SSH2 $ssh,
+    ) {
         $this->ssh->setTimeout(0);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function run($command)
+    public function run($command): string
     {
-        $rs = $this->ssh->exec($command);
+        $rs = (string) $this->ssh->exec($command);
 
         if (0 !== $this->ssh->getExitStatus()) {
             throw new \RuntimeException($rs);

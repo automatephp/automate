@@ -13,7 +13,6 @@ namespace Automate\Tests\Session;
 
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractMockTestCase;
-use Mockery;
 use phpseclib\Net\SSH2;
 
 class SSHSessionTest extends AbstractMockTestCase
@@ -23,10 +22,10 @@ class SSHSessionTest extends AbstractMockTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->ssh = Mockery::spy(SSH2::class);
+        $this->ssh = \Mockery::spy(SSH2::class);
     }
 
-    public function testRun()
+    public function testRun(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -40,7 +39,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $this->assertEquals('test', $rs);
     }
 
-    public function testRunWithError()
+    public function testRunWithError(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -54,7 +53,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->run($command);
     }
 
-    public function testMkdir()
+    public function testMkdir(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -66,7 +65,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->mkdir('/path/to/fomder', true);
     }
 
-    public function testMv()
+    public function testMv(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -76,7 +75,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->mv('/home/a.txt', '/home/b.txt');
     }
 
-    public function testMvWithMkdir()
+    public function testMvWithMkdir(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -87,7 +86,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->mv('/home/a', '/data/usr');
     }
 
-    public function testRm()
+    public function testRm(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -97,7 +96,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->rm('/home/a.txt');
     }
 
-    public function testFolderExists()
+    public function testFolderExists(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -107,7 +106,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $this->assertTrue($session->exists('/home/test'));
     }
 
-    public function testFileExists()
+    public function testFileExists(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -118,7 +117,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $this->assertTrue($session->exists('/home/test.txt'));
     }
 
-    public function testSymlink()
+    public function testSymlink(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -128,7 +127,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->symlink('/data/a.txt', '/data/b.txt');
     }
 
-    public function testTouch()
+    public function testTouch(): void
     {
         $session = new SSHSession($this->ssh);
 
@@ -139,7 +138,7 @@ class SSHSessionTest extends AbstractMockTestCase
         $session->touch('/data/a.txt');
     }
 
-    public function testListDirectory()
+    public function testListDirectory(): void
     {
         $session = new SSHSession($this->ssh);
 

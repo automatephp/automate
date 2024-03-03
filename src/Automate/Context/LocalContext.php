@@ -16,17 +16,11 @@ use Automate\Session\SessionInterface;
 
 class LocalContext extends AbstractContext
 {
-    /**
-     * connect servers.
-     */
     public function connect()
     {
     }
 
-    /**
-     * @return SessionInterface
-     */
-    public function getSession(Server $server)
+    public function getSession(Server $server): SessionInterface
     {
         return new LocalSession();
     }

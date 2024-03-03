@@ -12,25 +12,16 @@ namespace Automate\Session;
 
 abstract class AbstractSession implements SessionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     abstract public function run($command);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function mkdir($path, $recursive = false)
+    public function mkdir($path, $recursive = false): void
     {
         $command = sprintf('mkdir%s %s', $recursive ? ' -p' : '', $path);
 
         $this->run($command);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function mv($from, $to)
+    public function mv($from, $to): void
     {
         if (!$this->exists(dirname($to))) {
             $this->run(sprintf('mkdir -p %s', dirname($to)));
@@ -39,49 +30,34 @@ abstract class AbstractSession implements SessionInterface
         $this->run(sprintf('mv %s %s', $from, $to));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rm($path, $recursive = false)
+    public function rm($path, $recursive = false): void
     {
         $this->run(sprintf('rm%s %s', $recursive ? ' -R' : '', $path));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function exists($path)
+    public function exists($path): bool
     {
-        if ('Y' === trim($this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
+        if ('Y' === trim((string) $this->run(sprintf('if test -d "%s"; then echo "Y";fi', $path)))) {
             return true;
         }
 
-        return 'Y' === trim($this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)));
+        return 'Y' === trim((string) $this->run(sprintf('if test -f "%s"; then echo "Y";fi', $path)));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function symlink($target, $link)
+    public function symlink($target, $link): void
     {
         $this->run(sprintf('ln -sfn %s %s', $target, $link));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function touch($path)
+    public function touch($path): void
     {
         $this->run(sprintf('mkdir -p %s', dirname($path)));
         $this->run(sprintf('touch %s', $path));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listDirectory($path)
+    public function listDirectory($path): array
     {
-        $rs = $this->run(sprintf('find %s -maxdepth 1 -mindepth 1 -type d', $path));
+        $rs = (string) $this->run(sprintf('find %s -maxdepth 1 -mindepth 1 -type d', $path));
 
         return explode("\n", trim($rs));
     }

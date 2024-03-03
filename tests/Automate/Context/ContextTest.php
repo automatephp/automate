@@ -7,15 +7,14 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Model\Server;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
-use Mockery;
 use phpseclib\Net\SSH2;
 
 class ContextTest extends AbstractContextTest
 {
-    public function testSimpleContext()
+    public function testSimpleContext(): void
     {
-        $logger = Mockery::spy(ConsoleLogger::class);
-        $ssh = Mockery::mock(SSH2::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
+        $ssh = \Mockery::mock(SSH2::class);
         $ssh->expects()->setTimeout(0);
 
         $session = new SSHSession($ssh);
@@ -26,10 +25,10 @@ class ContextTest extends AbstractContextTest
         $this->assertEquals('/home/wwwroot/automate/demo/shared', $context->getSharedPath($server));
     }
 
-    public function testSimpleWithSharedPathContext()
+    public function testSimpleWithSharedPathContext(): void
     {
-        $logger = Mockery::spy(ConsoleLogger::class);
-        $ssh = Mockery::mock(SSH2::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
+        $ssh = \Mockery::mock(SSH2::class);
         $ssh->expects()->setTimeout(0);
 
         $session = new SSHSession($ssh);

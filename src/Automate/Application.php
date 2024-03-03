@@ -14,25 +14,18 @@ namespace Automate;
 use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
 use Automate\Command\LocalDeployCommand;
-use Automate\Command\SelfUpdateCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($name = 'Automate', $version = '@git-version@')
+    public function __construct(string $name = 'Automate', string $version = '@git-version@')
     {
         parent::__construct($name, $version);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLongVersion()
+    public function getLongVersion(): string
     {
-        if (('@'.'git-version@') !== $this->getVersion()) {
+        if ('@git-version@' !== $this->getVersion()) {
             return sprintf(
                 '<info>%s</info> version <comment>%s</comment> build <comment>%s</comment>',
                 $this->getName(),
@@ -44,10 +37,7 @@ class Application extends BaseApplication
         return '<info>'.$this->getName().'</info> <comment>@dev</comment>';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefaultCommands()
+    protected function getDefaultCommands(): array
     {
         // Keep the core default commands to have the HelpCommand
         // which is used when using the --help option
@@ -56,10 +46,6 @@ class Application extends BaseApplication
         $commands[] = new DeployCommand();
         $commands[] = new LocalDeployCommand();
         $commands[] = new CheckCommand();
-
-        if (('@'.'git-version@') !== $this->getVersion()) {
-            $commands[] = new SelfUpdateCommand();
-        }
 
         return $commands;
     }

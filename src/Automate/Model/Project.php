@@ -16,192 +16,117 @@ namespace Automate\Model;
  */
 class Project
 {
-    /**
-     * @var string
-     */
-    private $repository;
+    private ?string $repository = null;
 
-    /**
-     * @var array
-     */
-    private $sharedFiles = [];
+    private array $sharedFiles = [];
 
-    /**
-     * @var array
-     */
-    private $sharedFolders = [];
+    private array $sharedFolders = [];
 
-    /**
-     * @var array
-     */
-    private $preDeploy = [];
+    private array $preDeploy = [];
 
-    /**
-     * @var array
-     */
-    private $onDeploy = [];
+    private array $onDeploy = [];
 
-    /**
-     * @var array
-     */
-    private $postDeploy = [];
+    private array $postDeploy = [];
 
-    /**
-     * @var array
-     */
-    private $plugins = [];
+    private array $plugins = [];
 
     /**
      * @var Platform[]
      */
-    private $plaforms = [];
+    private array $platforms = [];
 
-    /**
-     * @return string
-     */
-    public function getRepository()
+    public function getRepository(): ?string
     {
         return $this->repository;
     }
 
-    /**
-     * @param string $repository
-     *
-     * @return Project
-     */
-    public function setRepository($repository)
+    public function setRepository(string $repository): self
     {
         $this->repository = $repository;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getSharedFiles()
+    public function getSharedFiles(): array
     {
         return $this->sharedFiles;
     }
 
-    /**
-     * @return Project
-     */
-    public function setSharedFiles(array $sharedFiles)
+    public function setSharedFiles(array $sharedFiles): self
     {
         $this->sharedFiles = $sharedFiles;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getSharedFolders()
+    public function getSharedFolders(): array
     {
         return $this->sharedFolders;
     }
 
-    /**
-     * @return Project
-     */
-    public function setSharedFolders(array $sharedFolders)
+    public function setSharedFolders(array $sharedFolders): self
     {
         $this->sharedFolders = $sharedFolders;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getPreDeploy()
+    public function getPreDeploy(): array
     {
         return $this->preDeploy;
     }
 
-    /**
-     * @return Project
-     */
-    public function setPreDeploy(array $preDeploy)
+    public function setPreDeploy(array $preDeploy): self
     {
         $this->preDeploy = $preDeploy;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getOnDeploy()
+    public function getOnDeploy(): array
     {
         return $this->onDeploy;
     }
 
-    /**
-     * @return Project
-     */
-    public function setOnDeploy(array $onDeploy)
+    public function setOnDeploy(array $onDeploy): self
     {
         $this->onDeploy = $onDeploy;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getPostDeploy()
+    public function getPostDeploy(): array
     {
         return $this->postDeploy;
     }
 
-    /**
-     * @return Project
-     */
-    public function setPostDeploy(array $postDeploy)
+    public function setPostDeploy(array $postDeploy): self
     {
         $this->postDeploy = $postDeploy;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getPlugins()
+    public function getPlugins(): array
     {
         return $this->plugins;
     }
 
-    /**
-     * @param array $plugins
-     *
-     * @return Project
-     */
-    public function setPlugins($plugins)
+    public function setPlugins(array $plugins): self
     {
         $this->plugins = $plugins;
 
         return $this;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return null|array
-     */
-    public function getPlugin($name)
+    public function getPlugin(string $name): ?array
     {
         return $this->plugins[$name] ?? null;
     }
 
-    /**
-     * @return Project
-     */
-    public function addPlatform(Platform $platform)
+    public function addPlatform(Platform $platform): self
     {
-        $this->plaforms[$platform->getName()] = $platform;
+        $this->platforms[$platform->getName()] = $platform;
 
         return $this;
     }
@@ -209,22 +134,17 @@ class Project
     /**
      * @return Platform[]
      */
-    public function getPlatforms()
+    public function getPlatforms(): array
     {
-        return $this->plaforms;
+        return $this->platforms;
     }
 
-    /**
-     * @param mixed $name
-     *
-     * @return Platform
-     */
-    public function getPlatform($name)
+    public function getPlatform($name): Platform
     {
-        if (!isset($this->plaforms[$name])) {
+        if (!isset($this->platforms[$name])) {
             throw new \InvalidArgumentException(sprintf('Missing platform %s', $name));
         }
 
-        return $this->plaforms[$name];
+        return $this->platforms[$name];
     }
 }

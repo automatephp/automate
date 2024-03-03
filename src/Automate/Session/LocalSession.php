@@ -14,9 +14,6 @@ use Symfony\Component\Process\Process;
 
 class LocalSession extends AbstractSession
 {
-    /**
-     * {@inheritdoc}
-     */
     public function run($command)
     {
         $process = Process::fromShellCommandline($command);

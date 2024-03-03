@@ -10,6 +10,7 @@
 
 namespace Automate\Plugin;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
@@ -21,24 +22,17 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
  * @author Romaric Paul <romaric.paul@gmail.com>
  *
  */
-
-
 class SlackPlugin extends AbstractNotificationPlugin
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    
+    public function getName(): string
     {
         return 'slack';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationNode()
+    
+    public function getConfigurationNode(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder('slack');
         $treeBuilder = new TreeBuilder("slack");
 
         return $treeBuilder->getRootNode()
@@ -49,11 +43,8 @@ class SlackPlugin extends AbstractNotificationPlugin
 
     }
 
-    /**
-     * @param string $message
-     * @param mixed  $eventName
-     */
-    protected function sendMessage($message, $eventName)
+    
+    protected function sendMessage(string $message, string $eventName): void
     {
         $this->client->request(
             'POST', $this->configuration['hook_uri'],

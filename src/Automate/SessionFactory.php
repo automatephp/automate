@@ -23,15 +23,13 @@ class SessionFactory
      * Create session.
      *
      * @throws \Exception
-     *
-     * @return SessionInterface
      */
-    public function create(Server $server)
+    public function create(Server $server): SessionInterface
     {
         $ssh = new SSH2($server->getHost(), $server->getPort());
 
         // Connection with ssh key and optional
-        if (!empty($server->getSshKey())) {
+        if (null !== $server->getSshKey()) {
             if (!file_exists($server->getSshKey())) {
                 throw new \Exception(sprintf('[%s] File "'.$server->getSshKey().'" not found', $server->getName()));
             }

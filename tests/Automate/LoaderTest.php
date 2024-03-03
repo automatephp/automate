@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 class LoaderTest extends TestCase
 {
-    public function testLoader()
+    public function testLoader(): void
     {
         $loder = new Loader();
 
@@ -77,7 +77,7 @@ class LoaderTest extends TestCase
         $this->assertEquals('/home/wwwroot/automate/demo', $server->getPath());
     }
 
-    public function testSharedPathLoader()
+    public function testSharedPathLoader(): void
     {
         $loder = new Loader();
 

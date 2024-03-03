@@ -16,20 +16,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class DeployEvent extends Event
 {
-    /**
-     * @var ContextInterface
-     */
-    private $context;
-
-    public function __construct(ContextInterface $context)
-    {
-        $this->context = $context;
+    public function __construct(
+        private readonly ContextInterface $context,
+    ) {
     }
 
-    /**
-     * @return ContextInterface
-     */
-    public function getContext()
+    public function getContext(): ContextInterface
     {
         return $this->context;
     }

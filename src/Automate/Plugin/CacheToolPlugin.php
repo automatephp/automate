@@ -13,44 +13,36 @@ namespace Automate\Plugin;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Model\Project;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 class CacheToolPlugin implements PluginInterface
 {
-    public const PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/';
+    public const string PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/';
 
-    /**
-     * @var array
-     */
-    protected $configuration;
+    protected ?array $configuration = null;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    
+    public static function getSubscribedEvents(): array
     {
         return [
             DeployEvents::TERMINATE => 'onTerminate',
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function register(Project $project)
+    
+    public function register(Project $project): void
     {
         $this->configuration = $project->getPlugin($this->getName());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    
+    public function getName(): string
     {
         return 'cache_tool';
     }
 
-    public function onTerminate(DeployEvent $event)
+    public function onTerminate(DeployEvent $event): void
     {
         if ($this->configuration) {
             $context = $event->getContext();
@@ -79,10 +71,8 @@ class CacheToolPlugin implements PluginInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationNode()
+    
+    public function getConfigurationNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('cache_tool');
 

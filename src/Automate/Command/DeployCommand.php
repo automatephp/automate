@@ -27,7 +27,7 @@ class DeployCommand extends BaseCommand
 {
     protected static $defaultDescription = 'Start remote deployment.';
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('deploy')
@@ -61,7 +61,7 @@ class DeployCommand extends BaseCommand
             ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
         ]);
 
-        $context = new SSHContext($project, $platform, $gitRef, $logger, $input->getOption('force'));
+        $context = new SSHContext($project, $platform, $logger, $gitRef, $input->getOption('force'));
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {
@@ -73,7 +73,7 @@ class DeployCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function getServersList(Platform $platform)
+    private function getServersList(Platform $platform): string
     {
         $servers = [];
         foreach ($platform->getServers() as $server) {

@@ -15,18 +15,17 @@ use Automate\Logger\ConsoleLogger;
 use Automate\Session\SSHSession;
 use Automate\Tests\AbstractContextTest;
 use Automate\Workflow;
-use Mockery;
 use phpseclib\Net\SSH2;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployTest extends AbstractContextTest
 {
-    public function testRemoteDeploy()
+    public function testRemoteDeploy(): void
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -47,12 +46,12 @@ class DeployTest extends AbstractContextTest
         $this->assertTrue($rs);
     }
 
-    public function testError()
+    public function testError(): void
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(1);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -65,11 +64,11 @@ class DeployTest extends AbstractContextTest
         $this->assertFalse($rs);
     }
 
-    public function testCheckout()
+    public function testCheckout(): void
     {
-        $logger = Mockery::spy(ConsoleLogger::class);
+        $logger = \Mockery::spy(ConsoleLogger::class);
 
-        $ssh = Mockery::spy(SSH2::class);
+        $ssh = \Mockery::spy(SSH2::class);
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
         $ssh->shouldReceive()->setTimeout(0);
 
@@ -82,9 +81,9 @@ class DeployTest extends AbstractContextTest
         $this->assertTrue($rs);
     }
 
-    public function testLocalDeploy()
+    public function testLocalDeploy(): void
     {
-        $io = Mockery::spy(SymfonyStyle::class);
+        $io = \Mockery::spy(SymfonyStyle::class);
         $logger = new ConsoleLogger($io);
 
         $context = $this->createLocalContext($logger);

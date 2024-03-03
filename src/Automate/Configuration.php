@@ -2,19 +2,19 @@
 
 namespace Automate;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class Configuration implements ConfigurationInterface
+readonly class Configuration implements ConfigurationInterface
 {
-    private $pluginManager;
-
-    public function __construct(PluginManager $pluginManager)
-    {
-        $this->pluginManager = $pluginManager;
+    public function __construct(
+        private PluginManager $pluginManager,
+    ) {
     }
 
-    public function getConfigTreeBuilder()
+    
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('automate');
 
@@ -39,7 +39,7 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    private function addCommandsNode($name)
+    private function addCommandsNode(string $name): NodeDefinition
     {
         $treeBuilder = new TreeBuilder($name);
 
@@ -47,9 +47,7 @@ class Configuration implements ConfigurationInterface
             ->arrayPrototype()
                 ->beforeNormalization()
                     ->ifString()
-                    ->then(static function ($v) {
-                        return ['cmd' => $v];
-                    })
+                    ->then(static fn($v): array => ['cmd' => $v])
                 ->end()
                 ->children()
                     ->scalarNode('cmd')->isRequired()->cannotBeEmpty()->end()
@@ -57,9 +55,7 @@ class Configuration implements ConfigurationInterface
                         ->defaultValue([])
                         ->beforeNormalization()
                         ->ifString()
-                            ->then(static function ($v) {
-                                return [$v];
-                            })
+                            ->then(static fn($v): array => [$v])
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
@@ -67,7 +63,7 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    private function addPlatformsNode()
+    private function addPlatformsNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('platforms');
 
@@ -85,7 +81,7 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    private function addServersNode()
+    private function addServersNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('servers');
 
@@ -107,7 +103,7 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    private function addPluginsNode()
+    private function addPluginsNode(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('plugins');
 

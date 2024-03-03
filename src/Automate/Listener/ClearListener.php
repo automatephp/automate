@@ -19,10 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ClearListener implements EventSubscriberInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             DeployEvents::INIT => 'removeFailedRelease',
@@ -34,7 +31,7 @@ class ClearListener implements EventSubscriberInterface
     /**
      * Move current release to /releases/failed.
      */
-    public function moveFailedRelease(FailedDeployEvent $event)
+    public function moveFailedRelease(FailedDeployEvent $event): void
     {
         $context = $event->getContext();
 
@@ -58,7 +55,7 @@ class ClearListener implements EventSubscriberInterface
     /**
      * remove the lasted failed release.
      */
-    public function removeFailedRelease(DeployEvent $event)
+    public function removeFailedRelease(DeployEvent $event): void
     {
         $context = $event->getContext();
 
@@ -73,7 +70,7 @@ class ClearListener implements EventSubscriberInterface
     /**
      * Clear olds releases.
      */
-    public function clearReleases(DeployEvent $event)
+    public function clearReleases(DeployEvent $event): void
     {
         $context = $event->getContext();
 
@@ -87,9 +84,7 @@ class ClearListener implements EventSubscriberInterface
             rsort($releases);
 
             // ignore others folders
-            $releases = array_filter($releases, static function ($release) {
-                return preg_match('/\d{4}\.\d{2}\.\d{2}-\d{4}\./', $release);
-            });
+            $releases = array_filter($releases, static fn ($release): int|false => preg_match('/\d{4}\.\d{2}\.\d{2}-\d{4}\./', (string) $release));
 
             $keep = $context->getPlatform()->getMaxReleases();
 
@@ -105,10 +100,7 @@ class ClearListener implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @return string
-     */
-    private function getFailedPath(Server $server)
+    private function getFailedPath(Server $server): string
     {
         return $server->getPath().'/releases/failed';
     }
