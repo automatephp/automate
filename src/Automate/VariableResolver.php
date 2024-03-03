@@ -58,12 +58,12 @@ class VariableResolver
     }
 
     /**
-     * Retourn true if value is a variable.
+     * Return true if value is a variable.
      */
-    public function isVariable($value): bool
+    public function isVariable(string $value): bool
     {
-        $first = substr((string) $value, -1);
-        $last = substr((string) $value, 0, 1);
+        $first = substr($value, -1);
+        $last = substr($value, 0, 1);
 
         return self::VAR_PREFIX === $first && self::VAR_SUFFIX === $last;
     }
@@ -71,9 +71,9 @@ class VariableResolver
     /**
      * Resolve a variable.
      */
-    public function resolveVariable($value): string
+    public function resolveVariable(string $value): string
     {
-        $name = substr((string) $value, 1, strlen((string) $value) - 2);
+        $name = substr($value, 1, strlen($value) - 2);
 
         if ($value = getenv(self::ENV_PREFIX.$name)) {
             return $value;

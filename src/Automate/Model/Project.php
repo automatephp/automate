@@ -18,16 +18,34 @@ class Project
 {
     private ?string $repository = null;
 
+    /**
+     * @var string[]
+     */
     private array $sharedFiles = [];
 
+    /**
+     * @var string[]
+     */
     private array $sharedFolders = [];
 
+    /**
+     * @var Command[]
+     */
     private array $preDeploy = [];
 
+    /**
+     * @var Command[]
+     */
     private array $onDeploy = [];
 
+    /**
+     * @var Command[]
+     */
     private array $postDeploy = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $plugins = [];
 
     /**
@@ -47,11 +65,17 @@ class Project
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getSharedFiles(): array
     {
         return $this->sharedFiles;
     }
 
+    /**
+     * @param string[] $sharedFiles
+     */
     public function setSharedFiles(array $sharedFiles): self
     {
         $this->sharedFiles = $sharedFiles;
@@ -59,11 +83,17 @@ class Project
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getSharedFolders(): array
     {
         return $this->sharedFolders;
     }
 
+    /**
+     * @param string[] $sharedFolders
+     */
     public function setSharedFolders(array $sharedFolders): self
     {
         $this->sharedFolders = $sharedFolders;
@@ -71,11 +101,17 @@ class Project
         return $this;
     }
 
+    /**
+     * @return Command[]
+     */
     public function getPreDeploy(): array
     {
         return $this->preDeploy;
     }
 
+    /**
+     * @param Command[] $preDeploy
+     */
     public function setPreDeploy(array $preDeploy): self
     {
         $this->preDeploy = $preDeploy;
@@ -83,11 +119,17 @@ class Project
         return $this;
     }
 
+    /**
+     * @return Command[]
+     */
     public function getOnDeploy(): array
     {
         return $this->onDeploy;
     }
 
+    /**
+     * @param Command[] $onDeploy
+     */
     public function setOnDeploy(array $onDeploy): self
     {
         $this->onDeploy = $onDeploy;
@@ -95,11 +137,17 @@ class Project
         return $this;
     }
 
+    /**
+     * @return Command[]
+     */
     public function getPostDeploy(): array
     {
         return $this->postDeploy;
     }
 
+    /**
+     * @param Command[] $postDeploy
+     */
     public function setPostDeploy(array $postDeploy): self
     {
         $this->postDeploy = $postDeploy;
@@ -107,11 +155,17 @@ class Project
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPlugins(): array
     {
         return $this->plugins;
     }
 
+    /**
+     * @param array<string, mixed> $plugins
+     */
     public function setPlugins(array $plugins): self
     {
         $this->plugins = $plugins;
@@ -119,6 +173,9 @@ class Project
         return $this;
     }
 
+    /**
+     * @return ?array<string, mixed>
+     */
     public function getPlugin(string $name): ?array
     {
         return $this->plugins[$name] ?? null;
@@ -139,7 +196,7 @@ class Project
         return $this->platforms;
     }
 
-    public function getPlatform($name): Platform
+    public function getPlatform(string $name): Platform
     {
         if (!isset($this->platforms[$name])) {
             throw new \InvalidArgumentException(sprintf('Missing platform %s', $name));

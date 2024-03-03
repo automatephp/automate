@@ -14,85 +14,44 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\Session\SessionInterface;
 
 interface ContextInterface
 {
-    /**
-     * connect servers.
-     */
-    public function connect();
+    public function connect(): void;
 
-    /**
-     * Get serveur's Session.
-     */
-    public function getSession(Server $server);
+    public function getSession(Server $server): SessionInterface;
 
-    /**
-     * Get GitRef.
-     */
     public function getGitRef(): ?string;
 
-    /**
-     * Get Project.
-     */
     public function getProject(): Project;
 
-    /**
-     * Get Platform.
-     */
     public function getPlatform(): Platform;
 
-    /**
-     * Get Logger.
-     */
     public function getLogger(): LoggerInterface;
 
-    /**
-     * Is Deployed.
-     */
     public function isDeployed(): ?bool;
 
     public function setDeployed(bool $isDeployed): static;
 
-    /**
-     * Is Force.
-     */
     public function isForce(): bool;
 
     public function setForce(bool $force): static;
 
-    /**
-     * Get a release ID.
-     */
     public function getReleaseId(): string;
 
     /**
-     * Execute e command.
+     * @param ?array<string> $specificServers
      */
-    public function run(string $command, bool $verbose = false, ?array $specificServers = null, bool $addWorkingDir = true);
+    public function run(string $command, bool $verbose = false, ?array $specificServers = null, bool $addWorkingDir = true): void;
 
-    /**
-     * Run on server.
-     */
     public function doRun(Server $server, string $command, bool $addWorkingDir = true, bool $verbose = false): ?string;
 
-    /**
-     * Get release path.
-     */
     public function getReleasePath(Server $server): string;
 
-    /**
-     * Get releases path.
-     */
     public function getReleasesPath(Server $server): string;
 
-    /**
-     * Get shared path.
-     */
     public function getSharedPath(Server $server): string;
 
-    /**
-     * Get current path.
-     */
     public function getCurrentPath(Server $server): string;
 }

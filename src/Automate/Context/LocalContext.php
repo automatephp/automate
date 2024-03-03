@@ -16,7 +16,7 @@ use Automate\Session\SessionInterface;
 
 class LocalContext extends AbstractContext
 {
-    public function connect()
+    public function connect(): void
     {
     }
 

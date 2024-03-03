@@ -34,11 +34,14 @@ abstract class AbstractNotificationPlugin implements PluginInterface
 
     public const string FAILED = 'onFailed';
 
+    /**
+     * @var ?array<string, mixed>
+     */
     protected ?array $configuration = null;
 
     protected HttpClientInterface $client;
 
-    public function __construct($client = null)
+    public function __construct(?HttpClientInterface $client = null)
     {
         $this->client = $client ?: HttpClient::create();
     }
@@ -46,7 +49,7 @@ abstract class AbstractNotificationPlugin implements PluginInterface
     
     abstract public function getName(): string;
 
-    abstract protected function sendMessage(string $message, string $eventName);
+    abstract protected function sendMessage(string $message, string $eventName) :void;
 
     
     abstract public function getConfigurationNode(): NodeDefinition;

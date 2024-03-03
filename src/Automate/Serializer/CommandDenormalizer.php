@@ -21,7 +21,10 @@ use Automate\Model\Project;
  */
 class CommandDenormalizer extends AbstractDenormalizer
 {
-    public function denormalize($data, $class, $format = null, array $context = []): Command
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
         $command = new Command();
 
@@ -32,7 +35,10 @@ class CommandDenormalizer extends AbstractDenormalizer
         return $command;
     }
 
-    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return Command::class === $type;
     }

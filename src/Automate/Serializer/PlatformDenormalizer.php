@@ -21,7 +21,10 @@ use Automate\Model\Server;
  */
 class PlatformDenormalizer extends AbstractDenormalizer
 {
-    public function denormalize($data, $class, $format = null, array $context = []): Platform
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
         $platform = new Platform();
 
@@ -42,7 +45,10 @@ class PlatformDenormalizer extends AbstractDenormalizer
         return $platform;
     }
 
-    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return Platform::class === $type;
     }

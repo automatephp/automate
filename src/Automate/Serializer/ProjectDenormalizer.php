@@ -22,7 +22,10 @@ use Automate\Model\Project;
  */
 class ProjectDenormalizer extends AbstractDenormalizer
 {
-    public function denormalize($data, $class, $format = null, array $context = []): Project
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
         $project = new Project();
 
@@ -48,9 +51,11 @@ class ProjectDenormalizer extends AbstractDenormalizer
     }
 
     /**
-     * @return mixed[]
+     * @param string[] $data
+     *
+     * @return Command[]
      */
-    public function extractCommands($data, string $hookName): array
+    public function extractCommands(array $data, string $hookName): array
     {
         $commands = [];
 
@@ -62,7 +67,10 @@ class ProjectDenormalizer extends AbstractDenormalizer
         return $commands;
     }
 
-    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return Project::class === $type;
     }

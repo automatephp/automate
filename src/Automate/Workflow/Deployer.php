@@ -16,6 +16,7 @@ use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
+use Automate\Model\Command;
 use Automate\Model\Server;
 use Automate\PluginManager;
 
@@ -113,7 +114,7 @@ readonly class Deployer
     /**
      * Run hook commands.
      *
-     * @param string $name section name
+     * @param Command[] $commands
      */
     private function runHooks(array $commands, string $name): void
     {
@@ -149,11 +150,11 @@ readonly class Deployer
         }
     }
 
-    private function doShared($path, Server $server, bool $isDirectory): void
+    private function doShared(string $path, Server $server, bool $isDirectory): void
     {
         $session = $this->context->getSession($server);
 
-        $path = trim((string) $path);
+        $path = trim($path);
         $path = ltrim($path, '/');
 
         $releasePath = $this->context->getReleasePath($server).'/'.$path;

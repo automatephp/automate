@@ -27,23 +27,19 @@ class Loader
 {
     /**
      * Load project configuration.
-     *
-     * @param null|string $path
-     *
-     * @return object|Project
      */
-    public function load($path)
+    public function load(string $path): Project
     {
         $processor = new Processor();
 
         $pluginManager = new PluginManager();
         $configuration = new Configuration($pluginManager);
 
-        if (!file_exists($path)) {
+        if (!file_exists($path) || !$data = file_get_contents($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
         }
 
-        $data = Yaml::parse(file_get_contents($path));
+        $data = Yaml::parse($data);
 
         $processedConfiguration = $processor->processConfiguration($configuration, [$data]);
 

@@ -20,6 +20,9 @@ class CacheToolPlugin implements PluginInterface
 {
     public const string PHAR_URL = 'https://gordalina.github.io/cachetool/downloads/';
 
+    /**
+     * @var ?array<string, mixed>
+     */
     protected ?array $configuration = null;
 
     

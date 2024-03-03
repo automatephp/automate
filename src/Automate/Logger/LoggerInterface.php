@@ -20,20 +20,20 @@ interface LoggerInterface
     /**
      * Section title.
      */
-    public function section(string $title);
+    public function section(string $title): void;
 
     /**
      * Run command.
      */
-    public function command(string $name, bool $verbose = false);
+    public function command(string $name, bool $verbose = false): void;
 
     /**
      * Remote response.
      */
-    public function response(string $response, string $server, bool $verbose = false);
+    public function response(string $response, string $server, bool $verbose = false): void;
 
     /**
      * Remote error.
      */
-    public function error(string $message);
+    public function error(string $message): void;
 }

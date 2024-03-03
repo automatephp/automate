@@ -22,22 +22,22 @@ class ConsoleLogger implements LoggerInterface
     ) {
     }
 
-    public function section($title): void
+    public function section(string $title): void
     {
         $this->io->block($title, '*', 'fg=white;bg=blue', ' ', true);
     }
 
-    public function command($name, $verbose = false): void
+    public function command(string $name, bool $verbose = false): void
     {
         if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
             $this->io->text(sprintf('<info>%s</info>', $name));
         }
     }
 
-    public function response($response, $server, $verbose = false): void
+    public function response(string $response, string $server, bool $verbose = false): void
     {
         if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
-            if (substr_count((string) $response, "\n") > 0) {
+            if (substr_count($response, "\n") > 0) {
                 $this->io->text(sprintf('<comment>[%s]</comment>', $server));
                 $this->io->text($response);
             } else {
@@ -46,7 +46,7 @@ class ConsoleLogger implements LoggerInterface
         }
     }
 
-    public function error($message): void
+    public function error(string $message): void
     {
         $this->io->error($message);
     }

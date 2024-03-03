@@ -23,7 +23,7 @@ class SSHSession extends AbstractSession
         $this->ssh->setTimeout(0);
     }
 
-    public function run($command): string
+    public function run(string $command): string
     {
         $rs = (string) $this->ssh->exec($command);
 

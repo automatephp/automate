@@ -20,7 +20,10 @@ use Automate\Model\Server;
  */
 class ServerDenormalizer extends AbstractDenormalizer
 {
-    public function denormalize($data, $class, $format = null, array $context = []): Server
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
         $server = new Server();
 
@@ -37,7 +40,10 @@ class ServerDenormalizer extends AbstractDenormalizer
         return $server;
     }
 
-    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
+    /**
+     * @param array<string,mixed> $context
+     */
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return Server::class === $type;
     }

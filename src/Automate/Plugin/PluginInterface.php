@@ -18,7 +18,7 @@ interface PluginInterface extends EventSubscriberInterface
 {
     public function getName(): string;
 
-    public function register(Project $project);
+    public function register(Project $project): void;
 
     public function getConfigurationNode(): NodeDefinition;
 }

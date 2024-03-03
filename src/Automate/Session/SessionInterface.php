@@ -15,7 +15,7 @@ interface SessionInterface
     /**
      * Execute e command.
      */
-    public function run(string $command);
+    public function run(string $command): string;
 
     /**
      * Creates a directory.
@@ -24,7 +24,7 @@ interface SessionInterface
      * @param bool   $recursive Whether to automatically create any required
      *                          parent directory
      */
-    public function mkdir(string $path, bool $recursive = false);
+    public function mkdir(string $path, bool $recursive = false): void;
 
     /**
      * Move a file or a directory.
@@ -32,14 +32,14 @@ interface SessionInterface
      * @param string $from The current name of the directory or file
      * @param string $to   The new name of the directory or file
      */
-    public function mv(string $from, string $to);
+    public function mv(string $from, string $to): void;
 
     /**
      * Removes a directory or a file.
      *
      * @param string $path The directory or file that is being removed
      */
-    public function rm(string $path, bool $recursive = false);
+    public function rm(string $path, bool $recursive = false): void;
 
     /**
      * Indicates whether the specified distant file or directory exists.
@@ -54,17 +54,19 @@ interface SessionInterface
      * @param string $target The target of the symlink
      * @param string $link   The path of the link
      */
-    public function symlink(string $target, string $link);
+    public function symlink(string $target, string $link): void;
 
     /**
      * Touch file.
      *
      * @param string $path FIle path
      */
-    public function touch(string $path);
+    public function touch(string $path): void;
 
     /**
      * Lists directories of the specified path.
+     *
+     * @return string[]
      */
     public function listDirectory(string $path): array;
 }

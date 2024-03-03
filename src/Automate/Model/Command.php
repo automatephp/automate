@@ -18,6 +18,9 @@ class Command
 {
     private ?string $cmd = null;
 
+    /**
+     * @var null|string[]
+     */
     private ?array $only = null;
 
     public function getCmd(): ?string
@@ -32,11 +35,17 @@ class Command
         return $this;
     }
 
+    /**
+     * @return null|string[]
+     */
     public function getOnly(): ?array
     {
         return $this->only;
     }
 
+    /**
+     * @param string[] $only
+     */
     public function setOnly(array $only): self
     {
         $this->only = $only;

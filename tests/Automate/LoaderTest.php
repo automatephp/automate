@@ -21,9 +21,9 @@ class LoaderTest extends TestCase
 {
     public function testLoader(): void
     {
-        $loder = new Loader();
+        $loader = new Loader();
 
-        $project = $loder->load(__DIR__.'/../fixtures/config.yml');
+        $project = $loader->load(__DIR__.'/../fixtures/config.yml');
 
         $this->assertInstanceOf(Project::class, $project);
         $this->assertEquals('git@github.com:julienj/symfony-demo.git', $project->getRepository());
@@ -75,13 +75,16 @@ class LoaderTest extends TestCase
         $this->assertEquals('root', $server->getUser());
         $this->assertEquals('%dev_password%', $server->getPassword());
         $this->assertEquals('/home/wwwroot/automate/demo', $server->getPath());
+
+        $this->assertCount(1, $project->getPlugins());
+        $this->assertNotNull($project->getPlugin('cache_tool'));
     }
 
     public function testSharedPathLoader(): void
     {
-        $loder = new Loader();
+        $loader = new Loader();
 
-        $project = $loder->load(__DIR__.'/../fixtures/simpleWithSharedPath.yml');
+        $project = $loader->load(__DIR__.'/../fixtures/simpleWithSharedPath.yml');
 
         $platform = $project->getPlatform('development');
 

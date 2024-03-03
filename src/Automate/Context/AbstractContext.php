@@ -14,6 +14,7 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\Session\SessionInterface;
 
 abstract class AbstractContext implements ContextInterface
 {
@@ -30,9 +31,9 @@ abstract class AbstractContext implements ContextInterface
     ) {
     }
 
-    abstract public function connect();
+    abstract public function connect(): void;
 
-    abstract public function getSession(Server $server);
+    abstract public function getSession(Server $server): SessionInterface;
 
     public function getGitRef(): ?string
     {
@@ -59,7 +60,7 @@ abstract class AbstractContext implements ContextInterface
         return $this->isDeployed;
     }
 
-    public function setDeployed($isDeployed): static
+    public function setDeployed(bool $isDeployed): static
     {
         $this->isDeployed = $isDeployed;
 
@@ -71,7 +72,7 @@ abstract class AbstractContext implements ContextInterface
         return $this->force;
     }
 
-    public function setForce($force): static
+    public function setForce(bool $force): static
     {
         $this->force = $force;
 
@@ -97,7 +98,7 @@ abstract class AbstractContext implements ContextInterface
         return $this->releaseId;
     }
 
-    public function run($command, $verbose = false, $specificServers = null, $addWorkingDir = true): void
+    public function run(string $command, bool $verbose = false, ?array $specificServers = null, bool $addWorkingDir = true): void
     {
         $servers = $this->platform->getServers();
 
@@ -111,13 +112,13 @@ abstract class AbstractContext implements ContextInterface
         }
     }
 
-    public function doRun(Server $server, $command, $addWorkingDir = true, $verbose = false): ?string
+    public function doRun(Server $server, string $command, bool $addWorkingDir = true, bool $verbose = false): ?string
     {
         $realCommand = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath($server), $command) : $command;
 
         $response = $this->getSession($server)->run($realCommand);
 
-        if ($response) {
+        if ('' !== $response) {
             $this->logger->response($response, $server->getName(), $verbose);
         }
 
