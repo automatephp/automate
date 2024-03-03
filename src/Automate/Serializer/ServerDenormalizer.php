@@ -37,8 +37,15 @@ class ServerDenormalizer extends AbstractDenormalizer
         return $server;
     }
 
-    public function supportsDenormalization($data, $type, $format = null): bool
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return Server::class === $type;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Server::class => true,
+        ];
     }
 }

@@ -42,8 +42,15 @@ class PlatformDenormalizer extends AbstractDenormalizer
         return $platform;
     }
 
-    public function supportsDenormalization($data, $type, $format = null): bool
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return Platform::class === $type;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Platform::class => true,
+        ];
     }
 }
