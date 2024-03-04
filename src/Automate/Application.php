@@ -25,7 +25,7 @@ class Application extends BaseApplication
 
     public function getLongVersion(): string
     {
-        if ('@git-version@' !== $this->getVersion()) {
+        if ('git-version' !== trim($this->getVersion(), '@')) {
             return sprintf(
                 '<info>%s</info> version <comment>%s</comment> build <comment>%s</comment>',
                 $this->getName(),
