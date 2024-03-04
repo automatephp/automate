@@ -75,7 +75,7 @@ readonly class Configuration implements ConfigurationInterface
             ->arrayPrototype()
                 ->children()
                     ->scalarNode('default_branch')->isRequired()->cannotBeEmpty()->end()
-                    ->integerNode('max_releases')->end()
+                    ->integerNode('max_releases')->defaultValue(5)->end()
                     ->append($this->addServersNode())
                 ->end()
             ->end();
@@ -98,7 +98,7 @@ readonly class Configuration implements ConfigurationInterface
                     ->scalarNode('ssh_key')->cannotBeEmpty()->end()
                     ->scalarNode('path')->isRequired()->cannotBeEmpty()->end()
                     ->scalarNode('shared_path')->cannotBeEmpty()->end()
-                    ->integerNode('port')->end()
+                    ->integerNode('port')->defaultValue(22)->end()
                 ->end()
             ->end();
     }

@@ -12,11 +12,12 @@
 namespace Automate;
 
 use Automate\Model\Project;
-use Automate\Serializer\CommandDenormalizer;
-use Automate\Serializer\PlatformDenormalizer;
-use Automate\Serializer\ProjectDenormalizer;
-use Automate\Serializer\ServerDenormalizer;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
+use Symfony\Component\Serializer\Encoder\YamlEncoder;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
 
@@ -43,13 +44,26 @@ class Loader
 
         $processedConfiguration = $processor->processConfiguration($configuration, [$data]);
 
-        $serializer = new Serializer([
-            new ProjectDenormalizer(),
-            new PlatformDenormalizer(),
-            new ServerDenormalizer(),
-            new CommandDenormalizer(),
-        ]);
+        foreach ($processedConfiguration['platforms'] as $platformName => $platform) {
+            $processedConfiguration['platforms'][$platformName]['name'] = $platformName;
+            foreach ($platform['servers'] as $serverName => $server) {
+                $processedConfiguration['platforms'][$platformName]['servers'][$serverName]['name'] = $serverName;
+            }
+        }
 
-        return $serializer->denormalize($processedConfiguration, Project::class);
+        return $this->getSerializer()->denormalize($processedConfiguration, Project::class);
+    }
+
+    private function getSerializer(): Serializer
+    {
+        $objectNormalizer = new ObjectNormalizer(
+            nameConverter: new CamelCaseToSnakeCaseNameConverter(),
+            propertyTypeExtractor: new PhpDocExtractor()
+        );
+
+        return new Serializer(
+            [$objectNormalizer, new ArrayDenormalizer()],
+            [new YamlEncoder()]
+        );
     }
 }

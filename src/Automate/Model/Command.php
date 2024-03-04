@@ -11,17 +11,16 @@
 
 namespace Automate\Model;
 
-/**
- * Command configuration.
- */
 class Command
 {
-    private ?string $cmd = null;
-
     /**
-     * @var null|string[]
+     * @param null|string[] $only
      */
-    private ?array $only = null;
+    public function __construct(
+        private ?string $cmd = null,
+        private ?array $only = null,
+    ) {
+    }
 
     public function getCmd(): ?string
     {

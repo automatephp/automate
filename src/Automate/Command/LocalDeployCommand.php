@@ -31,7 +31,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class LocalDeployCommand extends BaseCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addArgument('path', InputArgument::REQUIRED, "Project's local path")
