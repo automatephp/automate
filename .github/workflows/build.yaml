@@ -43,7 +43,7 @@ jobs:
                     name: automate-phar
                     path: build/automate.phar
 
-    static-linux:
+    static-linux-amd64:
         name: Build Linux static binary
         needs: [ phar ]
         runs-on: ubuntu-latest
@@ -77,21 +77,66 @@ jobs:
                 run: |
                     bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter" --with-php=8.3
                     bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter" --build-micro
-                    bin/spc micro:combine build/automate.phar --output build/automate
+                    bin/spc micro:combine build/automate.phar --output build/automate-linux-amd64
 
             -   name: Ensure the static binary works
-                run: build/automate --version
+                run: build/automate-linux-amd64 --version
 
             -   uses: actions/upload-artifact@v4
                 name: Upload the static binary artifact
                 with:
-                    name: automate
-                    path: build/automate
+                    name: automate-linux-amd64
+                    path: build/automate-linux-amd64
+
+    static-darwin-amd64:
+        name: Build MacOS static binary (AMD64)
+        needs: [ phar ]
+        runs-on: macos-latest
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   uses: actions/download-artifact@v4
+                with:
+                    path: build
+                    merge-multiple: true
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    coverage: none
+
+            -   name: Install dependencies
+                uses: ramsey/composer-install@v3
+
+            -   name: Get Box Project
+                run: |
+                    curl https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-x86_64 -o bin/spc
+                    chmod +x bin/spc
+
+            -   name: Fixing missing requirements
+                run: |
+                    bin/spc doctor --auto-fix
+
+            -   name: Build static binary
+                run: |
+                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter" --with-php=8.3
+                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter" --build-micro
+                    bin/spc micro:combine build/automate.phar --output build/automate-darwin-amd64
+
+            -   name: Ensure the static binary works
+                run: build/automate-darwin-amd64 --version
+
+            -   uses: actions/upload-artifact@v4
+                name: Upload the static binary artifact
+                with:
+                    name: automate-darwin-amd64
+                    path: build/automate-darwin-amd64
 
     release:
         name: Upload artifacts to the release
         if: github.event_name == 'release'
-        needs: [ static-linux ]
+        needs: [ static-linux-amd64, static-darwin-amd64 ]
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v4
@@ -104,6 +149,7 @@ jobs:
             -   name: Upload files
                 run: |
                     gh release upload ${{ github.ref_name }} ./build/automate.phar
-                    gh release upload ${{ github.ref_name }} ./build/automate
+                    gh release upload ${{ github.ref_name }} ./build/automate-linux-amd64
+                    gh release upload ${{ github.ref_name }} ./build/automate-darwin-amd64
                 env:
                     GH_TOKEN: ${{ github.token }}
