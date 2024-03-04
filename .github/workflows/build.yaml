@@ -1,0 +1,109 @@
+name: Build
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        branches:
+            - master
+    release:
+        types:
+            - created
+
+permissions:
+    contents: write
+
+jobs:
+    phar:
+        name: Build PHAR
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    coverage: none
+                    tools: box
+
+            -   name: Install dependencies
+                uses: ramsey/composer-install@v3
+
+            -   name: Build PHAR
+                run: box compile
+
+            -   name: Ensure the PHAR works
+                run: build/automate.phar --version
+
+            -   uses: actions/upload-artifact@v4
+                name: Upload the PHAR artifact
+                with:
+                    name: automate-phar
+                    path: build/automate.phar
+
+    static-linux:
+        name: Build Linux static binary
+        needs: [ phar ]
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   uses: actions/download-artifact@v4
+                with:
+                    path: build
+                    merge-multiple: true
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    coverage: none
+
+            -   name: Install dependencies
+                uses: ramsey/composer-install@v3
+
+            -   name: Get Box Project
+                run: |
+                    curl https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-linux-x86_64 -o bin/spc
+                    chmod +x bin/spc
+
+            -   name: Fixing missing requirements
+                run: |
+                    bin/spc doctor --auto-fix
+
+            -   name: Build static binary
+                run: |
+                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter" --with-php=8.3
+                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter" --build-micro
+                    bin/spc micro:combine build/automate.phar --output build/automate
+
+            -   name: Ensure the static binary works
+                run: build/automate --version
+
+            -   uses: actions/upload-artifact@v4
+                name: Upload the static binary artifact
+                with:
+                    name: automate
+                    path: build/automate
+
+    release:
+        name: Upload artifacts to the release
+        if: github.event_name == 'release'
+        needs: [ static-linux ]
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   uses: actions/download-artifact@v4
+                with:
+                    path: build
+                    merge-multiple: true
+
+            -   name: Upload files
+                run: |
+                    gh release upload ${{ github.ref_name }} ./build/automate.phar
+                    gh release upload ${{ github.ref_name }} ./build/automate
+                env:
+                    GH_TOKEN: ${{ github.token }}
