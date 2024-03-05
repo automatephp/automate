@@ -11,25 +11,19 @@
 
 namespace Automate\Model;
 
-/**
- * Platform configuration.
- */
 class Platform
 {
-    private ?string $name = null;
-
-    private ?string $defaultBranch = null;
-
-    private ?int $maxReleases = null;
-
     /**
-     * @var Server[]
+     * @param array<string, Server> $servers
      */
-    private ?array $servers = null;
+    public function __construct(
+        private ?string $name = null,
+        private ?string $defaultBranch = null,
+        private ?int $maxReleases = null,
+        private ?array $servers = null,
+    ) {
+    }
 
-    /**
-     * @return ?string
-     */
     public function getName(): ?string
     {
         return $this->name;

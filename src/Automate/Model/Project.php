@@ -11,47 +11,28 @@
 
 namespace Automate\Model;
 
-/**
- * Project configuration.
- */
 class Project
 {
-    private ?string $repository = null;
-
     /**
-     * @var string[]
+     * @param string[]                $sharedFiles
+     * @param string[]                $sharedFolders
+     * @param Command[]               $preDeploy
+     * @param Command[]               $onDeploy
+     * @param Command[]               $postDeploy
+     * @param array<string, mixed>    $plugins
+     * @param array<string, Platform> $platforms
      */
-    private array $sharedFiles = [];
-
-    /**
-     * @var string[]
-     */
-    private array $sharedFolders = [];
-
-    /**
-     * @var Command[]
-     */
-    private array $preDeploy = [];
-
-    /**
-     * @var Command[]
-     */
-    private array $onDeploy = [];
-
-    /**
-     * @var Command[]
-     */
-    private array $postDeploy = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $plugins = [];
-
-    /**
-     * @var Platform[]
-     */
-    private array $platforms = [];
+    public function __construct(
+        private ?string $repository = null,
+        private array $sharedFiles = [],
+        private array $sharedFolders = [],
+        private array $preDeploy = [],
+        private array $onDeploy = [],
+        private array $postDeploy = [],
+        private array $plugins = [],
+        private array $platforms = [],
+    ) {
+    }
 
     public function getRepository(): ?string
     {

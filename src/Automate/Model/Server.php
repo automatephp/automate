@@ -11,26 +11,19 @@
 
 namespace Automate\Model;
 
-/**
- * Server configuration.
- */
 class Server
 {
-    private ?string $name = null;
-
-    private ?string $host = null;
-
-    private ?string $user = null;
-
-    private ?string $sshKey = null;
-
-    private ?string $password = null;
-
-    private ?string $path = null;
-
-    private ?string $sharedPath = null;
-
-    private ?int $port = null;
+    public function __construct(
+        private ?string $name = null,
+        private ?string $host = null,
+        private ?string $user = null,
+        private ?string $sshKey = null,
+        private ?string $password = null,
+        private ?string $path = null,
+        private ?string $sharedPath = null,
+        private ?int $port = null,
+    ) {
+    }
 
     public function getName(): ?string
     {
