@@ -44,7 +44,8 @@ jobs:
                     path: build/automate.phar
 
     static-binary:
-        name: Build static binary ${{ matrix.os }} ${{ matrix.arch }}
+        name: Build static binary ${{ matrix.filename }}
+        if: github.event_name == 'release'
         needs: [ phar ]
         strategy:
             fail-fast: false
