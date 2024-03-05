@@ -54,12 +54,12 @@ jobs:
                     # Linux amd64
                     -   runs_on: ubuntu-latest
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-linux-x86_64
-                        os: linux
+                        build_options: --build-micro --with-upx-pack
                         filename: automate-linux-amd64
                     # MacOS amd64
                     -   runs_on: macos-latest
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-x86_64
-                        os: darwin
+                        build_options: --build-micro
                         filename: automate-darwin-amd64
 
         runs-on: ${{ matrix.runs_on }}
@@ -86,10 +86,15 @@ jobs:
                 run: |
                     bin/spc doctor --auto-fix
 
+            -   name: Install UPX package
+                if: ${{ contains(matrix.build_options, 'upx') }}
+                run: |
+                    bin/spc install-pkg upx
+
             -   name: Build static binary
                 run: |
                     bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter"
-                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter" --build-micro
+                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter" ${{ matrix.build_options }}
                     bin/spc micro:combine build/automate.phar --output build/${{ matrix.filename }}
 
             -   name: Ensure the static binary works
