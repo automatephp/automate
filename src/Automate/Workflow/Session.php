@@ -19,6 +19,7 @@ readonly class Session
         private Server $server,
         private SFTP $sftp,
     ) {
+        $this->sftp->setTimeout(0);
     }
 
     public function exec(string $command, bool $addWorkingDir = true): string
