@@ -14,7 +14,6 @@ namespace Automate\Command;
 use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\Model\Platform;
-use Automate\VariableResolver;
 use Automate\Workflow\Deployer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -46,10 +45,7 @@ class DeployCommand extends BaseCommand
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
 
-        $variableResolver = new VariableResolver($io);
-        $variableResolver->resolvePlatform($platform);
-        $variableResolver->resolveRepository($project);
-
+        $this->resolveVariables($io, $project, $platform);
         $logger = $this->getLogger($io);
 
         $logger->section('Start deployment');

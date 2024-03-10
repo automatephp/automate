@@ -13,7 +13,6 @@ namespace Automate\Command;
 
 use Automate\Context\SSHContext;
 use Automate\Loader;
-use Automate\VariableResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,10 +41,7 @@ class CheckCommand extends BaseCommand
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
 
-        $variableResolver = new VariableResolver($io);
-        $variableResolver->resolvePlatform($platform);
-        $variableResolver->resolveRepository($project);
-
+        $this->resolveVariables($io, $project, $platform);
         $logger = $this->getLogger($io);
 
         try {
