@@ -80,15 +80,4 @@ class DeployTest extends AbstractContextTestCase
 
         $this->assertTrue($rs);
     }
-
-    public function testLocalDeploy(): void
-    {
-        $io = \Mockery::spy(SymfonyStyle::class);
-        $logger = new ConsoleLogger($io);
-
-        $context = $this->createLocalContext($logger);
-
-        $workflow = new Workflow\Deployer($context);
-        $this->assertFalse($workflow->deploy());
-    }
 }

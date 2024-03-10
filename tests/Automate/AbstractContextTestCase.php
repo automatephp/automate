@@ -11,7 +11,6 @@
 
 namespace Automate\Tests;
 
-use Automate\Context\LocalContext;
 use Automate\Context\SSHContext;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
@@ -32,20 +31,6 @@ abstract class AbstractContextTestCase extends AbstractMockTestCase
         $context = new SSHContext($project, $platform, $logger, $gitRef, false);
         $context->setSessionFactory($sessionFactory);
         $context->connect();
-
-        return $context;
-    }
-
-    protected function createLocalContext(LoggerInterface $logger, $gitRef = null): LocalContext
-    {
-        $loader = new Loader();
-        $project = $loader->load(__DIR__.'/../fixtures/simple.yml');
-        $platform = $project->getPlatform('development');
-
-        $context = new LocalContext($project, $platform, $logger, $gitRef);
-        $context->connect();
-        $context->setForce(true);
-        $this->assertTrue($context->isForce());
 
         return $context;
     }

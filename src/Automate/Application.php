@@ -13,7 +13,6 @@ namespace Automate;
 
 use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
-use Automate\Command\LocalDeployCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
@@ -44,7 +43,6 @@ class Application extends BaseApplication
         $commands = parent::getDefaultCommands();
 
         $commands[] = new DeployCommand();
-        $commands[] = new LocalDeployCommand();
         $commands[] = new CheckCommand();
 
         return $commands;

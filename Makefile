@@ -11,7 +11,7 @@ PHP = $(PHP_CONT) php
 .DEFAULT_GOAL = help
 .PHONY        = help build up start down logs sh composer vendor sf cc
 
-## —— Help 🐳 🎵 ———————————————————————————————————————————————————————————————
+## —— Help 🎵 ———————————————————————————————————————————————————————————————
 help: ## Outputs this help screen
 	@grep -E '(^[a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
@@ -30,15 +30,15 @@ install: ## Install project
 	@$(PHP_CONT) composer install
 
 ## —— CI ✨ ————————————————————————————————————————————————————————————————————
-ci: cs phpstan rector test
+ci: cs phpstan rector test ## Run all all checks
 
 cs: ## Run tests
 	$(PHP) vendor/bin/php-cs-fixer fix
 
-phpstan:
+phpstan: ## Run phpstan
 	$(PHP) vendor/bin/phpstan
 
-rector:
+rector: ## Run rector
 	$(PHP) vendor/bin/rector
 
 test: ## Run tests
