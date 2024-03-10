@@ -71,7 +71,7 @@ readonly class Session
 
     public function touch(string $path): void
     {
-        $this->exec(sprintf('mkdir -p %s', dirname($path)), false);
+        $this->mkdir(dirname($path), true);
         $this->exec(sprintf('touch %s', $path), false);
     }
 

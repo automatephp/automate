@@ -50,7 +50,7 @@ class CheckCommand extends BaseCommand
 
             $context->connect();
             $logger->section('Check git access');
-            $context->exec(function (Session $session) use ($project) {
+            $context->exec(static function (Session $session) use ($project): void {
                 $session->exec('git ls-remote '.$project->getRepository(), false);
             });
         } catch (\Exception $exception) {

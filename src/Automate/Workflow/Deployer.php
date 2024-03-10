@@ -207,7 +207,7 @@ readonly class Deployer
     private function createReleaseDirectory(): void
     {
         $this->context->exec(static function (Session $session): void {
-            $session->mkdir($session->getReleasePath());
+            $session->mkdir($session->getReleasePath(), true);
         });
     }
 }
