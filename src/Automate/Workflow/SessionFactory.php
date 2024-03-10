@@ -9,24 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate;
+namespace Automate\Workflow;
 
 use Automate\Model\Server;
-use Automate\Session\SessionInterface;
-use Automate\Session\SSHSession;
 use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Net\SSH2;
+use phpseclib3\Net\SFTP;
 
 class SessionFactory
 {
-    /**
-     * Create session.
-     *
-     * @throws \Exception
-     */
-    public function create(Server $server): SessionInterface
+    public static function create(Context $context, Server $server): Session
     {
-        $ssh = new SSH2($server->getHost(), $server->getPort());
+        $ssh = new SFTP($server->getHost(), $server->getPort());
 
         // Connection with ssh key and optional
         if (null !== $server->getSshKey()) {
@@ -42,6 +35,6 @@ class SessionFactory
             throw new \Exception(sprintf('[%s] Invalid user or password', $server->getName()));
         }
 
-        return new SSHSession($ssh);
+        return new Session($context, $server, $ssh);
     }
 }

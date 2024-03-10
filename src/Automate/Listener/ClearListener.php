@@ -15,6 +15,7 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Server;
+use Automate\Workflow\Session;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ClearListener implements EventSubscriberInterface
@@ -29,6 +30,20 @@ class ClearListener implements EventSubscriberInterface
     }
 
     /**
+     * remove the lasted failed release.
+     */
+    public function removeFailedRelease(DeployEvent $event): void
+    {
+        $context = $event->getContext();
+
+        $context->exec(function (Session $session): void {
+            if ($session->exists($this->getFailedPath($session->getServer()))) {
+                $session->rm($this->getFailedPath($session->getServer()), true);
+            }
+        });
+    }
+
+    /**
      * Move current release to /releases/failed.
      */
     public function moveFailedRelease(FailedDeployEvent $event): void
@@ -37,33 +52,14 @@ class ClearListener implements EventSubscriberInterface
 
         // not move if deploy
         if (!$context->isDeployed()) {
-            foreach ($context->getPlatform()->getServers() as $server) {
-                if (null !== $context->getReleasePath($server)) {
-                    $session = $context->getSession($server);
+            $context->exec(function (Session $session) use ($context): void {
+                $release = $session->getReleasePath();
+                $failed = $this->getFailedPath($session->getServer());
 
-                    $release = $context->getReleasePath($server);
-                    $failed = $this->getFailedPath($server);
+                $context->getLogger()->info(sprintf('move release to %s', $failed), $session->getServer());
 
-                    $context->getLogger()->response(sprintf('move release to %s', $failed), $server->getName(), true);
-
-                    $session->mv($release, $failed);
-                }
-            }
-        }
-    }
-
-    /**
-     * remove the lasted failed release.
-     */
-    public function removeFailedRelease(DeployEvent $event): void
-    {
-        $context = $event->getContext();
-
-        foreach ($context->getPlatform()->getServers() as $server) {
-            $session = $context->getSession($server);
-            if ($session->exists($this->getFailedPath($server))) {
-                $session->rm($this->getFailedPath($server), true);
-            }
+                $session->mv($release, $failed);
+            });
         }
     }
 
@@ -76,28 +72,23 @@ class ClearListener implements EventSubscriberInterface
 
         $context->getLogger()->section('Clear olds releases');
 
-        foreach ($context->getPlatform()->getServers() as $server) {
-            $session = $context->getSession($server);
-
-            $releases = $session->listDirectory($context->getReleasesPath($server));
+        $context->exec(static function (Session $session) use ($context): void {
+            $releases = $session->listDirectory($session->getReleasesPath());
             $releases = array_map('trim', $releases);
             rsort($releases);
-
             // ignore others folders
             $releases = array_filter($releases, static fn ($release): int|false => preg_match('/\d{4}\.\d{2}\.\d{2}-\d{4}\./', (string) $release));
-
             $keep = $context->getPlatform()->getMaxReleases();
-
             while ($keep > 0) {
                 array_shift($releases);
                 --$keep;
             }
 
             foreach ($releases as $release) {
-                $context->getLogger()->response('rm -R '.$release, $server->getName(), true);
+                $context->getLogger()->info('Remove old release : '.$release, $session->getServer());
                 $session->rm($release, true);
             }
-        }
+        });
     }
 
     private function getFailedPath(Server $server): string

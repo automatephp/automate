@@ -14,10 +14,14 @@ namespace Automate\Listener;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Model\Server;
+use Automate\Workflow\Session;
+use RectorPrefix202403\Symfony\Component\Filesystem\Path;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LockListener implements EventSubscriberInterface
 {
+    public const string LOCK_FILE = 'automate.lock';
+
     private bool $hasLock = false;
 
     public static function getSubscribedEvents(): array
@@ -37,17 +41,13 @@ class LockListener implements EventSubscriberInterface
     {
         $context = $event->getContext();
 
-        foreach ($context->getPlatform()->getServers() as $server) {
-            $session = $context->getSession($server);
-            if ($session->exists($this->getLockFilePath($server)) && !$context->isForce()) {
+        $context->exec(function (Session $session) use ($context): void {
+            if ($session->exists($this->getLockFilePath($session->getServer())) && !$context->isForce()) {
                 throw new \RuntimeException('A deployment is already in progress');
             }
-        }
 
-        foreach ($context->getPlatform()->getServers() as $server) {
-            $session = $context->getSession($server);
-            $session->touch($this->getLockFilePath($server));
-        }
+            $session->touch($this->getLockFilePath($session->getServer()));
+        });
 
         $this->hasLock = true;
     }
@@ -60,18 +60,17 @@ class LockListener implements EventSubscriberInterface
         $context = $event->getContext();
 
         if ($this->hasLock) {
-            foreach ($context->getPlatform()->getServers() as $server) {
-                $session = $context->getSession($server);
-                $session->rm($this->getLockFilePath($server));
-            }
+            $context->exec(function (Session $session): void {
+                $session->rm($this->getLockFilePath($session->getServer()));
+            });
         }
     }
 
     /**
      * Get lock file path.
      */
-    public function getLockFilePath(Server $server): string
+    private function getLockFilePath(Server $server): string
     {
-        return $server->getPath().'/automate.lock';
+        return Path::join($server->getPath(), self::LOCK_FILE);
     }
 }
