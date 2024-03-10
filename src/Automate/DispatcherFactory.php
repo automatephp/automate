@@ -12,29 +12,16 @@ namespace Automate;
 
 use Automate\Listener\ClearListener;
 use Automate\Listener\LockListener;
-use Automate\Model\Project;
-use Automate\Plugin\PluginInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 readonly class DispatcherFactory
 {
-    public function __construct(
-        private PluginManager $pluginManager,
-    ) {
-    }
-
-    public function create(Project $project): EventDispatcher
+    public static function create(): EventDispatcher
     {
         $dispatcher = new EventDispatcher();
 
         $dispatcher->addSubscriber(new LockListener());
         $dispatcher->addSubscriber(new ClearListener());
-
-        /** @var PluginInterface $plugin */
-        foreach ($this->pluginManager->getPlugins() as $plugin) {
-            $plugin->register($project);
-            $dispatcher->addSubscriber($plugin);
-        }
 
         return $dispatcher;
     }

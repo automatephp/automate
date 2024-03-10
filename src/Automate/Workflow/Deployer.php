@@ -18,7 +18,6 @@ use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Command;
 use Automate\Model\Server;
-use Automate\PluginManager;
 
 /**
  * Deployment workflow.
@@ -35,7 +34,7 @@ readonly class Deployer
      */
     public function deploy(): bool
     {
-        $dispatcher = (new DispatcherFactory(new PluginManager()))->create($this->context->getProject());
+        $dispatcher = DispatcherFactory::create();
 
         try {
             $this->context->connect();

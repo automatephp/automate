@@ -33,8 +33,7 @@ class Loader
     {
         $processor = new Processor();
 
-        $pluginManager = new PluginManager();
-        $configuration = new Configuration($pluginManager);
+        $configuration = new Configuration();
 
         if (!file_exists($path) || !$data = file_get_contents($path)) {
             throw new \InvalidArgumentException(sprintf('Missing configuration file "%s', $path));
