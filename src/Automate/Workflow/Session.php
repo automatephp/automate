@@ -15,9 +15,9 @@ readonly class Session
     private const string RELEASES_FOLDER = 'releases';
 
     public function __construct(
-        private Context $context,
         private Server $server,
         private SFTP $sftp,
+        private string $releaseId,
     ) {
         $this->sftp->setTimeout(0);
     }
@@ -45,7 +45,7 @@ readonly class Session
     public function mv(string $from, string $to): void
     {
         if (!$this->exists(dirname($to))) {
-            $this->exec(sprintf('mkdir -p %s', dirname($to)));
+            $this->mkdir(dirname($to), true);
         }
 
         $this->exec(sprintf('mv %s %s', $from, $to), false);
@@ -93,7 +93,7 @@ readonly class Session
 
     public function getReleasePath(): string
     {
-        return Path::join($this->getReleasesPath(), $this->context->getReleaseId());
+        return Path::join($this->getReleasesPath(), $this->releaseId);
     }
 
     public function getReleasesPath(): string

@@ -17,9 +17,9 @@ use phpseclib3\Net\SFTP;
 
 class SessionFactory
 {
-    public static function create(Context $context, Server $server): Session
+    public function create(Server $server, string $releaseId): Session
     {
-        $ssh = new SFTP($server->getHost(), $server->getPort());
+        $sftp = new SFTP($server->getHost(), $server->getPort());
 
         // Connection with ssh key and optional
         if (null !== $server->getSshKey()) {
@@ -28,13 +28,13 @@ class SessionFactory
             }
 
             $key = PublicKeyLoader::load(file_get_contents($server->getSshKey()), $server->getPassword());
-            if (!$ssh->login($server->getUser(), $key)) {
+            if (!$sftp->login($server->getUser(), $key)) {
                 throw new \Exception(sprintf('[%s] SSH key or passphrase is invalid', $server->getName()));
             }
-        } elseif (!$ssh->login($server->getUser(), $server->getPassword())) {
+        } elseif (!$sftp->login($server->getUser(), $server->getPassword())) {
             throw new \Exception(sprintf('[%s] Invalid user or password', $server->getName()));
         }
 
-        return new Session($context, $server, $ssh);
+        return new Session($server, $sftp, $releaseId);
     }
 }

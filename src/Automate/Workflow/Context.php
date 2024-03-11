@@ -23,14 +23,19 @@ class Context
         protected LoggerInterface $logger,
         protected ?string $gitRef = null,
         protected bool $force = false,
+        protected ?SessionFactory $sessionFactory = null
     ) {
+        if (!$this->sessionFactory instanceof SessionFactory) {
+            $this->sessionFactory = new SessionFactory();
+        }
+
         $this->generateReleaseId();
     }
 
     public function connect(): void
     {
         foreach ($this->platform->getServers() as $server) {
-            $this->sessions[$server->getName()] = SessionFactory::create($this, $server);
+            $this->sessions[$server->getName()] = $this->sessionFactory->create($server, $this->getReleaseId());
         }
     }
 
