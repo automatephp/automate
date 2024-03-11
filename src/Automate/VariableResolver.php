@@ -17,11 +17,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class VariableResolver
 {
-    public const string ENV_PREFIX = 'AUTOMATE__';
+    private const string ENV_PREFIX = 'AUTOMATE__';
 
-    public const string VAR_PREFIX = '%';
+    private const string VAR_PREFIX = '%';
 
-    public const string VAR_SUFFIX = '%';
+    private const string VAR_SUFFIX = '%';
 
     /**
      * VariableResolver constructor.

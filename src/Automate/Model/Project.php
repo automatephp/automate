@@ -19,7 +19,6 @@ class Project
      * @param Command[]               $preDeploy
      * @param Command[]               $onDeploy
      * @param Command[]               $postDeploy
-     * @param array<string, mixed>    $plugins
      * @param array<string, Platform> $platforms
      */
     public function __construct(
@@ -29,7 +28,6 @@ class Project
         private array $preDeploy = [],
         private array $onDeploy = [],
         private array $postDeploy = [],
-        private array $plugins = [],
         private array $platforms = [],
     ) {
     }
@@ -134,32 +132,6 @@ class Project
         $this->postDeploy = $postDeploy;
 
         return $this;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getPlugins(): array
-    {
-        return $this->plugins;
-    }
-
-    /**
-     * @param array<string, mixed> $plugins
-     */
-    public function setPlugins(array $plugins): self
-    {
-        $this->plugins = $plugins;
-
-        return $this;
-    }
-
-    /**
-     * @return ?array<string, mixed>
-     */
-    public function getPlugin(string $name): ?array
-    {
-        return $this->plugins[$name] ?? null;
     }
 
     public function addPlatform(Platform $platform): self

@@ -11,11 +11,11 @@
 
 namespace Automate\Event;
 
-use Automate\Context\ContextInterface;
+use Automate\Workflow\Context;
 
 class FailedDeployEvent extends DeployEvent
 {
-    public function __construct(ContextInterface $context, private readonly \Exception $exception)
+    public function __construct(Context $context, private readonly \Exception $exception)
     {
         parent::__construct($context);
     }

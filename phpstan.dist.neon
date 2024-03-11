@@ -6,5 +6,3 @@ parameters:
         - php
     excludePaths:
         - src/Automate/Configuration.php
-    ignoreErrors:
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::children\(\)#'

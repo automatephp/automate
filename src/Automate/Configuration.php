@@ -8,12 +8,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 readonly class Configuration implements ConfigurationInterface
 {
-    public function __construct(
-        private PluginManager $pluginManager,
-    ) {
-    }
-
-    
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('automate');
@@ -33,7 +27,6 @@ readonly class Configuration implements ConfigurationInterface
                 ->append($this->addCommandsNode('on_deploy'))
                 ->append($this->addCommandsNode('post_deploy'))
                 ->append($this->addPlatformsNode())
-                ->append($this->addPluginsNode())
             ->end();
 
         return $treeBuilder;
@@ -101,18 +94,5 @@ readonly class Configuration implements ConfigurationInterface
                     ->integerNode('port')->defaultValue(22)->end()
                 ->end()
             ->end();
-    }
-
-    private function addPluginsNode(): NodeDefinition
-    {
-        $treeBuilder = new TreeBuilder('plugins');
-
-        $node = $treeBuilder->getRootNode()->children();
-
-        foreach ($this->pluginManager->getPlugins() as $plugin) {
-            $node->append($plugin->getConfigurationNode());
-        }
-
-        return $node->end();
     }
 }

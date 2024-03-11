@@ -11,29 +11,17 @@
 
 namespace Automate\Logger;
 
+use Automate\Model\Server;
+
 interface LoggerInterface
 {
-    public const int VERBOSITY_NORMAL = 1;
-
-    public const int VERBOSITY_DEBUG = 10;
-
-    /**
-     * Section title.
-     */
     public function section(string $title): void;
 
-    /**
-     * Run command.
-     */
-    public function command(string $name, bool $verbose = false): void;
+    public function command(string $name): void;
 
-    /**
-     * Remote response.
-     */
-    public function response(string $response, string $server, bool $verbose = false): void;
+    public function result(string $response, Server $server): void;
 
-    /**
-     * Remote error.
-     */
+    public function info(string $text, ?Server $server): void;
+
     public function error(string $message): void;
 }

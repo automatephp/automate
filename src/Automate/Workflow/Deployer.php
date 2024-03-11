@@ -11,23 +11,20 @@
 
 namespace Automate\Workflow;
 
-use Automate\Context\ContextInterface;
 use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Command;
-use Automate\Model\Server;
-use Automate\PluginManager;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Deployment workflow.
  */
 readonly class Deployer
 {
-    public function __construct(
-        private ContextInterface $context,
-    ) {
+    public function __construct(private Context $context)
+    {
     }
 
     /**
@@ -35,7 +32,7 @@ readonly class Deployer
      */
     public function deploy(): bool
     {
-        $dispatcher = (new DispatcherFactory(new PluginManager()))->create($this->context->getProject());
+        $dispatcher = DispatcherFactory::create();
 
         try {
             $this->context->connect();
@@ -89,15 +86,15 @@ readonly class Deployer
                 'git clone %s -q --recursive .', $this->context->getProject()->getRepository());
         }
 
-        $this->context->run($clone, true);
+        $this->context->exec($clone);
 
         $gitRef = $this->context->getGitRef();
 
         if (null !== $gitRef) {
             $listTagsCommand = sprintf("git tag --list '%s'", $gitRef);
-            $this->context->getLogger()->command($listTagsCommand);
-            foreach ($this->context->getPlatform()->getServers() as $server) {
-                if (null !== $this->context->doRun($server, $listTagsCommand, true)) {
+
+            $this->context->exec(function (Session $session) use ($listTagsCommand, $gitRef): void {
+                if ('' !== $session->exec($listTagsCommand)) {
                     // checkout a tag
                     $command = sprintf('git checkout tags/%s', $gitRef);
                 } else {
@@ -105,9 +102,9 @@ readonly class Deployer
                     $command = sprintf('git checkout %s', $gitRef);
                 }
 
-                $this->context->getLogger()->command($command, true);
-                $this->context->doRun($server, $command, true, true);
-            }
+                $this->context->getLogger()->command($command);
+                $this->context->exec($command);
+            });
         }
     }
 
@@ -122,7 +119,7 @@ readonly class Deployer
             $this->context->getLogger()->section($name);
             foreach ($commands as $command) {
                 if ('' !== $command->getCmd() && !str_starts_with(trim((string) $command->getCmd()), '#')) {
-                    $this->context->run($command->getCmd(), true, $command->getOnly());
+                    $this->context->exec($command->getCmd(), $command->getOnly());
                 }
             }
         }
@@ -138,27 +135,25 @@ readonly class Deployer
 
         if (count($folders) || count($files)) {
             $this->context->getLogger()->section('Setting up shared items');
-            foreach ($this->context->getPlatform()->getServers() as $server) {
+            $this->context->exec(function (Session $session) use ($folders, $files): void {
                 foreach ($folders as $folder) {
-                    $this->doShared($folder, $server, true);
+                    $this->doShared($folder, $session, true);
                 }
 
                 foreach ($files as $file) {
-                    $this->doShared($file, $server, false);
+                    $this->doShared($file, $session, false);
                 }
-            }
+            });
         }
     }
 
-    private function doShared(string $path, Server $server, bool $isDirectory): void
+    private function doShared(string $path, Session $session, bool $isDirectory): void
     {
-        $session = $this->context->getSession($server);
-
         $path = trim($path);
         $path = ltrim($path, '/');
 
-        $releasePath = $this->context->getReleasePath($server).'/'.$path;
-        $sharedPath = $this->context->getSharedPath($server).'/'.$path;
+        $releasePath = Path::join($session->getReleasePath(), $path);
+        $sharedPath = Path::join($session->getSharedPath(), $path);
 
         // For the first deployment : create shared form source
         if (!$session->exists($sharedPath) && $session->exists($releasePath)) {
@@ -186,8 +181,8 @@ readonly class Deployer
         }
 
         // create symlink
-        $this->context->getLogger()->response(sprintf('%s --> %s', $releasePath, $sharedPath), $server->getName(), true);
         $session->symlink($sharedPath, $releasePath);
+        $this->context->getLogger()->info(sprintf('%s --> %s', $releasePath, $sharedPath), $session->getServer());
     }
 
     /**
@@ -197,13 +192,13 @@ readonly class Deployer
     {
         $this->context->getLogger()->section('Publish new release');
 
-        foreach ($this->context->getPlatform()->getServers() as $server) {
-            $currentPath = $this->context->getCurrentPath($server);
-            $releasePath = $this->context->getReleasePath($server);
+        $this->context->exec(function (Session $session): void {
+            $currentPath = $session->getCurrentPath();
+            $releasePath = $session->getReleasePath();
 
-            $this->context->getLogger()->response(sprintf('%s --> %s', $currentPath, $releasePath), $server->getName(), true);
-            $this->context->getSession($server)->symlink($releasePath, $currentPath);
-        }
+            $session->symlink($releasePath, $currentPath);
+            $this->context->getLogger()->info(sprintf('%s --> %s', $currentPath, $releasePath), $session->getServer());
+        });
     }
 
     /**
@@ -211,8 +206,8 @@ readonly class Deployer
      */
     private function createReleaseDirectory(): void
     {
-        foreach ($this->context->getPlatform()->getServers() as $server) {
-            $this->context->getSession($server)->mkdir($this->context->getReleasePath($server), true);
-        }
+        $this->context->exec(static function (Session $session): void {
+            $session->mkdir($session->getReleasePath(), true);
+        });
     }
 }

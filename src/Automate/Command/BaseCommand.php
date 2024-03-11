@@ -13,8 +13,10 @@ namespace Automate\Command;
 
 use Automate\Logger\ConsoleLogger;
 use Automate\Logger\LoggerInterface;
+use Automate\Model\Platform;
+use Automate\Model\Project;
+use Automate\VariableResolver;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 abstract class BaseCommand extends Command
@@ -23,10 +25,13 @@ abstract class BaseCommand extends Command
 
     protected function getLogger(SymfonyStyle $io): LoggerInterface
     {
-        $verbosity = $io->getVerbosity() > OutputInterface::VERBOSITY_NORMAL
-            ? LoggerInterface::VERBOSITY_DEBUG
-            : LoggerInterface::VERBOSITY_NORMAL;
+        return new ConsoleLogger($io);
+    }
 
-        return new ConsoleLogger($io, $verbosity);
+    protected function resolveVariables(SymfonyStyle $io, Project $project, Platform $platform): void
+    {
+        $variableResolver = new VariableResolver($io);
+        $variableResolver->resolvePlatform($platform);
+        $variableResolver->resolveRepository($project);
     }
 }

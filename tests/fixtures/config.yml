@@ -45,9 +45,3 @@ post_deploy:
     - "php bin/console doctrine:cache:clear-result"
     - cmd: "php bin/console messenger:consume"
       only: ["eddv-exemple-front-01", "dddv-exemple-front-01"]
-
-plugins:
-    cache_tool:
-        opcache: true
-        apcu: false
-        apc: false

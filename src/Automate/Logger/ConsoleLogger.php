@@ -11,14 +11,13 @@
 
 namespace Automate\Logger;
 
-use Symfony\Component\Console\Output\OutputInterface;
+use Automate\Model\Server;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConsoleLogger implements LoggerInterface
 {
     public function __construct(
         private readonly SymfonyStyle $io,
-        private readonly int $verbosity = self::VERBOSITY_NORMAL,
     ) {
     }
 
@@ -27,22 +26,27 @@ class ConsoleLogger implements LoggerInterface
         $this->io->block($title, '*', 'fg=white;bg=blue', ' ', true);
     }
 
-    public function command(string $name, bool $verbose = false): void
+    public function command(string $name): void
     {
-        if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
-            $this->io->text(sprintf('<info>%s</info>', $name));
+        $this->io->text(sprintf('<info>%s</info>', $name));
+    }
+
+    public function result(string $response, Server $server): void
+    {
+        if (substr_count($response, "\n") > 0) {
+            $this->io->text(sprintf('<comment>[%s]</comment>', $server->getName()));
+            $this->io->text($response);
+        } else {
+            $this->io->text(sprintf('<comment>[%s]</comment> %s', $server->getName(), $response));
         }
     }
 
-    public function response(string $response, string $server, bool $verbose = false): void
+    public function info(string $text, ?Server $server): void
     {
-        if ($verbose || $this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
-            if (substr_count($response, "\n") > 0) {
-                $this->io->text(sprintf('<comment>[%s]</comment>', $server));
-                $this->io->text($response);
-            } else {
-                $this->io->text(sprintf('<comment>[%s]</comment> %s', $server, $response));
-            }
+        if ($server instanceof Server) {
+            $this->io->text(sprintf('<comment>[%s]</comment> %s', $server->getName(), $text));
+        } else {
+            $this->io->text($text);
         }
     }
 

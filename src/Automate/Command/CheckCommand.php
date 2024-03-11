@@ -11,9 +11,9 @@
 
 namespace Automate\Command;
 
-use Automate\Context\SSHContext;
 use Automate\Loader;
-use Automate\VariableResolver;
+use Automate\Workflow\Context;
+use Automate\Workflow\Session;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,18 +42,17 @@ class CheckCommand extends BaseCommand
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
 
-        $variableResolver = new VariableResolver($io);
-        $variableResolver->resolvePlatform($platform);
-        $variableResolver->resolveRepository($project);
-
+        $this->resolveVariables($io, $project, $platform);
         $logger = $this->getLogger($io);
 
         try {
-            $context = new SSHContext($project, $platform, $logger, $platform->getDefaultBranch());
+            $context = new Context($project, $platform, $logger, $platform->getDefaultBranch());
 
             $context->connect();
             $logger->section('Check git access');
-            $context->run('git ls-remote '.$project->getRepository(), false, null, false);
+            $context->exec(static function (Session $session) use ($project): void {
+                $session->exec('git ls-remote '.$project->getRepository(), false);
+            });
         } catch (\Exception $exception) {
             $io->error($exception->getMessage());
 
