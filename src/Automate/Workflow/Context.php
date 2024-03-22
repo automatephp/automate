@@ -5,6 +5,7 @@ namespace Automate\Workflow;
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
+use Automate\Ssh\SshFactory;
 
 class Context
 {
@@ -18,24 +19,23 @@ class Context
     protected array $sessions = [];
 
     public function __construct(
-        protected Project $project,
-        protected Platform $platform,
-        protected LoggerInterface $logger,
-        protected ?string $gitRef = null,
-        protected bool $force = false,
-        protected ?SessionFactory $sessionFactory = null
+        private readonly Project $project,
+        private readonly Platform $platform,
+        private readonly LoggerInterface $logger,
+        private readonly SshFactory $sshFactory,
+        private readonly ?string $gitRef = null,
+        private readonly bool $force = false,
     ) {
-        if (!$this->sessionFactory instanceof SessionFactory) {
-            $this->sessionFactory = new SessionFactory();
-        }
-
         $this->generateReleaseId();
     }
 
     public function connect(): void
     {
         foreach ($this->platform->getServers() as $server) {
-            $this->sessions[$server->getName()] = $this->sessionFactory->create($server, $this->getReleaseId());
+            $ssh = $this->sshFactory->create($server);
+            $session = new Session($server, $ssh, $this->getReleaseId());
+            $session->login();
+            $this->sessions[$server->getName()] = $session;
         }
     }
 
@@ -58,6 +58,38 @@ class Context
                 }
             } else {
                 $command($session);
+            }
+        }
+    }
+
+    /**
+     * @param string[] $serversList
+     */
+    public function execAsync(string $command, ?array $serversList = null, bool $addWorkingDir = true): void
+    {
+        $process = [];
+        $this->logger->command($command);
+
+        foreach ($this->sessions as $session) {
+            if ($serversList && !in_array($session->getServer()->getName(), $serversList)) {
+                continue;
+            }
+
+            $child = $session->execAsync($command, $addWorkingDir);
+            $child->start(function ($type, $output) use ($session): void {
+                if ('' === trim($output)) {
+                    return;
+                }
+
+                $this->logger->result($output, $session->getServer());
+            });
+            $process[] = $child;
+        }
+
+        foreach ($process as $child) {
+            $child->wait();
+            if (!$child->isSuccessful()) {
+                throw new \RuntimeException($child->getErrorOutput());
             }
         }
     }

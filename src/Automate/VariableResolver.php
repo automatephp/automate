@@ -12,7 +12,6 @@
 namespace Automate;
 
 use Automate\Model\Platform;
-use Automate\Model\Project;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class VariableResolver
@@ -23,44 +22,43 @@ class VariableResolver
 
     private const string VAR_SUFFIX = '%';
 
-    /**
-     * VariableResolver constructor.
-     */
+    /** @var array<string, string> */
+    private array $variables = [];
+
     public function __construct(
         private readonly SymfonyStyle $io,
     ) {
     }
 
-    /**
-     * Resolve platform configuration.
-     */
-    public function resolvePlatform(Platform $platform): void
+    public function process(Platform $platform): void
     {
         foreach ($platform->getServers() as $server) {
             if ($this->isVariable($server->getPassword())) {
                 $password = $this->resolveVariable($server->getPassword());
+                $this->variables[$server->getPassword()] = $password;
                 $server->setPassword($password);
             }
         }
     }
 
     /**
-     * Resolve repository configuration.
+     * @return array<string, string>
      */
-    public function resolveRepository(Project $project): void
+    public function getEnvVariables(): array
     {
-        if (preg_match('/http[s]?:\/\/(?P<user>.*):(?P<variable>%.*%)@(.*)/i', (string) $project->getRepository(), $match)) {
-            $password = $this->resolveVariable($match['variable']);
-            $repository = str_replace($match['variable'], $password, (string) $project->getRepository());
-
-            $project->setRepository($repository);
+        $envs = [];
+        foreach ($this->variables as $name => $variable) {
+            $name = trim($name, '%');
+            $envs[self::ENV_PREFIX.$name] = $variable;
         }
+
+        return $envs;
     }
 
     /**
      * Return true if value is a variable.
      */
-    public function isVariable(string $value): bool
+    private function isVariable(string $value): bool
     {
         $first = substr($value, -1);
         $last = substr($value, 0, 1);
@@ -71,7 +69,7 @@ class VariableResolver
     /**
      * Resolve a variable.
      */
-    public function resolveVariable(string $value): string
+    private function resolveVariable(string $value): string
     {
         $name = substr($value, 1, strlen($value) - 2);
 
