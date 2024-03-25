@@ -98,8 +98,8 @@ jobs:
 
             -   name: Build static binary
                 run: |
-                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter" --with-php=8.3
-                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter" ${{ matrix.build_options }}
+                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" --with-php=8.3
+                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" ${{ matrix.build_options }}
                     bin/spc micro:combine build/automate.phar --output build/${{ matrix.filename }}
 
             -   name: Ensure the static binary works
