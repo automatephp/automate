@@ -5,15 +5,15 @@ namespace Automate\Ssh;
 use Automate\Model\Platform;
 use Automate\Model\Server;
 
-readonly class SshFactory
+class SshFactory
 {
     /**
      * @param array<string, string> $variables
      */
     public function __construct(
-        private Platform $platform,
-        private array $variables,
-        private string $configFile,
+        private readonly Platform $platform,
+        private readonly array $variables,
+        private readonly string $configFile,
     ) {
     }
 

@@ -9,8 +9,6 @@ use Automate\Ssh\SshFactory;
 
 class Context
 {
-    protected string $releaseId;
-
     protected bool $isDeployed = false;
 
     /**
@@ -25,8 +23,11 @@ class Context
         private readonly SshFactory $sshFactory,
         private readonly ?string $gitRef = null,
         private readonly bool $force = false,
+        protected ?string $releaseId = null,
     ) {
-        $this->generateReleaseId();
+        if (!$this->releaseId) {
+            $this->generateReleaseId();
+        }
     }
 
     public function connect(): void
@@ -67,6 +68,13 @@ class Context
      */
     public function execAsync(string $command, ?array $serversList = null, bool $addWorkingDir = true): void
     {
+        // if only one server: ignore asynchronous process
+        if (($serversList && 1 === count($serversList)) || 1 === count($this->sessions)) {
+            $this->exec($command, $serversList, $addWorkingDir);
+
+            return;
+        }
+
         $process = [];
         $this->logger->command($command);
 
