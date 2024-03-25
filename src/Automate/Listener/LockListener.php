@@ -15,8 +15,8 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Model\Server;
 use Automate\Workflow\Session;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Filesystem\Path;
 
 class LockListener implements EventSubscriberInterface
 {
