@@ -3,8 +3,9 @@
 namespace Automate\Workflow;
 
 use Automate\Model\Server;
-use phpseclib3\Net\SFTP;
+use Automate\Ssh\Ssh;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 readonly class Session
 {
@@ -16,23 +17,28 @@ readonly class Session
 
     public function __construct(
         private Server $server,
-        private SFTP $sftp,
+        private Ssh $ssh,
         private string $releaseId,
     ) {
-        $this->sftp->setTimeout(0);
+    }
+
+    public function login(): void
+    {
+        $this->ssh->login();
     }
 
     public function exec(string $command, bool $addWorkingDir = true): string
     {
         $command = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath(), $command) : $command;
 
-        $rs = (string) $this->sftp->exec($command);
+        return $this->ssh->exec($command);
+    }
 
-        if (0 !== $this->sftp->getExitStatus()) {
-            throw new \RuntimeException($rs);
-        }
+    public function execAsync(string $command, bool $addWorkingDir = true): Process
+    {
+        $command = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath(), $command) : $command;
 
-        return $rs;
+        return $this->ssh->execAsync($command);
     }
 
     public function mkdir(string $path, bool $recursive = false): void

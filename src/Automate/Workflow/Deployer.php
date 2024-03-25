@@ -119,7 +119,7 @@ readonly class Deployer
             $this->context->getLogger()->section($name);
             foreach ($commands as $command) {
                 if ('' !== $command->getCmd() && !str_starts_with(trim((string) $command->getCmd()), '#')) {
-                    $this->context->exec($command->getCmd(), $command->getOnly());
+                    $this->context->execAsync($command->getCmd(), $command->getOnly());
                 }
             }
         }

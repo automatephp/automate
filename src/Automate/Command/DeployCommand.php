@@ -13,6 +13,8 @@ namespace Automate\Command;
 
 use Automate\Loader;
 use Automate\Model\Platform;
+use Automate\Ssh\SshFactory;
+use Automate\VariableResolver;
 use Automate\Workflow\Context;
 use Automate\Workflow\Deployer;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -45,9 +47,10 @@ class DeployCommand extends BaseCommand
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
 
-        $this->resolveVariables($io, $project, $platform);
-        $logger = $this->getLogger($io);
+        $variableResolver = new VariableResolver($io);
+        $variableResolver->process($platform);
 
+        $logger = $this->getLogger($io);
         $logger->section('Start deployment');
 
         $gitRef = $input->getArgument('gitRef');
@@ -59,7 +62,9 @@ class DeployCommand extends BaseCommand
             ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
         ]);
 
-        $context = new Context($project, $platform, $logger, $gitRef, $input->getOption('force'));
+        $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+
+        $context = new Context($project, $platform, $logger, $sshFactory, $gitRef, $input->getOption('force'));
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {

@@ -3,16 +3,16 @@
 namespace Automate\Tests\Workflow;
 
 use Automate\Model\Server;
+use Automate\Ssh\Ssh;
 use Automate\Tests\AbstractMockTestCase;
 use Automate\Workflow\Session;
-use phpseclib3\Net\SFTP;
 
 class SessionTest extends AbstractMockTestCase
 {
     public function testSessionPath(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $session = $this->getSession($sftp);
+        $ssh = \Mockery::spy(Ssh::class);
+        $session = $this->getSession($ssh);
 
         $this->assertEquals('/var/www/current', $session->getCurrentPath());
         $this->assertEquals('/var/www/shared', $session->getSharedPath());
@@ -22,46 +22,32 @@ class SessionTest extends AbstractMockTestCase
 
     public function testExecCommand(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('ls');
-        $sftp->expects('getExitStatus')->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('ls');
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->exec('ls', false);
     }
 
     public function testExecCommandWithWorkingDir(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('cd /var/www/releases/2024.03.10-2340.241; ls');
-        $sftp->expects('getExitStatus')->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('cd /var/www/releases/2024.03.10-2340.241; ls');
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->exec('ls');
     }
 
-    public function testExecCommandWithError(): void
-    {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('getExitStatus')->andReturns(1);
-
-        $session = $this->getSession($sftp);
-
-        $this->expectException(\RuntimeException::class);
-
-        $session->exec('ls', false);
-    }
-
     public function testMkdir(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('mkdir /path/to/folder')->once();
-        $sftp->expects('exec')->with('mkdir -p /path/to/folder')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('mkdir /path/to/folder')->once();
+        $ssh->expects('exec')->with('mkdir -p /path/to/folder')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->mkdir('/path/to/folder');
         $session->mkdir('/path/to/folder', true);
@@ -69,99 +55,99 @@ class SessionTest extends AbstractMockTestCase
 
     public function testMv(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('mv /home/a.txt /home/b.txt')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('mv /home/a.txt /home/b.txt')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->mv('/home/a.txt', '/home/b.txt');
     }
 
     public function testMvWithMkdir(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('mkdir -p /data');
-        $sftp->expects('exec')->with('mv /home/a /data/usr')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('mkdir -p /data');
+        $ssh->expects('exec')->with('mv /home/a /data/usr')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->mv('/home/a', '/data/usr');
     }
 
     public function testRm(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('rm /home/a.txt')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('rm /home/a.txt')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->rm('/home/a.txt');
     }
 
     public function testFolderExists(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('if test -d "/home/test"; then echo "Y";fi')->once()->andReturns('Y');
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('if test -d "/home/test"; then echo "Y";fi')->once()->andReturns('Y');
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $this->assertTrue($session->exists('/home/test'));
     }
 
     public function testFileExists(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('if test -d "/home/test.txt"; then echo "Y";fi')->once()->andReturns('');
-        $sftp->expects('exec')->with('if test -f "/home/test.txt"; then echo "Y";fi')->once()->andReturns('Y');
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('if test -d "/home/test.txt"; then echo "Y";fi')->once()->andReturns('');
+        $ssh->expects('exec')->with('if test -f "/home/test.txt"; then echo "Y";fi')->once()->andReturns('Y');
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $this->assertTrue($session->exists('/home/test.txt'));
     }
 
     public function testSymlink(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('ln -sfn /data/a.txt /data/b.txt')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('ln -sfn /data/a.txt /data/b.txt')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->symlink('/data/a.txt', '/data/b.txt');
     }
 
     public function testTouch(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('mkdir -p /data')->once();
-        $sftp->expects('exec')->with('touch /data/a.txt')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('mkdir -p /data')->once();
+        $ssh->expects('exec')->with('touch /data/a.txt')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->touch('/data/a.txt');
     }
 
     public function testListDirectory(): void
     {
-        $sftp = \Mockery::spy(SFTP::class);
-        $sftp->expects('exec')->with('find /data -maxdepth 1 -mindepth 1 -type d')->once();
-        $sftp->shouldReceive()->getExitStatus()->andReturns(0);
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('find /data -maxdepth 1 -mindepth 1 -type d')->once();
+        $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
-        $session = $this->getSession($sftp);
+        $session = $this->getSession($ssh);
 
         $session->listDirectory('/data');
     }
 
-    private function getSession(SFTP $sftp): Session
+    private function getSession(Ssh $ssh): Session
     {
         $server = new Server(name : 'server1', path: '/var/www');
 
-        return new Session($server, $sftp, '2024.03.10-2340.241');
+        return new Session($server, $ssh, '2024.03.10-2340.241');
     }
 }

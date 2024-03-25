@@ -20,7 +20,7 @@ class Platform
         private ?string $name = null,
         private ?string $defaultBranch = null,
         private ?int $maxReleases = null,
-        private ?array $servers = null,
+        private array $servers = [],
     ) {
     }
 
@@ -73,8 +73,19 @@ class Platform
     /**
      * @return Server[]
      */
-    public function getServers(): ?array
+    public function getServers(): array
     {
         return $this->servers;
+    }
+
+    public function getServer(string $name): Server
+    {
+        foreach ($this->servers as $server) {
+            if ($name === $server->getName()) {
+                return $server;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('Missing server %s', $name));
     }
 }

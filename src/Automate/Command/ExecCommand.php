@@ -12,10 +12,8 @@
 namespace Automate\Command;
 
 use Automate\Loader;
-use Automate\Ssh\SshFactory;
+use Automate\Ssh\Ssh;
 use Automate\VariableResolver;
-use Automate\Workflow\Context;
-use Automate\Workflow\Session;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,15 +23,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'check',
-    description: 'check remote platform.',
+    name: 'exec',
+    description: 'Exec ssh command',
 )]
-class CheckCommand extends BaseCommand
+class ExecCommand extends BaseCommand
 {
     protected function configure(): void
     {
         $this
+            ->setHidden()
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
+            ->addArgument('server', InputArgument::REQUIRED, 'server name')
+            ->addArgument('cmd', InputArgument::REQUIRED, 'Command')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE);
     }
 
@@ -42,28 +43,24 @@ class CheckCommand extends BaseCommand
         $loader = new Loader();
         $project = $loader->load($input->getOption('config'));
         $platform = $project->getPlatform($input->getArgument('platform'));
+        $server = $platform->getServer($input->getArgument('server'));
+        $command = $input->getArgument('cmd');
+
         $io = new SymfonyStyle($input, $output);
         $variableResolver = new VariableResolver($io);
         $variableResolver->process($platform);
 
-        $logger = $this->getLogger($io);
-        $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+        $ssh = new Ssh($platform, $server, $variableResolver->getEnvVariables(), $input->getOption('config'));
+        $ssh->login();
 
         try {
-            $context = new Context($project, $platform, $logger, $sshFactory, $platform->getDefaultBranch());
-
-            $context->connect();
-            $logger->section('Check git access');
-            $context->exec(static function (Session $session) use ($project): void {
-                $session->exec('git ls-remote '.$project->getRepository(), false);
-            });
+            $rs = $ssh->exec($command);
+            $output->write($rs);
         } catch (\Exception $exception) {
-            $io->error($exception->getMessage());
+            $output->write($exception->getMessage());
 
             return Command::FAILURE;
         }
-
-        $io->success('All is OK');
 
         return Command::SUCCESS;
     }
