@@ -11,11 +11,11 @@ menu:
 The following command allows you to launch the deployment on remote server(s)
 
 ~~~~bash
-php automate.phar deploy development master
+automate deploy development master
 ~~~~
 
 ~~~~bash
-php automate.phar deploy ‹platform› [gitref] -c [path_of_config_file]
+automate deploy ‹platform› [gitref] -c [path_of_config_file]
 ~~~~
 
 * **platform**
@@ -47,7 +47,7 @@ deploy:development:
     only:
         - master
     script:
-        - "php automate.phar deploy development"   #Lunch the job !
+        - "automate deploy development"   #Lunch the job !
     environment:
         name: development
         url: http://prod-1.exemple.com
