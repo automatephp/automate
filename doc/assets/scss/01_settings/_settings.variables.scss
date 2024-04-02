@@ -1,0 +1,18 @@
+:root {
+  // Layout
+  --page-max-width: 140rem;
+
+  @include min-width(lg) {
+    --page-gutter: 4rem;
+  }
+
+  @include max-width(lg) {
+    --page-gutter: 2rem;
+  }
+
+  // Transitions
+  --transition-in-out: 0.2s ease-in-out;
+
+  // Radius
+  --radius-full: 360px;
+}

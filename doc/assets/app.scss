@@ -1,0 +1,44 @@
+// ------------------ //
+// SETTINGS
+// ------------------ //
+@import
+"scss/01_settings/settings.breakpoints",
+"scss/01_settings/settings.media-queries",
+"scss/01_settings/settings.hover",
+"scss/01_settings/settings.fonts",
+"scss/01_settings/settings.colors",
+"scss/01_settings/settings.variables";
+
+// ------------------ //
+// GENERICS
+// ------------------ //
+@import
+"scss/02_generics/generics.reset";
+
+// ------------------ //
+// GENERICS
+// ------------------ //
+@import
+"scss/03_elements/elements.page";
+
+// ------------------ //
+// OBJECTS
+// ------------------ //
+@import
+"scss/04_objects/objects.container";
+
+// ------------------ //
+// COMPONENTS
+// ------------------ //
+@import
+"scss/05_components/components.buttons",
+"scss/05_components/components.starting",
+"scss/05_components/components.advantages",
+"scss/05_components/components.baseline",
+"scss/05_components/components.flip-card",
+"scss/05_components/components.layout",
+"scss/05_components/components.header",
+"scss/05_components/components.menu",
+"scss/05_components/components.main",
+"scss/05_components/components.footer",
+"scss/05_components/components.404";

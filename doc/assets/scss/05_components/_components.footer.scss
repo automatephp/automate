@@ -1,0 +1,30 @@
+.c-footer {
+  background-color: var(--color-blue-grey);
+  padding: 3.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  color: var(--color-white);
+  font-size: 1.8rem;
+  line-height: normal;
+
+  @include max-width(md) {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .c-layout-page & {
+    @include min-width(lg) {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+    }
+  }
+}
+
+.c-footer__mezcalito {
+  width: 15rem;
+  fill: #fff;
+  stroke-width: 0;
+}

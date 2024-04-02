@@ -1,0 +1,18 @@
+.c-main {
+  .c-layout-page & {
+    @include min-width(xl) {
+      padding: 8rem 4rem 5.6rem;
+    }
+
+    @include max-width(xl) {
+      padding: 3rem 2rem 2rem;
+    }
+
+    @include min-width(lg) {
+      height: 100vh;
+      overflow-y: auto;
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+    }
+  }
+}

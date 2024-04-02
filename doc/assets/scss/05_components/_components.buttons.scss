@@ -1,0 +1,66 @@
+.c-button {
+  transition: color var(--transition-in-out), background-color var(--transition-in-out), box-shadow var(--transition-in-out);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  width: 16rem;
+  padding: 0.8rem 1.6rem;
+  font-size: 1.4rem;
+}
+
+.c-button--plain {
+  color: var(--button-secondary);
+  background-color: var(--button-main);
+  box-shadow: 0 0 0 1px var(--button-main) inset;
+
+  path {
+    fill: var(--button-secondary);
+  }
+
+  @include hover {
+    color: var(--button-main);
+    background-color: var(--button-secondary);
+
+    path {
+      fill: var(--button-main);
+    }
+  }
+}
+
+.c-button--ghost {
+  color: var(--button-main);
+  background-color: transparent;
+  box-shadow: 0 0 0 1px var(--button-main) inset;
+
+  @include hover {
+    color: var(--button-secondary);
+    background-color: var(--button-main);
+  }
+}
+
+.c-button--blue {
+  --button-main: var(--color-blue);
+  --button-secondary: var(--color-white);
+}
+
+.c-button--white {
+  --button-main: var(--color-white);
+  --button-secondary: var(--color-blue-grey);
+}
+
+.c-button--orange {
+  --button-main: var(--color-orange);
+  --button-secondary: var(--color-white);
+}
+
+.c-button__svg {
+  flex-shrink: 0;
+  width: 2rem;
+
+  path {
+    transition: fill var(--transition-in-out);
+  }
+}

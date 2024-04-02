@@ -1,0 +1,402 @@
+{
+  "version": 1,
+  "width": 174,
+  "height": 43,
+  "duration": 16.778703,
+  "command": null,
+  "title": null,
+  "env": {
+    "TERM": "xterm-256color",
+    "SHELL": "/bin/bash"
+  },
+  "stdout": [
+    [
+      0.05,
+      "\u001b[?1034h$ "
+    ],
+    [
+      0.05,
+      "p"
+    ],
+    [
+      0.05,
+      "h"
+    ],
+    [
+      0.05,
+      "p"
+    ],
+    [
+      0.05,
+      " "
+    ],
+    [
+      0.05,
+      "a"
+    ],
+    [
+      0.05,
+      "u"
+    ],
+    [
+      0.05,
+      "t"
+    ],
+    [
+      0.05,
+      "o"
+    ],
+    [
+      0.05,
+      "m"
+    ],
+    [
+      0.05,
+      "\u0007ate."
+    ],
+    [
+      0.05,
+      "p"
+    ],
+    [
+      0.05,
+      "har "
+    ],
+    [
+      0.05,
+      "d"
+    ],
+    [
+      0.05,
+      "e"
+    ],
+    [
+      0.05,
+      "p"
+    ],
+    [
+      0.05,
+      "l"
+    ],
+    [
+      0.05,
+      "o"
+    ],
+    [
+      0.05,
+      "y"
+    ],
+    [
+      0.05,
+      " "
+    ],
+    [
+      0.05,
+      "d"
+    ],
+    [
+      0.05,
+      "e"
+    ],
+    [
+      0.05,
+      "v"
+    ],
+    [
+      0.447187,
+      "\r\n"
+    ],
+    [
+      0.236781,
+      "\r\n"
+    ],
+    [
+      0.001066,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000129,
+      "\u001b[37;44m [*] Start deployment                                                                                                   \u001b[39;49m\r\n"
+    ],
+    [
+      0.000134,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000289,
+      "\r\n"
+    ],
+    [
+      0.001964,
+      " ------------ --------------------------------------------- \r\n"
+    ],
+    [
+      0.00024,
+      "  Repository   https://github.com/julienj/symfony-demo.git  \r\n"
+    ],
+    [
+      0.000294,
+      "  Platform     dev                                          \r\n"
+    ],
+    [
+      0.000343,
+      "  Servers      dddv-exemple-front-01 (178.32.223.166)       \r\n"
+    ],
+    [
+      0.000336,
+      "  Version      master                                       \r\n"
+    ],
+    [
+      0.000177,
+      " ------------ --------------------------------------------- \r\n"
+    ],
+    [
+      0.000124,
+      "\r\n"
+    ],
+    [
+      0.001194,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      4e-05,
+      "\u001b[37;44m [*] Remote servers connection                                                                                          \u001b[39;49m\r\n"
+    ],
+    [
+      9.7e-05,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000198,
+      "\r\n"
+    ],
+    [
+      0.221151,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m Connection successful\r\n"
+    ],
+    [
+      0.000149,
+      "\r\n"
+    ],
+    [
+      0.000753,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000238,
+      "\u001b[37;44m [*] Prepare Release                                                                                                    \u001b[39;49m\r\n"
+    ],
+    [
+      0.000242,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.00036,
+      "\r\n"
+    ],
+    [
+      0.111376,
+      " \u001b[32mgit clone https://github.com/julienj/symfony-demo.git -q --recursive -b master .\u001b[39m\r\n"
+    ],
+    [
+      1.609332,
+      "\r\n"
+    ],
+    [
+      0.000937,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000249,
+      "\u001b[37;44m [*] Setting up shared items                                                                                            \u001b[39;49m\r\n"
+    ],
+    [
+      0.000332,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000316,
+      "\r\n"
+    ],
+    [
+      0.396131,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m /home/julien/automate/releases/2017.11.15-2129.456/app/data --> /home/julien/automate/shared/app/data\r\n"
+    ],
+    [
+      0.652524,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m /home/julien/automate/releases/2017.11.15-2129.456/app/config/parameters.yml --> /home/julien/automate/shared/app/config/parameters.yml\r\n"
+    ],
+    [
+      0.079677,
+      "\r\n"
+    ],
+    [
+      0.000398,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      8.4e-05,
+      "\u001b[37;44m [*] On deploy                                                                                                          \u001b[39;49m\r\n"
+    ],
+    [
+      0.000191,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000281,
+      "\r\n"
+    ],
+    [
+      0.000226,
+      " \u001b[32mcomposer install\u001b[39m\r\n"
+    ],
+    [
+      2.567368,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m\r\n"
+    ],
+    [
+      0.000268,
+      " Loading composer repositories with package information\r\nInstalling dependencies (including require-dev) from lock file\r\nPackage operations: 43 installs, 0 updates, 0 removals\r\n  - Installing doctrine/lexer (v1.0.1): Loading from cache\r\n  - Installing doctrine/annotations (v1.2.7): Loading from cache\r\n  - Installing twig/twig (v1.24.1): Loading from cache\r\n  - Installing symfony/polyfill-util (v1.2.0): Loading from cache\r\n  - Installing paragonie/random_compat (v2.0.2): Loading from cache\r\n  - Installing symfony/polyfill-php70 (v1.2.0): Loading from cache\r\n  - Installing symfony/polyfill-php56 (v1.2.0): Loading from cache\r\n  - Installing symfony/polyfill-mbstring (v1.2.0): Loading from cache\r\n  - Installing symfony/symfony (v3.1.0): Loading from cache\r\n  - Installing symfony/polyfill-intl-icu (v1.2.0): Loading from cache\r\n  - Installing psr/log (1.0.0): Loading from cache\r\n  - Installing psr/cache (1.0.0): Loading from cache\r\n  - Installing doctrine/inflector (v1.1.0): Loading from cache\r\n  - Installing doctr"
+    ],
+    [
+      6e-05,
+      "ine/collections (v1.3.0): Loading from cache\r\n  - Installing doctrine/cache (v1.6.0): Loading from cache\r\n  - Installing doctrine/common (v2.6.1): Loading from cache\r\n  - Installing doctrine/doctrine-cache-bundle (1.3.0): Loading from cache\r\n  - Installing jdorn/sql-formatter (v1.2.17): Loading from cache\r\n  - Installing doctrine/dbal (v2.5.4): Loading from cache\r\n  - Installing doctrine/doctrine-bundle (1.6.3): Loading from cache\r\n  - Installing doctrine/data-fixtures (v1.1.1): Loading from cache\r\n  - Installing doctrine/doctrine-fixtures-bundle (2.3.0): Loading from cache\r\n  - Installing doctrine/instantiator (1.0.5): Loading from cache\r\n  - Installing doctrine/orm (v2.5.4): Loading from cache\r\n  - Installing erusev/parsedown (1.6.0): Loading from cache\r\n  - Installing ezyang/htmlpurifier (v4.7.0): Loading from cache\r\n  - Installing incenteev/composer-parameter-handler (v2.1.2): Loading from cache\r\n  - Installing leafo/scssphp (v0.5.1): Loading from cache\r\n  - Installing patchwork/jsqueeze (v2.0.5): Loading"
+    ],
+    [
+      0.00017,
+      " from cache\r\n  - Installing sensiolabs/security-checker (v3.0.2): Loading from cache\r\n  - Installing sensio/distribution-bundle (v5.0.6): Loading from cache\r\n  - Installing sensio/framework-extra-bundle (v3.0.16): Loading from cache\r\n  - Installing kriswallsmith/assetic (v1.3.2): Loading from cache\r\n  - Installing symfony/assetic-bundle (v2.8.0): Loading from cache\r\n  - Installing monolog/monolog (1.19.0): Loading from cache\r\n  - Installing symfony/monolog-bundle (2.11.1): Loading from cache\r\n  - Installing swiftmailer/swiftmailer (v5.4.2): Loading from cache\r\n  - Installing symfony/swiftmailer-bundle (v2.3.11): Loading from cache\r\n  - Installing twig/extensions (v1.3.0): Loading from cache\r\n  - Installing pagerfanta/pagerfanta (v1.0.3): Loading from cache\r\n  - Installing white-october/pagerfanta-bundle (v1.0.6): Loading from cache\r\n  - Installing sensio/generator-bundle (v3.0.6): Loading from cache\r\n  - Installing symfony/phpunit-bridge (v3.1.0): Loading from cache\r\nparagonie/random_compat suggests installin"
+    ],
+    [
+      7e-05,
+      "g ext-libsodium (Provides a modern crypto API that can be used to generate random bytes.)\r\nsymfony/polyfill-mbstring suggests installing ext-mbstring (For best performance)\r\ndoctrine/doctrine-cache-bundle suggests installing symfony/security-acl (For using this bundle to cache ACLs)\r\ndoctrine/data-fixtures suggests installing doctrine/mongodb-odm (For loading MongoDB ODM fixtures)\r\ndoctrine/data-fixtures suggests installing doctrine/phpcr-odm (For loading PHPCR ODM fixtures)\r\nsensio/framework-extra-bundle suggests installing symfony/psr-http-message-bridge (To use the PSR-7 converters)\r\nkriswallsmith/assetic suggests installing leafo/lessphp (Assetic provides the integration with the lessphp LESS compiler)\r\nkriswallsmith/assetic suggests installing leafo/scssphp-compass (Assetic provides the integration with the SCSS compass plugin)\r\nkriswallsmith/assetic suggests installing ptachoire/cssembed (Assetic provides the integration with phpcssembed to embed data uris)\r\nsymfony/assetic-bundle suggests installing kr"
+    ],
+    [
+      8e-05,
+      "iswallsmith/spork (to be able to dump assets in parallel)\r\nmonolog/monolog suggests installing aws/aws-sdk-php (Allow sending log messages to AWS services like DynamoDB)\r\nmonolog/monolog suggests installing doctrine/couchdb (Allow sending log messages to a CouchDB server)\r\nmonolog/monolog suggests installing ext-amqp (Allow sending log messages to an AMQP server (1.0+ required))\r\nmonolog/monolog suggests installing ext-mongo (Allow sending log messages to a MongoDB server)\r\nmonolog/monolog suggests installing graylog2/gelf-php (Allow sending log messages to a GrayLog2 server)\r\nmonolog/monolog suggests installing mongodb/mongodb (Allow sending log messages to a MongoDB server via PHP Driver)\r\nmonolog/monolog suggests installing php-amqplib/php-amqplib (Allow sending log messages to an AMQP server using php-amqplib)\r\nmonolog/monolog suggests installing php-console/php-console (Allow sending log messages to Google Chrome)\r\nmonolog/monolog suggests installing raven/raven (Allow sending log messages to a Sentry se"
+    ],
+    [
+      0.000403,
+      "rver)\r\nmonolog/monolog suggests installing rollbar/rollbar (Allow sending log messages to Rollbar)\r\nmonolog/monolog suggests installing ruflin/elastica (Allow sending log messages to an Elastic Search server)\r\npagerfanta/pagerfanta suggests installing doctrine/mongodb-odm (To use the DoctrineODMMongoDBAdapter.)\r\npagerfanta/pagerfanta suggests installing doctrine/phpcr-odm (To use the DoctrineODMPhpcrAdapter. >= 1.1.0)\r\npagerfanta/pagerfanta suggests installing mandango/mandango (To use the MandangoAdapter.)\r\npagerfanta/pagerfanta suggests installing propel/propel1 (To use the PropelAdapter)\r\npagerfanta/pagerfanta suggests installing solarium/solarium (To use the SolariumAdapter.)\r\nGenerating autoload files\r\n> Incenteev\\ParameterHandler\\ScriptHandler::buildParameters\r\nUpdating the \"app/config/parameters.yml\" file\r\n> Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap\r\n> Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache\r\n\r\n // Clearing the cache for the dev environment with"
+    ],
+    [
+      9.4e-05,
+      " debug true                                                          \r\n\r\n [OK] Cache for the \"dev\" environment (debug=true) was successfully cleared.                                            \r\n\r\n> Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets\r\n\r\n Trying to install assets as relative symbolic links.\r\n\r\n --- ------------------------------ ------------------ \r\n      Bundle                         Method / Error    \r\n --- ------------------------------ ------------------ \r\n  ✔   FrameworkBundle                relative symlink  \r\n  ✔   WhiteOctoberPagerfantaBundle   relative symlink  \r\n --- ------------------------------ ------------------ \r\n\r\n [OK] All assets were successfully installed.                                                                           \r\n\r\n> Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile\r\n> Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget\r\n\r\n"
+    ],
+    [
+      6.5e-05,
+      " \u001b[32msetfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var\u001b[39m\r\n"
+    ],
+    [
+      0.081397,
+      " \u001b[32msetfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var\u001b[39m\r\n"
+    ],
+    [
+      0.084963,
+      " \u001b[32mphp bin/console cache:clear --env=prod --no-debug\u001b[39m\r\n"
+    ],
+    [
+      1.970099,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m\r\n"
+    ],
+    [
+      0.000254,
+      " \r\n // Clearing the cache for the prod environment with debug false                                                        \r\n\r\n [OK] Cache for the \"prod\" environment (debug=false) was successfully cleared.                                          \r\n\r\n\r\n"
+    ],
+    [
+      0.000808,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000257,
+      "\u001b[37;44m [*] Publish new release                                                                                                \u001b[39;49m\r\n"
+    ],
+    [
+      0.00022,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000373,
+      "\r\n"
+    ],
+    [
+      0.00041,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m /home/julien/automate/current --> /home/julien/automate/releases/2017.11.15-2129.456\r\n"
+    ],
+    [
+      0.077201,
+      "\r\n"
+    ],
+    [
+      0.000737,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000243,
+      "\u001b[37;44m [*] Post deploy                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000221,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000323,
+      "\r\n"
+    ],
+    [
+      0.00026,
+      " \u001b[32mphp bin/console doctrine:schema:update --force\u001b[39m\r\n"
+    ],
+    [
+      0.247365,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m\r\n"
+    ],
+    [
+      0.000115,
+      " Updating database schema...\r\nDatabase schema updated successfully! \"16\" queries were executed\r\n\r\n"
+    ],
+    [
+      0.00102,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000281,
+      "\u001b[37;44m [*] Clear olds releases                                                                                                \u001b[39;49m\r\n"
+    ],
+    [
+      0.00021,
+      "\u001b[37;44m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000336,
+      "\r\n"
+    ],
+    [
+      0.080994,
+      " \u001b[33m[dddv-exemple-front-01]\u001b[39m rm -R /home/julien/automate/releases/2017.10.26-2036.739\r\n"
+    ],
+    [
+      0.101357,
+      "\r\n"
+    ],
+    [
+      0.000613,
+      "\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000164,
+      "\u001b[30;42m [OK] All is OK                                                                                                         \u001b[39;49m\r\n"
+    ],
+    [
+      0.000257,
+      "\u001b[30;42m                                                                                                                        \u001b[39;49m\r\n"
+    ],
+    [
+      0.000444,
+      "\r\n"
+    ],
+    [
+      5.014041,
+      "$ "
+    ]
+  ]
+}

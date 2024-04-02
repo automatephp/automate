@@ -6,3 +6,6 @@ build
 test.yml
 .php-cs-fixer.cache
 .phpunit.cache
+doc/.cache
+doc/.cecil
+doc/_site

@@ -1,0 +1,32 @@
+repository: https://github.com/julienj/symfony-demo.git
+platforms:
+    dev:
+        default_branch: master
+        max_releases: 3
+        servers:
+            dddv-exemple-front-01:
+                host: dev.exemple.com
+                user: user
+                password: "%dev_password%"
+                path: /home/wwwroot/exemple
+    production:
+        default_branch: production
+        servers:
+            eddv-exemple-front-01:
+                host: 12.9.9.1
+                user: user
+                password: "%prod_password%"
+                path: /home/wwwroot/exemple
+            eddv-exemple-front-02:
+                host: 12.9.9.2
+                user: user
+                password: "%prod_password%"
+                path: /home/wwwroot/exemple
+shared_files:
+    - .env.local
+shared_folders:
+    - app/data
+on_deploy:
+    - "composer install"
+post_deploy:
+    - "php bin/console doctrine:schema:update --force"

@@ -1,0 +1,75 @@
+.c-baseline {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+
+  @include max-width(md) {
+    padding: 2rem 2rem 3rem;
+  }
+}
+
+.c-baseline__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.c-baseline__inner-front {
+  .is-scrolled & {
+    @include min-width(md) {
+      display: none;
+    }
+  }
+}
+
+.c-baseline__inner-back {
+  @include min-width(md) {
+    display: none;
+
+    .is-scrolled & {
+      display: flex;
+    }
+  }
+}
+
+.c-baseline__title {
+  transition: color var(--transition-in-out);
+  font-family: var(--font-secondary);
+  margin: 0;
+
+  @include min-width(lg) {
+    font-size: 3.5rem;
+    line-height: 4.8rem;
+  }
+
+  @include max-width(lg) {
+    font-size: 3rem;
+    line-height: 4.2rem;
+  }
+
+  .is-scrolled & {
+    @include min-width(md) {
+      color: var(--color-white);
+    }
+  }
+}
+
+.c-baseline__description {
+  transition: color var(--transition-in-out);
+  font-size: 1.8rem;
+  line-height: 3rem;
+  color: var(--color-grey-text);
+  margin-bottom: 0;
+
+  .is-scrolled & {
+    @include min-width(md) {
+      color: var(--color-white);
+    }
+  }
+}
+
+.c-baseline__button {
+  @include max-width(md) {
+    display: none;
+  }
+}

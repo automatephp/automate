@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="{{ site.language }}">
+    <head>
+        {% block head ~%}
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <link rel="stylesheet" href="{{ asset('app.scss') }}">
+
+            {% if page.type == 'homepage'%}
+                <link rel="stylesheet" type="text/css" href="{{ asset('asciinema-player.css') }}" />
+                <script src="{{ asset('asciinema-player.min.js') }}"></script>
+                <script src="{{ asset('home.js') }}"></script>
+                <script src="{{ asset('typewriter.js') }}"></script>
+            {% else %}
+                <script src="{{ asset('page.js') }}"></script>
+            {% endif %}
+
+            {%- include 'partials/metatags.html.twig' with {page, site} only ~%}
+            
+        {% endblock head ~%}
+    </head>
+    <body>
+        <div class="{% if page.type == 'homepage' %}c-layout-homepage{% else %}c-layout-page{% endif %}">
+
+            <header class="c-header" role="banner">
+                <div class="c-header__inner">
+                    <div class="c-header__content">
+                        <div class="c-header__actions">
+                            <div>
+                                {% if page.type == 'homepage' %}
+                                    <img class="c-header__logo-default" src="{{ asset('logo-automate.png') }}" alt="" width="290" height="62">
+                                    <img class="c-header__logo-white" src="{{ asset('logo-automate-white.png') }}" alt="" width="290" height="62">
+                                {% else %}
+                                    <a href="/">
+                                        <img class="c-header__logo-default" src="{{ asset('logo-automate.png') }}" alt="" width="290" height="62">
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="c-header__buttons">
+                                {% if page.type == 'homepage' %}
+                                    <a class="c-header__button c-button c-button--ghost c-button--blue" href="/get-started">Documentation</a>
+                                {% else %}
+                                    <a class="c-header__button c-button c-button--ghost c-button--blue" href="/">Home</a>
+                                {% endif %}
+                                <a class="c-header__button c-button c-button--ghost c-button--blue" href="https://github.com/automatephp/automate" target="_blank">
+                                    <svg class="c-button__svg" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 96">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                              d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"
+                                              fill="#fb320b"/>
+                                    </svg>
+                                    Github
+                                </a>
+                            </div>
+                        </div>
+
+                        {% block nav %}
+                        {% endblock %}
+                    </div>
+                </div>
+
+                {% block flipCard %}
+                {% endblock %}
+            </header>
+
+            <main class="c-main" role="main">
+                {% block content %}
+                {% endblock %}
+            </main>
+
+            <footer class="c-footer" role="contentinfo">
+                <span>Sponsored by</span>
+                <a href="https://www.mezcalito.fr/" target="_blank">
+                    <img class="c-footer__mezcalito" src=" {{ asset('logo-mezcalito.svg') }}" alt="">
+                </a>
+            </footer>
+        </div>
+    </body>
+</html>

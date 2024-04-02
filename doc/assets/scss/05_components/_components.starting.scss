@@ -1,0 +1,46 @@
+.c-starting {
+  background: url('../bg-starting.png') no-repeat top var(--color-grey-light);
+  padding-top: 10rem;
+  padding-bottom: 6rem;
+}
+
+.c-starting__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3.2rem;
+}
+
+.c-starting__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.c-starting__title {
+  font-family: var(--font-secondary);
+  font-size: 3.5rem;
+  margin: 0;
+}
+
+.c-starting__description {
+  margin-bottom: 0;
+  color: var(--color-grey-text);
+  text-align: center;
+}
+
+.c-starting__command {
+  background-color: var(--color-code-bg-bash);
+  color: var(--color-code);
+  padding: 4rem 2.4rem;
+  text-align: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  width: 74rem;
+  max-width: 100%;
+}
+
+.c-starting__curl {
+  color: var(--color-pink);
+}

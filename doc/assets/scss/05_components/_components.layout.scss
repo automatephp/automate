@@ -1,0 +1,11 @@
+.c-layout-page {
+  @include min-width(lg) {
+    display: grid;
+    grid-template-columns: minmax(36rem, 30%) auto;
+    grid-template-rows: 1fr auto;
+  }
+}
+
+.c-layout-homepage {
+
+}

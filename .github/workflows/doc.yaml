@@ -1,0 +1,46 @@
+name: Build and deploy to GitHub Pages
+on:
+    push:
+        branches: [main]
+    workflow_dispatch: # run manually
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+concurrency:
+    group: "pages"
+    cancel-in-progress: true
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout source
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.1'
+                  extensions: fileinfo, gd, mbstring
+
+            - name: Build site
+              uses: Cecilapp/Cecil-Action@v3
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v2
+              with:
+                  version: '8.9.1'
+                  args: 'doc -v'
+    deploy:
+        needs: build
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v3

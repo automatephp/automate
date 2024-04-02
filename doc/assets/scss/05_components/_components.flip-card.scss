@@ -1,0 +1,98 @@
+.c-flip-card {
+  width: 100%;
+  height: 100vh;
+  perspective: 2000px;
+  position: relative;
+  top: 6rem;
+
+  @include min-width(md) {
+    flex: 1;
+  }
+
+  @include max-width(md) {
+    display: none;
+  }
+
+  .is-scrolled & {
+    .c-flip-card__inner {
+      transform: rotateX(180deg);
+    }
+  }
+}
+
+.c-flip-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.c-flip-card__face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 8px 0 0 8px;
+  overflow: hidden;
+  padding: 4.8rem 2rem 2rem;
+}
+
+.c-flip-card__ellipsis {
+  background: url('../ico-ellipse.png') repeat-x 0 0;
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: block;
+  width: 4.8rem;
+  height: 1.2rem;
+  z-index: 1;
+}
+
+.c-flip-card__face--front {
+  background-color: var(--color-blue-grey);
+
+  .ap-player {
+    --term-color-background: var(--color-blue-grey);
+  }
+}
+
+.c-flip-card__face--back {
+  background-color: var(--color-grey-xlight);
+  transform: rotateX(180deg);
+}
+
+.c-flip-card__pre {
+  border: 0;
+  background-color: transparent;
+}
+
+.c-flip-card__code {
+  width: 100%;
+  display: block;
+  padding: 0;
+  border: 0;
+  color: black;
+  background-color: transparent;
+}
+
+.c-flip-card__position {
+  position: relative;
+  top: 0;
+  display: inline-block;
+  width: 3.5rem;
+  font-size: 1.5rem;
+  line-height: 2.5rem;
+  letter-spacing: -1px;
+  border-right: 1px solid var(--color-grey);
+  color: var(--color-grey);
+  margin-right: 0.8rem;
+}
+
+.c-flip-card__line {
+  position: absolute;
+  text-align: right;
+  right: 1.7rem;
+  font-size: 1.5rem;
+}

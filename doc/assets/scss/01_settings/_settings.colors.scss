@@ -1,0 +1,18 @@
+:root {
+  --color-white:        #ffffff;
+  --color-blue:         #2b3d50;
+  --color-blue-grey:    #3a4b5c;
+  --color-orange:       #fb320b;
+  --color-grey-xlight:  #f7f7f7;
+  --color-grey-light:   #efefef;
+  --color-grey:         #8c8c8e;
+  --color-grey-text:    #696a6c;
+  --color-pink:         #e409d2;
+
+  --color-text:         var(--color-blue);
+  --color-bg:           var(--color-grey-light);
+  --color-code:         var(--color-white);
+  --color-code-bg-bash: var(--color-blue-grey);
+  --color-code-bg-yaml: var(--color-blue-grey);
+  --color-strong:       var(--color-grey-text);
+}

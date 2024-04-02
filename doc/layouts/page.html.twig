@@ -1,0 +1,9 @@
+{% extends '_base.html.twig' %}
+
+{% block nav %}
+    {% include 'partials/navigation.html.twig' with { menu: site.menus.main } %}
+{% endblock %}
+
+{% block content %}
+    {{ page.content }}
+{% endblock %}

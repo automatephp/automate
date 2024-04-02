@@ -1,0 +1,15 @@
+.c-404 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4rem;
+  height: 100%;
+}
+
+.c-404__title {
+  font-family: var(--font-secondary);
+  font-size: 3.5rem;
+  line-height: 4.8rem;
+  margin: 0;
+}

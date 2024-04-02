@@ -1,0 +1,142 @@
+.c-header {
+  background-color: var(--color-grey-xlight);
+
+  .c-layout-page & {
+    @include min-width(xl) {
+      padding: 8rem 6% 5.6rem;
+    }
+
+    @include min-max-width(lg, xl) {
+      padding: 3rem 2rem 2rem;
+    }
+
+    @include min-width(lg) {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+  }
+
+  .c-layout-homepage & {
+    display: flex;
+    background-color: var(--color-bg);
+    transition: background-color var(--transition-in-out);
+
+    &.is-scrolled {
+      @include min-width(md) {
+        background-color: var(--color-blue);
+      }
+    }
+  }
+}
+
+.c-header__inner {
+  .c-layout-homepage & {
+    @include min-width(md) {
+      flex: 1;
+    }
+  }
+}
+
+.c-header__content {
+  display: flex;
+  flex-direction: column;
+
+  @include max-width(lg) {
+    gap: 3.2rem;
+  }
+
+  .c-layout-page & {
+    @include min-width(lg) {
+      gap: 4rem;
+    }
+  }
+
+  .c-layout-homepage & {
+    @include min-width(lg) {
+      gap: 5.6rem;
+      padding: 8rem 10% 5.6rem;
+    }
+
+    @include min-max-width(md, lg) {
+      padding: 4.8rem 3.2rem 3.2rem;
+    }
+  }
+}
+
+.c-header__actions {
+  display: flex;
+  flex-direction: column;
+
+  @include min-width(lg) {
+    gap: 4rem;
+  }
+
+  @include max-width(lg) {
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .c-layout-page & {
+    @include max-width(lg) {
+      padding: 2rem 2rem 0;
+    }
+  }
+
+  .c-layout-homepage & {
+    @include min-max-width(md, lg) {
+      padding: 0;
+    }
+
+    @include max-width(md) {
+      padding: 2rem 2rem 0;
+    }
+  }
+}
+
+.c-header__logo-default {
+  .c-layout-homepage .is-scrolled & {
+    @include min-width(md) {
+      display: none;
+    }
+  }
+}
+
+.c-header__logo-white {
+  display: none;
+
+  .c-layout-homepage .is-scrolled & {
+    @include min-width(md) {
+      display: block;
+    }
+  }
+}
+
+.c-header__buttons {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem 2rem;
+
+  @include max-width(lg) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.c-header__button {
+  @include min-width(lg) {
+    .c-layout-homepage .is-scrolled & {
+      --button-main: var(--color-white);
+      --button-secondary: var(--color-blue-grey);
+
+      path {
+        fill: var(--button-main);
+      }
+
+      @include hover {
+        path {
+          fill: var(--button-secondary);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+html {
+  scroll-behavior: smooth;
+  font-size: 62.5%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-primary);
+  font-size: 1.6rem;
+  line-height: 2.4rem;
+  font-weight: 400;
+  color: var(--color-text);
+  overflow-x: hidden;
+  background-color: var(--color-bg);
+}
+
+h1 {
+  font-size: 3.2rem;
+  line-height: 3.6rem;
+  margin-bottom: 2.4rem;
+}
+
+h2 {
+  margin-top: 4rem;
+  margin-bottom: 1.6rem;
+}
+
+h3 {
+  margin-top: 2.4rem;
+  margin-bottom: 1.6rem;
+  border-bottom: 1px solid var(--color-text);
+}
+
+h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0;
+}
+
+strong {
+  color: var(--color-strong);
+  font-weight: 700;
+}
+
+p {
+  margin-bottom: 2rem;
+}
+
+ul {
+  margin-left: 3rem;
+  margin-bottom: 1.6rem;
+}
+
+li {
+  list-style-type: disc;
+}
+
+pre,
+code {
+  font-size: 1.5rem;
+  line-height: 2.2rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  background-color: #eef;
+}
+
+pre {
+  margin-bottom: 1.6rem;
+
+  code {
+    border: 0;
+    padding: 0.8rem 1.2rem;
+    overflow-x: auto;
+    display: block;
+    color: var(--color-code);
+
+    &.language-bash {
+      background-color: var(--color-code-bg-bash);
+    }
+
+    &.language-yaml {
+      background-color: var(--color-code-bg-yaml);
+    }
+  }
+}
+
+

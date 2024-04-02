@@ -1,0 +1,14 @@
+title: Automate
+baseline: ''
+baseurl: 'https://automate-deployer.com/'
+description: 'Automate, a deployment tool'
+author:
+  name: Julien Jacottet
+  url: 'https://github.com/automatephp/automate'
+image: favicon.png
+menus:
+  main:
+    - id: index
+      enabled: false
+
+
