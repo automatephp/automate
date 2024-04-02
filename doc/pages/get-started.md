@@ -15,7 +15,7 @@ You can use Automate from your workstation or through an integration server like
 You can download the latest version of Automate with the following command:    
 
 ~~~~bash
-curl -LSs https://automate-deployer.com/installer.php | php
+curl -sS https://www.automate-deployer.com/install | bash
 ~~~~
 
 The command will verify your PHP settings and launch the download in the current directory.
