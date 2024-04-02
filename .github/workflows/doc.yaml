@@ -33,7 +33,9 @@ jobs:
               uses: actions/upload-pages-artifact@v2
               with:
                   version: '8.9.1'
-                  args: 'doc -v'
+                  args: 'doc/ -vv'
+                  install_themes: 'no'
+                  config: 'cecil.yml'
     deploy:
         needs: build
         environment:
