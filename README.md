@@ -7,11 +7,11 @@ You can use Automate from your workstation or through an integration server like
 
 ## Installation
 
-> curl -LSs https://automate-deployer.com/installer.php | php
+> curl -LSs https://www.automate-deployer.com/install | bash
 
 ## Usage
 
-https://automate-deployer.com
+https://www.automate-deployer.com
 
 ## Contributing
 
