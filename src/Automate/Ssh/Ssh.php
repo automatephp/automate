@@ -6,7 +6,7 @@ use Automate\Model\Platform;
 use Automate\Model\Server;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
-use Symfony\Component\Process\PhpSubprocess;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 class Ssh
@@ -62,8 +62,14 @@ class Ssh
 
     public function execAsync(string $command): Process
     {
-        return new PhpSubprocess([
-            'bin/automate', 'exec', $this->platform->getName(), $this->server->getName(), $command, '-c', $this->configFile,
+        $bin = \Phar::running(false);
+
+        if ('' === $bin) {
+            $bin = Path::join(dirname(__FILE__, 4), 'bin', 'automate');
+        }
+
+        return new Process([
+            $bin, 'exec', $this->platform->getName(), $this->server->getName(), $command, '-c', $this->configFile,
         ], env: $this->variables, timeout: 0);
     }
 }
