@@ -33,7 +33,7 @@ class VariableResolver
     public function process(Platform $platform): void
     {
         foreach ($platform->getServers() as $server) {
-            if ($this->isVariable($server->getPassword())) {
+            if ($server->getPassword() && $this->isVariable($server->getPassword())) {
                 $password = $this->resolveVariable($server->getPassword());
                 $this->variables[$server->getPassword()] = $password;
                 $server->setPassword($password);
