@@ -9,8 +9,7 @@ menu:
 Automate allows you to automate your deployments to remote Linux servers simply.
 You can use Automate from your workstation or through an integration server like Github or Gitlab-ci.
 
-## Installation
-
+### 1. Installation
 
 You can download the latest version of Automate with the following command:    
 
@@ -20,7 +19,12 @@ curl -sS https://www.automate-deployer.com/install | bash
 
 The command will verify your PHP settings and launch the download in the current directory.
 
-## Creating your configuration file
+Please note that this command is compatible with Linux and macOS systems.
+If you are using Windows, you will need to download the .phar file manually from [github](https://github.com/automatephp/automate/releases).
+
+
+
+### 2. Creating your configuration file
 
 Foremost, you have to create a configuration file for Automate.
 This file is usually located at the root of your project. The name of this file must be .automate.yml.
@@ -54,132 +58,64 @@ platforms:
                 user: automate
                 ssh_key: /path/to/key
                 path: /home/wwwroot/
-            prod-exemple-front-03:
-                host: prod-3.exemple.com
-                user: automate
-                ssh_key: /path/to/key
-                password: "%passphrase%"
-                path: /home/wwwroot/
 shared_files:
-    - app/config/parameters.yml
+    - .env.local
 shared_folders:
     - app/data
 pre_deploy:
     - "php -v"
 on_deploy:
     - "composer install"
-    - "setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX var"
 post_deploy:
     - cmd: "php bin/console doctrine:schema:update --force"
-      only: eddv-exemple-front-01
-    - "php bin/console doctrine:cache:clear-result"
+      only: [ dev-exemple-front-01, prod-exemple-front-01]
 ~~~~
 
-### Configuration
 
-#### Repository
+### 3. Launching a deployment
 
-~~~~yaml
-repository: git@github.com:symfony/symfony-demo.git
+The following command allows you to launch the deployment on remote server(s)
+
+~~~~bash
+automate deploy development master
 ~~~~
 
-or for a public repository :
-~~~~yaml
-repository: "https://github.com/symfony/demo"
+~~~~bash
+automate deploy ‹platform› [gitref] -c [path_of_config_file]
 ~~~~
 
-#### Platforms
+* **platform**
 
-List of platforms.
+The target platform name (e.g. development)
 
-You can configure several platforms ; a project must have at least one platform.
+* **gitref (optional)**
 
-~~~~yaml
-platforms:
-    production:
-        default_branch: master # The default branch to be launched if no branch is specified during the deployement
-        max_releases: 1        # The number of releases to be kept on remote servers.
-        servers:
-            prod-exemple-front-01:
-                host: prod-1.exemple.com     # The domain name or the server's IP
-                user: automate               # The SSH user to be used for the deployment
-                password: "%prod_password%"  # Read more below in "The SSH password" section
-                path: /home/wwwroot/         # The path on the remote server
-                port: 22                     # The SSH port (default:22)    
-            prod-exemple-front-02:
-                host: prod-2.exemple.com
-                user: automate
-                ssh_key: /keys/private       # A file path to private key
-                password: "%passphrase%"     # An optional passphrase
-                path: /home/wwwroot/
-~~~~
+The branch, the tag, or the commit to be deployed.    
+By default Automate will use the « default_branch » in the configuration file
 
-It’s possible to authenticate on the server with a password or with a private key. For the latter, you must define a path to the private key file and an optional passphrase (password) as the example above describes.
+* **-c [path_of_config_file] (optional)**
 
-You can use a variable with the notation "%variable_name%"    
-If one variable is detected Automate will search for the value in an environment variable « AUTOMATE__variable_name ».    
-If the environment variable doesn’t exist, Automate will ask to you to provide your password upon each deployment through in your terminal.
+By default, Automate will search for the file ```.automate.yml``` in the current directory. You can specify it with the option ```-c /path/to/.automate.yml```
 
-#### Shared_files
 
-The list of files to be shared with releases.    
-For example, some parameters files,…
-
-~~~~yaml
-shared_files:
-    - .env.local
-    - ...
-~~~~
-
-#### Shared_folders
-
-The list of folders to be shared between releases.    
-For example some uploaded pictures,…
-
-~~~~yaml
-shared_files:
-    - app/data
-    - ...
-~~~~
-
-#### Pre_deploy
-
-The list of commands to be launched on remote servers **after downloading sources** and **before** setting up shared folders and files.
-
-#### On_deploy
-
-The list of commands to be launched on remote servers **before deployment**.
-
-#### Post_deploy
-
-The list of commands to be launched on remote servers **after deployment**.
-
-**Option**: Restrict the servers that must execute the command:
-
-~~~~yaml
-post_deploy:
-    - cmd: "php bin/console doctrine:cache:clear-result"
-      only: eddv-exemple-front-01
-    - cmd: "php bin/console messenger:consume"
-      only: ["eddv-exemple-front-01", "dddv-exemple-front-01"]
-~~~~
-
-## Server Configuration
+### 4. Server Configuration
 
 Automate will create the following directory structure to the remote server:
 
 ~~~~yaml
 /your/project/path
-|--releases
-|  |--20160513120631
-|  |  |--config
-|  |  |  |--parameters.yml --> /your/project/path/shared/app/config/parameters.yml
-|
-|--shared_files
-|  |  |--config
-|  |  |  |--parameters.yml #the real file is here
-|
-|--current -> /your/project/path/releases/20150513120631
+   /releases
+      /2024.04.22-1302.159
+         .env.local --> /your/project/path/shared/.env.local
+         /app
+            /data --> /your/project/path/shared/app/data
+ 
+   /shared_files
+         .env.local #the real file is here
+         /app
+            /data #the real folder is here
+ 
+   current -> /your/project/path/releases/2024.04.22-1302.159
 ~~~~
 
 This is the schema of all your project’s architecture    

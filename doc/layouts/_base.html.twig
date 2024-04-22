@@ -14,7 +14,13 @@
                 <script src="{{ asset('typewriter.js') }}"></script>
             {% else %}
                 <script src="{{ asset('page.js') }}"></script>
-            {% endif %}
+
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+                <script>hljs.highlightAll();</script>
+                {% endif %}
 
             {%- include 'partials/metatags.html.twig' with {page, site} only ~%}
             
