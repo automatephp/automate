@@ -69,9 +69,11 @@ class Context
 
                 $result = $session->exec($command, $addWorkingDir);
 
-                if ('' !== $result && !$quiet) {
-                    $this->logger->result($result, $session->getServer());
+                if ($quiet || '' === trim($result)) {
+                    continue;
                 }
+
+                $this->logger->result($result, $session->getServer());
             } else {
                 $command($session);
             }
@@ -102,7 +104,7 @@ class Context
 
             $child = $session->execAsync($command, $addWorkingDir);
             $child->start(function ($type, $output) use ($session, $quiet): void {
-                if ('' === trim($output) && !$quiet) {
+                if ($quiet || '' === trim($output)) {
                     return;
                 }
 
