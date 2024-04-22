@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Automate package.
+ *
+ * (c) Julien Jacottet <jjacottet@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Automate;
 
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
@@ -14,9 +23,7 @@ readonly class Configuration implements ConfigurationInterface
 
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('repository')
-                    ->isRequired()
-                ->end()
+                ->scalarNode('repository')->end()
                 ->arrayNode('shared_files')
                     ->scalarPrototype()->end()
                 ->end()
@@ -43,7 +50,9 @@ readonly class Configuration implements ConfigurationInterface
                     ->then(static fn($v): array => ['cmd' => $v])
                 ->end()
                 ->children()
-                    ->scalarNode('cmd')->isRequired()->cannotBeEmpty()->end()
+                    ->scalarNode('cmd')->end()
+                    ->scalarNode('copy')->end()
+                    ->arrayNode('exclude')->scalarPrototype()->end()->end()
                     ->arrayNode('only')
                         ->defaultValue([])
                         ->beforeNormalization()

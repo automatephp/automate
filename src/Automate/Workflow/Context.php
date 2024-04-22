@@ -1,11 +1,22 @@
 <?php
 
+/*
+ * This file is part of the Automate package.
+ *
+ * (c) Julien Jacottet <jjacottet@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Automate\Workflow;
 
+use Automate\Archiver;
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Ssh\SshFactory;
+use Symfony\Component\Filesystem\Path;
 
 class Context
 {
@@ -21,6 +32,7 @@ class Context
         private readonly Platform $platform,
         private readonly LoggerInterface $logger,
         private readonly SshFactory $sshFactory,
+        private readonly Archiver $archiver,
         private readonly ?string $gitRef = null,
         private readonly bool $force = false,
         protected ?string $releaseId = null,
@@ -43,7 +55,7 @@ class Context
     /**
      * @param string[] $serversList
      */
-    public function exec(string|callable $command, ?array $serversList = null, bool $addWorkingDir = true): void
+    public function exec(string|callable $command, ?array $serversList = null, bool $addWorkingDir = true, bool $quiet = false): void
     {
         foreach ($this->sessions as $session) {
             if ($serversList && !in_array($session->getServer()->getName(), $serversList)) {
@@ -51,10 +63,13 @@ class Context
             }
 
             if (is_string($command)) {
-                $this->logger->command($command);
+                if (!$quiet) {
+                    $this->logger->command($command);
+                }
+
                 $result = $session->exec($command, $addWorkingDir);
 
-                if ('' !== $result) {
+                if ('' !== $result && !$quiet) {
                     $this->logger->result($result, $session->getServer());
                 }
             } else {
@@ -66,17 +81,19 @@ class Context
     /**
      * @param string[] $serversList
      */
-    public function execAsync(string $command, ?array $serversList = null, bool $addWorkingDir = true): void
+    public function execAsync(string $command, ?array $serversList = null, bool $addWorkingDir = true, bool $quiet = false): void
     {
         // if only one server: ignore asynchronous process
         if (($serversList && 1 === count($serversList)) || 1 === count($this->sessions)) {
-            $this->exec($command, $serversList, $addWorkingDir);
+            $this->exec($command, $serversList, $addWorkingDir, $quiet);
 
             return;
         }
 
         $process = [];
-        $this->logger->command($command);
+        if (!$quiet) {
+            $this->logger->command($command);
+        }
 
         foreach ($this->sessions as $session) {
             if ($serversList && !in_array($session->getServer()->getName(), $serversList)) {
@@ -84,8 +101,8 @@ class Context
             }
 
             $child = $session->execAsync($command, $addWorkingDir);
-            $child->start(function ($type, $output) use ($session): void {
-                if ('' === trim($output)) {
+            $child->start(function ($type, $output) use ($session, $quiet): void {
+                if ('' === trim($output) && !$quiet) {
                     return;
                 }
 
@@ -100,6 +117,34 @@ class Context
                 throw new \RuntimeException($child->getErrorOutput());
             }
         }
+    }
+
+    /**
+     * @param ?string[] $exclude
+     * @param ?string[] $serversList
+     */
+    public function copy(string $path, ?array $exclude, ?array $serversList = null): void
+    {
+        $this->logger->command(sprintf('COPY [local] %s to [remote] %s', $path, $path));
+
+        if (!file_exists($path)) {
+            throw new \InvalidArgumentException(sprintf('"%s" does not exist', $path));
+        }
+
+        $this->logger->info('    Copy preparation ...');
+        $archive = $this->archiver->archive($path, $exclude);
+        $archiveFileName = $this->archiver->getArchiveFileName($path);
+
+        $this->logger->info('    Send data ...');
+        $this->exec(static function (Session $session) use ($archive, $archiveFileName): void {
+            $targetPath = Path::join($session->getReleasePath(), $archiveFileName);
+            $session->copy($archive->getPath(), $targetPath);
+        }, $serversList);
+
+        $this->logger->info('    Untar data...');
+        $this->execAsync(sprintf('tar xzvf %s', $archiveFileName), $serversList, quiet: true);
+        $this->execAsync(sprintf('rm %s', $archiveFileName), $serversList, quiet: true);
+        $this->archiver->clear($path);
     }
 
     public function getProject(): Project

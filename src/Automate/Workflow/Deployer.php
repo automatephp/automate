@@ -15,7 +15,9 @@ use Automate\DispatcherFactory;
 use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
+use Automate\Model\Action;
 use Automate\Model\Command;
+use Automate\Model\Copy;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -41,7 +43,11 @@ readonly class Deployer
             $this->createReleaseDirectory();
 
             $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::BUILD);
-            $this->deployWithGit();
+
+            if ($this->context->getProject()->getRepository()) {
+                $this->deployWithGit();
+            }
+
             $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
             $this->initShared();
             $this->runHooks($this->context->getProject()->getOnDeploy(), 'On deploy');
@@ -109,17 +115,21 @@ readonly class Deployer
     }
 
     /**
-     * Run hook commands.
+     * Run hook.
      *
-     * @param Command[] $commands
+     * @param Action[] $actions
      */
-    private function runHooks(array $commands, string $name): void
+    private function runHooks(array $actions, string $name): void
     {
-        if ([] !== $commands) {
+        if ([] !== $actions) {
             $this->context->getLogger()->section($name);
-            foreach ($commands as $command) {
-                if ('' !== $command->getCmd() && !str_starts_with(trim((string) $command->getCmd()), '#')) {
-                    $this->context->execAsync($command->getCmd(), $command->getOnly());
+            foreach ($actions as $action) {
+                if ($action instanceof Command) {
+                    $this->context->execAsync($action->getCmd(), $action->getOnly());
+                }
+
+                if ($action instanceof Copy) {
+                    $this->context->copy($action->getPath(), $action->getExclude(), $action->getOnly());
                 }
             }
         }

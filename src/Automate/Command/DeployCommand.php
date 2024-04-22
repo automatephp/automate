@@ -11,6 +11,7 @@
 
 namespace Automate\Command;
 
+use Automate\Archiver;
 use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\Ssh\SshFactory;
@@ -64,7 +65,7 @@ class DeployCommand extends BaseCommand
 
         $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
-        $context = new Context($project, $platform, $logger, $sshFactory, $gitRef, $input->getOption('force'));
+        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $gitRef, $input->getOption('force'));
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {

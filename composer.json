@@ -14,7 +14,8 @@
         "symfony/http-client": "^7.0",
         "symfony/property-access": "^7.0",
         "phpseclib/phpseclib": "^3.0",
-        "phpdocumentor/reflection-docblock": "^5.3"
+        "phpdocumentor/reflection-docblock": "^5.3",
+        "symfony/finder": "^7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.0",

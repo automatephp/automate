@@ -21,7 +21,7 @@ interface LoggerInterface
 
     public function result(string $response, Server $server): void;
 
-    public function info(string $text, ?Server $server): void;
+    public function info(string $text, ?Server $server = null): void;
 
     public function error(string $message): void;
 }

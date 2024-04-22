@@ -16,9 +16,9 @@ class Project
     /**
      * @param string[]                $sharedFiles
      * @param string[]                $sharedFolders
-     * @param Command[]               $preDeploy
-     * @param Command[]               $onDeploy
-     * @param Command[]               $postDeploy
+     * @param Action[]                $preDeploy
+     * @param Action[]                $onDeploy
+     * @param Action[]                $postDeploy
      * @param array<string, Platform> $platforms
      */
     public function __construct(
@@ -81,7 +81,7 @@ class Project
     }
 
     /**
-     * @return Command[]
+     * @return Action[]
      */
     public function getPreDeploy(): array
     {
@@ -89,7 +89,7 @@ class Project
     }
 
     /**
-     * @param Command[] $preDeploy
+     * @param Action[] $preDeploy
      */
     public function setPreDeploy(array $preDeploy): self
     {
@@ -99,7 +99,7 @@ class Project
     }
 
     /**
-     * @return Command[]
+     * @return Action[]
      */
     public function getOnDeploy(): array
     {
@@ -107,7 +107,7 @@ class Project
     }
 
     /**
-     * @param Command[] $onDeploy
+     * @param Action[] $onDeploy
      */
     public function setOnDeploy(array $onDeploy): self
     {
@@ -117,7 +117,7 @@ class Project
     }
 
     /**
-     * @return Command[]
+     * @return Action[]
      */
     public function getPostDeploy(): array
     {
@@ -125,7 +125,7 @@ class Project
     }
 
     /**
-     * @param Command[] $postDeploy
+     * @param Action[] $postDeploy
      */
     public function setPostDeploy(array $postDeploy): self
     {
