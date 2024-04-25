@@ -71,6 +71,11 @@ jobs:
                     path: build
                     merge-multiple: true
 
+            -   name: Install homebrew x86_64
+                if : matrix.runs_on == 'macos-latest'
+                run: |
+                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
