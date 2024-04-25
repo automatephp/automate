@@ -14,9 +14,9 @@ namespace Automate\Tests;
 use Automate\Loader;
 use Automate\Model\Action;
 use Automate\Model\Command;
-use Automate\Model\Copy;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\Model\Upload;
 use PHPUnit\Framework\TestCase;
 
 class LoaderTest extends TestCase
@@ -65,7 +65,7 @@ class LoaderTest extends TestCase
         $this->assertEquals('php bin/console messenger:consume', $project->getPostDeploy()[3]->getCmd());
         $this->assertEquals(['eddv-exemple-front-01', 'dddv-exemple-front-01'], $project->getPostDeploy()[3]->getOnly());
 
-        $this->assertInstanceOf(Copy::class, $project->getPostDeploy()[4]);
+        $this->assertInstanceOf(Upload::class, $project->getPostDeploy()[4]);
         $this->assertEquals('public/build', $project->getPostDeploy()[4]->getPath());
         $this->assertEquals(['vendor'], $project->getPostDeploy()[4]->getExclude());
 

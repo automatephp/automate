@@ -51,7 +51,7 @@ readonly class Configuration implements ConfigurationInterface
                 ->end()
                 ->children()
                     ->scalarNode('cmd')->end()
-                    ->scalarNode('copy')->end()
+                    ->scalarNode('upload')->end()
                     ->arrayNode('exclude')->scalarPrototype()->end()->end()
                     ->arrayNode('only')
                         ->defaultValue([])

@@ -50,9 +50,9 @@ readonly class Session
         return $this->ssh->execAsync($command);
     }
 
-    public function copy(string $path, string $target): void
+    public function upload(string $path, string $target): void
     {
-        $this->ssh->put($path, $target);
+        $this->ssh->upload($path, $target);
     }
 
     public function mkdir(string $path, bool $recursive = false): void

@@ -89,7 +89,7 @@ There are two types of actions that can be specified within the hooks:
 
 1. **command:** Allows executing a command on the remote server. For example, `composer install`.
 
-2. **copy:** Allows sending local files or directories to remote servers. You can specify files or directories to exclude from the copy.
+2. **upload:** Allows sending local files or directories to remote servers. You can specify files or directories to exclude.
 
 In both cases, it is possible to restrict the servers on which the action should be executed using the `only` option. For example:
 
@@ -101,7 +101,7 @@ on_deploy:
     - cmd: "composer install"
       only: ['dddv-exemple-front-01']
 
-    - copy: "build/assets"
+    - upload: "build/assets"
       exclude:
         - '/^myfile.ext/'
         - '/^folder/subfolder/'

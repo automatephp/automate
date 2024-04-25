@@ -17,7 +17,7 @@ use Automate\Event\DeployEvents;
 use Automate\Event\FailedDeployEvent;
 use Automate\Model\Action;
 use Automate\Model\Command;
-use Automate\Model\Copy;
+use Automate\Model\Upload;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -128,8 +128,8 @@ readonly class Deployer
                     $this->context->execAsync($action->getCmd(), $action->getOnly());
                 }
 
-                if ($action instanceof Copy) {
-                    $this->context->copy($action->getPath(), $action->getExclude(), $action->getOnly());
+                if ($action instanceof Upload) {
+                    $this->context->upload($action->getPath(), $action->getExclude(), $action->getOnly());
                 }
             }
         }

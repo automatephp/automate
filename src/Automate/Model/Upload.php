@@ -11,7 +11,7 @@
 
 namespace Automate\Model;
 
-class Copy extends Action
+class Upload extends Action
 {
     /**
      * @param null|string[] $only

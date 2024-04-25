@@ -69,7 +69,7 @@ class Ssh
         return $rs;
     }
 
-    public function put(string $path, string $target): void
+    public function upload(string $path, string $target): void
     {
         if (!$this->sftp instanceof SFTP) {
             throw new \RuntimeException('The connection is not active');

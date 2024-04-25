@@ -13,7 +13,7 @@ namespace Automate;
 
 use Automate\Model\Action;
 use Automate\Model\Command;
-use Automate\Model\Copy;
+use Automate\Model\Upload;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class CommandDenormalizer implements DenormalizerInterface
@@ -25,13 +25,13 @@ class CommandDenormalizer implements DenormalizerInterface
     {
         if (isset($data['cmd'])) {
             $action = new Command($data['cmd']);
-        } elseif (isset($data['copy'])) {
-            $action = new Copy(
-                path: $data['copy'],
+        } elseif (isset($data['upload'])) {
+            $action = new Upload(
+                path: $data['upload'],
                 exclude: $data['exclude'] ?? null
             );
         } else {
-            throw new \InvalidArgumentException('Actions must have a "cmd" or "copy" parameter.');
+            throw new \InvalidArgumentException('Actions must have a "cmd" or "upload" parameter.');
         }
 
         $action->setOnly($data['only'] ?? null);

@@ -125,22 +125,22 @@ class Context
      * @param ?string[] $exclude
      * @param ?string[] $serversList
      */
-    public function copy(string $path, ?array $exclude, ?array $serversList = null): void
+    public function upload(string $path, ?array $exclude, ?array $serversList = null): void
     {
-        $this->logger->command(sprintf('COPY [local] %s to [remote] %s', $path, $path));
+        $this->logger->command(sprintf('Upload [local] %s to [remote] %s', $path, $path));
 
         if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('"%s" does not exist', $path));
         }
 
-        $this->logger->info('    Copy preparation ...');
+        $this->logger->info('    Upload preparation ...');
         $archive = $this->archiver->archive($path, $exclude);
         $archiveFileName = $this->archiver->getArchiveFileName($path);
 
         $this->logger->info('    Send data ...');
         $this->exec(static function (Session $session) use ($archive, $archiveFileName): void {
             $targetPath = Path::join($session->getReleasePath(), $archiveFileName);
-            $session->copy($archive->getPath(), $targetPath);
+            $session->upload($archive->getPath(), $targetPath);
         }, $serversList);
 
         $this->logger->info('    Untar data...');

@@ -39,7 +39,7 @@ example :
 ~~~~yaml
 # do not specify a repository
 pre_deploy:
-    - copy: .
+    - upload: .
       exclude: [node_modules]
 post_deploy:
     - cmd: "php bin/console doctrine:migrations:migrate"
@@ -53,7 +53,7 @@ For example, you might only send the build of your assets. This approach combine
 ~~~~yaml
 repository: git@github.com:symfony/symfony-demo.git
 pre_deploy:
-    - copy: public/build
+    - upload: public/build
 post_deploy:
     - cmd: "php bin/console doctrine:migrations:migrate"
       only: [ dev-example-front-01]
