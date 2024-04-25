@@ -40,7 +40,6 @@ jobs:
 
     static-binary:
         name: Build static binary ${{ matrix.filename }}
-        if: github.event_name == 'release'
         needs: [ phar ]
         strategy:
             fail-fast: false
@@ -52,7 +51,7 @@ jobs:
                         build_options: --build-micro --with-upx-pack
                         filename: automate-linux-amd64
                     # MacOS amd64
-                    -   runs_on: macos-latest
+                    -   runs_on: macos-13
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-x86_64
                         build_options: --build-micro
                         filename: automate-darwin-amd64
