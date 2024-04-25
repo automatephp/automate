@@ -40,7 +40,6 @@ jobs:
 
     static-binary:
         name: Build static binary ${{ matrix.filename }}
-        if: github.event_name == 'release'
         needs: [ phar ]
         strategy:
             fail-fast: false
