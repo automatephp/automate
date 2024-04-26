@@ -48,17 +48,17 @@ jobs:
                     # Linux amd64
                     -   runs_on: ubuntu-latest
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-linux-x86_64
-                        build_options: --build-micro --with-upx-pack --retry=3
+                        build_options: --build-micro --with-upx-pack
                         filename: automate-linux-amd64
                     # MacOS amd64
                     -   runs_on: macos-13
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-x86_64
-                        build_options: --build-micro --retry=3
+                        build_options: --build-micro
                         filename: automate-darwin-amd64
                     # MacOS arm64
                     -   runs_on: macos-14
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-aarch64
-                        build_options: --build-micro --retry=3
+                        build_options: --build-micro
                         filename: automate-darwin-arm64
 
         runs-on: ${{ matrix.runs_on }}
@@ -92,7 +92,7 @@ jobs:
 
             -   name: Build static binary
                 run: |
-                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" --with-php=8.3
+                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" --with-php=8.3 --retry=3
                     bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" ${{ matrix.build_options }}
                     bin/spc micro:combine build/automate.phar --output build/${{ matrix.filename }}
 
