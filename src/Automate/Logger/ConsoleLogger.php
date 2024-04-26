@@ -41,7 +41,7 @@ class ConsoleLogger implements LoggerInterface
         }
     }
 
-    public function info(string $text, ?Server $server): void
+    public function info(string $text, ?Server $server = null): void
     {
         if ($server instanceof Server) {
             $this->io->text(sprintf('<comment>[%s]</comment> %s', $server->getName(), $text));

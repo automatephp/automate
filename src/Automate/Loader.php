@@ -61,7 +61,7 @@ class Loader
         );
 
         return new Serializer(
-            [$objectNormalizer, new ArrayDenormalizer()],
+            [new CommandDenormalizer(), $objectNormalizer, new ArrayDenormalizer()],
             [new YamlEncoder()]
         );
     }

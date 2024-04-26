@@ -11,25 +11,27 @@
 
 namespace Automate\Model;
 
-class Command extends Action
+abstract class Action
 {
     /**
-     * @param null|string[] $only
+     * @var ?string[]
      */
-    public function __construct(
-        private ?string $cmd = null,
-        protected ?array $only = null,
-    ) {
+    protected ?array $only = null;
+
+    /**
+     * @return null|string[]
+     */
+    public function getOnly(): ?array
+    {
+        return $this->only;
     }
 
-    public function getCmd(): ?string
+    /**
+     * @param string[] $only
+     */
+    public function setOnly(array $only): self
     {
-        return $this->cmd;
-    }
-
-    public function setCmd(string $cmd): self
-    {
-        $this->cmd = $cmd;
+        $this->only = $only;
 
         return $this;
     }

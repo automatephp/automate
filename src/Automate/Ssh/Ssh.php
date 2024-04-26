@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Automate package.
+ *
+ * (c) Julien Jacottet <jjacottet@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Automate\Ssh;
 
 use Automate\Model\Platform;
@@ -58,6 +67,19 @@ class Ssh
         }
 
         return $rs;
+    }
+
+    public function upload(string $path, string $target): void
+    {
+        if (!$this->sftp instanceof SFTP) {
+            throw new \RuntimeException('The connection is not active');
+        }
+
+        $rs = $this->sftp->put($target, $path, SFTP::SOURCE_LOCAL_FILE);
+
+        if (!$rs) {
+            throw new \RuntimeException('Sftp error');
+        }
     }
 
     public function execAsync(string $command): Process

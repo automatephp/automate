@@ -11,6 +11,7 @@
 
 namespace Automate\Command;
 
+use Automate\Archiver;
 use Automate\Loader;
 use Automate\Ssh\SshFactory;
 use Automate\VariableResolver;
@@ -50,7 +51,7 @@ class CheckCommand extends BaseCommand
         $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
         try {
-            $context = new Context($project, $platform, $logger, $sshFactory, $platform->getDefaultBranch());
+            $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $platform->getDefaultBranch());
 
             $context->connect();
             $logger->section('Check git access');

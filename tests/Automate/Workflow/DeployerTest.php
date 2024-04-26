@@ -2,6 +2,7 @@
 
 namespace Automate\Tests\Workflow;
 
+use Automate\Archiver;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
 use Automate\Ssh\Ssh;
@@ -23,7 +24,9 @@ class DeployerTest extends AbstractMockTestCase
         $sshFactory = \Mockery::spy(SshFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
-        $context = new Context($project, $platform, $logger, $sshFactory, releaseId: '2024.03.10-2340.241');
+        $archiver = \Mockery::mock(Archiver::class);
+
+        $context = new Context($project, $platform, $logger, $sshFactory, $archiver, releaseId: '2024.03.10-2340.241');
         $deployer = new Deployer($context);
 
         // create project folder

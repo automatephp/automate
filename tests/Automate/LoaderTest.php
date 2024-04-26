@@ -12,9 +12,11 @@
 namespace Automate\Tests;
 
 use Automate\Loader;
+use Automate\Model\Action;
 use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\Model\Upload;
 use PHPUnit\Framework\TestCase;
 
 class LoaderTest extends TestCase
@@ -44,20 +46,28 @@ class LoaderTest extends TestCase
         $this->assertEquals('setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX var', $project->getOnDeploy()[2]->getCmd());
 
         foreach ($project->getPostDeploy() as $postDeploy) {
-            $this->assertInstanceOf(Command::class, $postDeploy);
+            $this->assertInstanceOf(Action::class, $postDeploy);
         }
 
+        $this->assertInstanceOf(Command::class, $project->getPostDeploy()[0]);
         $this->assertEquals('php bin/console doctrine:cache:clear-metadata', $project->getPostDeploy()[0]->getCmd());
         $this->assertEquals([], $project->getPostDeploy()[0]->getOnly());
 
+        $this->assertInstanceOf(Command::class, $project->getPostDeploy()[1]);
         $this->assertEquals('php bin/console doctrine:schema:update --force', $project->getPostDeploy()[1]->getCmd());
         $this->assertEquals(['eddv-exemple-front-01'], $project->getPostDeploy()[1]->getOnly());
 
+        $this->assertInstanceOf(Command::class, $project->getPostDeploy()[2]);
         $this->assertEquals('php bin/console doctrine:cache:clear-result', $project->getPostDeploy()[2]->getCmd());
         $this->assertEquals([], $project->getPostDeploy()[2]->getOnly());
 
+        $this->assertInstanceOf(Command::class, $project->getPostDeploy()[3]);
         $this->assertEquals('php bin/console messenger:consume', $project->getPostDeploy()[3]->getCmd());
         $this->assertEquals(['eddv-exemple-front-01', 'dddv-exemple-front-01'], $project->getPostDeploy()[3]->getOnly());
+
+        $this->assertInstanceOf(Upload::class, $project->getPostDeploy()[4]);
+        $this->assertEquals('public/build', $project->getPostDeploy()[4]->getPath());
+        $this->assertEquals(['vendor'], $project->getPostDeploy()[4]->getExclude());
 
         $this->assertCount(2, $project->getPlatforms());
 
