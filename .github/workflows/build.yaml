@@ -48,17 +48,17 @@ jobs:
                     # Linux amd64
                     -   runs_on: ubuntu-latest
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-linux-x86_64
-                        build_options: --build-micro --with-upx-pack
+                        build_options: --build-micro --with-upx-pack --retry=3
                         filename: automate-linux-amd64
                     # MacOS amd64
                     -   runs_on: macos-13
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-x86_64
-                        build_options: --build-micro
+                        build_options: --build-micro --retry=3
                         filename: automate-darwin-amd64
                     # MacOS arm64
                     -   runs_on: macos-14
                         spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-aarch64
-                        build_options: --build-micro
+                        build_options: --build-micro --retry=3
                         filename: automate-darwin-arm64
 
         runs-on: ${{ matrix.runs_on }}
