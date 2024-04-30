@@ -67,7 +67,7 @@ The list of folders to be shared between releases.
 For example some uploaded pictures,…
 
 ~~~~yaml
-shared_files:
+shared_folders:
     - app/data
     - ...
 ~~~~
