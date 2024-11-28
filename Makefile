@@ -40,7 +40,7 @@ cs: ## Run tests
 	$(PHP) vendor/bin/php-cs-fixer fix
 
 phpstan: ## Run phpstan
-	$(PHP) vendor/bin/phpstan
+	$(PHP) vendor/bin/phpstan  --memory-limit=1G
 
 rector: ## Run rector
 	$(PHP) vendor/bin/rector
