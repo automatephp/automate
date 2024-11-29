@@ -78,7 +78,7 @@ jobs:
 
             -   name: Get static-php-cli binary
                 run: |
-                    curl -fsSL -o ${{ matrix.spc_binary }}
+                    curl -fsSL -o bin/spc ${{ matrix.spc_binary }}
                     chmod +x bin/spc
 
             -   name: Fixing missing requirements
