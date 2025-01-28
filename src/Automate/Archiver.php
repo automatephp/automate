@@ -41,6 +41,7 @@ class Archiver
         if (is_dir($path)) {
             $finder = new Finder();
             $finder->files()
+                ->ignoreDotFiles(false)
                 ->in($path)
                 ->notPath($exclude);
 
