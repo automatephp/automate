@@ -134,13 +134,13 @@ class Context
         }
 
         $this->logger->info('    Upload preparation ...');
-        $archive = $this->archiver->archive($path, $exclude);
+        $archiveFile = $this->archiver->archive($path, $exclude);
         $archiveFileName = $this->archiver->getArchiveFileName($path);
 
         $this->logger->info('    Send data ...');
-        $this->exec(static function (Session $session) use ($archive, $archiveFileName): void {
+        $this->exec(static function (Session $session) use ($archiveFile, $archiveFileName): void {
             $targetPath = Path::join($session->getReleasePath(), $archiveFileName);
-            $session->upload($archive->getPath(), $targetPath);
+            $session->upload($archiveFile, $targetPath);
         }, $serversList);
 
         $this->logger->info('    Untar data...');

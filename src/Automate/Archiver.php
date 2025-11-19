@@ -13,7 +13,8 @@ namespace Automate;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 use function Symfony\Component\String\u;
 
@@ -31,29 +32,34 @@ class Archiver
     /**
      * @param string[] $exclude
      */
-    public function archive(string $path, array $exclude = []): \PharData
+    public function archive(string $path, array $exclude = []): string
     {
         $this->clear($path);
 
-        $archive = new \PharData($this->getArchiveFileName($path, false));
+        $archiveFile = $this->getArchiveFileName($path);
         $cwd = getcwd();
 
-        if (is_dir($path)) {
-            $finder = new Finder();
-            $finder->files()
-                ->ignoreDotFiles(false)
-                ->in($path)
-                ->notPath($exclude);
+        // Build tar command
+        $command = ['tar', '-czf', $archiveFile];
 
-            $archive->buildFromIterator($finder->getIterator(), $cwd);
-        } else {
-            $archive->addFile($path, Path::makeRelative($path, $cwd));
+        // Add exclusions
+        foreach ($exclude as $pattern) {
+            $command[] = '--exclude='.$pattern;
         }
 
-        /** @var \PharData $compressed */
-        $compressed = $archive->compress(\Phar::GZ);
+        // Add the path to archive (relative to cwd)
+        $relativePath = Path::makeRelative($path, $cwd);
+        $command[] = $relativePath;
 
-        return $compressed;
+        // Execute tar command
+        $process = new Process($command, $cwd);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $archiveFile;
     }
 
     public function getArchiveFileName(string $path, bool $compressed = true): string

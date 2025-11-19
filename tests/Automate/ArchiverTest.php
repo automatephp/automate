@@ -31,8 +31,13 @@ class ArchiverTest extends TestCase
 
     public function testArchive(): void
     {
-        $phar = $this->archiver->archive(self::PATH);
+        $archiveFile = $this->archiver->archive(self::PATH);
 
+        // Verify the archive file was created
+        $this->assertFileExists($archiveFile);
+
+        // Open and verify archive contents
+        $phar = new \PharData($archiveFile);
         $this->assertTrue($phar->offsetExists('tests/fixtures/folder/a.txt'));
         $this->assertTrue($phar->offsetExists('tests/fixtures/folder/sub/b.txt'));
         $this->assertTrue($phar->offsetExists('tests/fixtures/folder/.sub/c.txt'));
