@@ -83,9 +83,29 @@ platform_check() {
             exit 1
             ;;
     esac
-    output "  [*] Your architecture (${arch}) is supported" "success"
 
     platform="${os}-${arch}"
+
+    # Check if the platform combination is supported
+    case ${platform} in
+        "linux-amd64"|"darwin-arm64")
+            output "  [*] Your platform (${platform}) is supported" "success"
+            ;;
+        "darwin-amd64")
+            output "  [ ] macOS Intel (amd64) is no longer supported" "error"
+            output "      Please use an Apple Silicon (arm64) device" "error"
+            exit 1
+            ;;
+        "linux-arm64")
+            output "  [ ] Linux ARM64 is not currently supported" "error"
+            output "      Please use Linux AMD64" "error"
+            exit 1
+            ;;
+        *)
+            output "  [ ] Your platform (${platform}) is not currently supported" "error"
+            exit 1
+            ;;
+    esac
 }
 
 last_release_version() {
