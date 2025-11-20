@@ -39,17 +39,20 @@ class Archiver
         $archiveFile = $this->getArchiveFileName($path);
         $cwd = getcwd();
 
+        // Create archive in temp directory to avoid "file changed as we read it" error
+        $tempArchive = sys_get_temp_dir().'/'.basename($archiveFile);
+
         // Build tar command
-        $command = ['tar', '-czf', $archiveFile];
+        $command = ['tar', '-czf', $tempArchive];
 
         // Add exclusions
         foreach ($exclude as $pattern) {
             $command[] = '--exclude='.$pattern;
         }
 
-        // Add the path to archive (relative to cwd)
+        // Add the path to archive (use relative path to avoid absolute path warnings)
         $relativePath = Path::makeRelative($path, $cwd);
-        $command[] = $relativePath;
+        $command[] = $relativePath ?: '.';
 
         // Execute tar command
         $process = new Process($command, $cwd);
@@ -59,19 +62,18 @@ class Archiver
             throw new ProcessFailedException($process);
         }
 
+        $this->filesystem->rename($tempArchive, $archiveFile, true);
+
         return $archiveFile;
     }
 
-    public function getArchiveFileName(string $path, bool $compressed = true): string
+    public function getArchiveFileName(string $path): string
     {
-        $name = u(self::BASE_ARCHIVE_NAME.$path)->snake();
-
-        return $compressed ? $name.'.tar.gz' : $name.'.tar';
+        return u(self::BASE_ARCHIVE_NAME.$path)->snake().'.tar.gz';
     }
 
     public function clear(string $path): void
     {
-        $this->filesystem->remove($this->getArchiveFileName($path, false));
         $this->filesystem->remove($this->getArchiveFileName($path));
     }
 }
