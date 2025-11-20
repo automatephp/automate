@@ -117,7 +117,6 @@ jobs:
                 run: |
                     gh release upload ${{ github.ref_name }} ./build/automate.phar
                     gh release upload ${{ github.ref_name }} ./build/automate-linux-amd64
-                    gh release upload ${{ github.ref_name }} ./build/automate-darwin-amd64
                     gh release upload ${{ github.ref_name }} ./build/automate-darwin-arm64
                 env:
                     GH_TOKEN: ${{ github.token }}
