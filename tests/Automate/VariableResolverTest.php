@@ -14,6 +14,7 @@ namespace Automate\Tests;
 use Automate\Model\Platform;
 use Automate\Model\Server;
 use Automate\VariableResolver;
+use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class VariableResolverTest extends AbstractMockTestCase
@@ -34,6 +35,44 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver->process($platform);
 
         $this->assertEquals('mypassword', $server->getPassword());
+    }
+
+    public function testMissingPasswordValue(): void
+    {
+        $io = \Mockery::spy(SymfonyStyle::class);
+        $io->expects('askHidden')->with('Enter a value for password "missing_password"')->andReturns(null);
+
+        $resolver = new VariableResolver($io);
+        $platform = new Platform();
+        $server = new Server();
+
+        $server->setPassword('%missing_password%');
+
+        $platform->addServer($server);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to resolve the variable "%missing_password%". Set the "AUTOMATE__missing_password" environment variable or run the command interactively.');
+
+        $resolver->process($platform);
+    }
+
+    public function testMissingInputStream(): void
+    {
+        $io = \Mockery::spy(SymfonyStyle::class);
+        $io->expects('askHidden')->with('Enter a value for password "missing_password"')->andThrow(new MissingInputException('Aborted.'));
+
+        $resolver = new VariableResolver($io);
+        $platform = new Platform();
+        $server = new Server();
+
+        $server->setPassword('%missing_password%');
+
+        $platform->addServer($server);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to resolve the variable "%missing_password%". Set the "AUTOMATE__missing_password" environment variable or run the command interactively.');
+
+        $resolver->process($platform);
     }
 
     public function testSessionPassword(): void

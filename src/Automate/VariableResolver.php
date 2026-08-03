@@ -12,6 +12,7 @@
 namespace Automate;
 
 use Automate\Model\Platform;
+use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class VariableResolver
@@ -73,10 +74,22 @@ class VariableResolver
     {
         $name = substr($value, 1, strlen($value) - 2);
 
-        if ($value = getenv(self::ENV_PREFIX.$name)) {
-            return $value;
+        $env = getenv(self::ENV_PREFIX.$name);
+        if (false !== $env && '' !== $env) {
+            return $env;
         }
 
-        return $this->io->askHidden(sprintf('Enter a value for password "%s"', $name));
+        try {
+            $answer = $this->io->askHidden(sprintf('Enter a value for password "%s"', $name));
+        } catch (MissingInputException) {
+            // no input stream available (non-interactive terminal)
+            $answer = null;
+        }
+
+        if (!is_string($answer) || '' === $answer) {
+            throw new \RuntimeException(sprintf('Unable to resolve the variable "%s". Set the "%s" environment variable or run the command interactively.', $value, self::ENV_PREFIX.$name));
+        }
+
+        return $answer;
     }
 }

@@ -45,12 +45,12 @@ class CheckCommand extends BaseCommand
         $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
         $variableResolver = new VariableResolver($io);
-        $variableResolver->process($platform);
-
         $logger = $this->getLogger($io);
-        $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
         try {
+            $variableResolver->process($platform);
+
+            $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
             $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $platform->getDefaultBranch());
 
             $context->connect();
