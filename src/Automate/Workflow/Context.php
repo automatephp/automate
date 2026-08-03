@@ -17,6 +17,7 @@ use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Ssh\SshFactory;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 class Context
 {
@@ -116,9 +117,25 @@ class Context
         foreach ($process as $child) {
             $child->wait();
             if (!$child->isSuccessful()) {
-                throw new \RuntimeException($child->getErrorOutput());
+                throw new \RuntimeException($this->getProcessError($child));
             }
         }
+    }
+
+    /**
+     * Not every failure reaches the error output: fall back on the standard
+     * output, then on the exit code, so the deployment never stops on an empty
+     * error message.
+     */
+    private function getProcessError(Process $process): string
+    {
+        foreach ([$process->getErrorOutput(), $process->getOutput()] as $output) {
+            if ('' !== trim($output)) {
+                return trim($output);
+            }
+        }
+
+        return sprintf('The command failed with exit code %s.', $process->getExitCode() ?? 'unknown');
     }
 
     /**
