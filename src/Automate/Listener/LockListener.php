@@ -22,7 +22,12 @@ class LockListener implements EventSubscriberInterface
 {
     public const string LOCK_FILE = 'automate.lock';
 
-    private bool $hasLock = false;
+    /**
+     * Names of the servers this deployment actually locked.
+     *
+     * @var string[]
+     */
+    private array $lockedServers = [];
 
     public static function getSubscribedEvents(): array
     {
@@ -47,9 +52,12 @@ class LockListener implements EventSubscriberInterface
             }
 
             $session->touch($this->getLockFilePath($session->getServer()));
-        });
 
-        $this->hasLock = true;
+            // Record the lock right away: a server locked before another one
+            // aborts the deployment must still be released, otherwise its lock
+            // file stays behind and blocks every later deployment.
+            $this->lockedServers[] = (string) $session->getServer()->getName();
+        });
     }
 
     /**
@@ -57,13 +65,17 @@ class LockListener implements EventSubscriberInterface
      */
     public function clearLockFile(DeployEvent $event): void
     {
-        $context = $event->getContext();
-
-        if ($this->hasLock) {
-            $context->exec(function (Session $session): void {
-                $session->rm($this->getLockFilePath($session->getServer()));
-            });
+        if ([] === $this->lockedServers) {
+            return;
         }
+
+        $event->getContext()->exec(function (Session $session): void {
+            if (!in_array((string) $session->getServer()->getName(), $this->lockedServers, true)) {
+                return;
+            }
+
+            $session->rm($this->getLockFilePath($session->getServer()));
+        });
     }
 
     /**
