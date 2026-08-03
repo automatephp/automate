@@ -30,14 +30,28 @@ class SessionTest extends AbstractMockTestCase
         $session->exec('ls', false);
     }
 
+    /**
+     * The commands are chained with "&&": a missing release directory must
+     * abort the command, not run it from the home directory of the SSH user.
+     */
     public function testExecCommandWithWorkingDir(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
-        $ssh->expects('exec')->with('cd /var/www/releases/2024.03.10-2340.241; ls');
+        $ssh->expects('exec')->with('cd /var/www/releases/2024.03.10-2340.241 && ls');
 
         $session = $this->getSession($ssh);
 
         $session->exec('ls');
+    }
+
+    public function testExecAsyncCommandWithWorkingDir(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('execAsync')->with('cd /var/www/releases/2024.03.10-2340.241 && ls');
+
+        $session = $this->getSession($ssh);
+
+        $session->execAsync('ls');
     }
 
     public function testMkdir(): void

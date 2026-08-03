@@ -39,10 +39,10 @@ class DeployerTest extends AbstractMockTestCase
         $ssh->expects('exec')->with('mkdir -p /home/wwwroot/automate/demo/releases/2024.03.10-2340.241')->once();
 
         // gi clone
-        $ssh->expects('exec')->with('cd /home/wwwroot/automate/demo/releases/2024.03.10-2340.241; git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .')->once();
+        $ssh->expects('exec')->with('cd /home/wwwroot/automate/demo/releases/2024.03.10-2340.241 && git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .')->once();
 
         // hook pre_deploy
-        $ssh->expects('exec')->with('cd /home/wwwroot/automate/demo/releases/2024.03.10-2340.241; php -v')->once();
+        $ssh->expects('exec')->with('cd /home/wwwroot/automate/demo/releases/2024.03.10-2340.241 && php -v')->once();
 
         $ssh->expects('exec')->with('ln -sfn /home/wwwroot/automate/demo/shared/app/data /home/wwwroot/automate/demo/releases/2024.03.10-2340.241/app/data')->once();
         $ssh->expects('exec')->with('ln -sfn /home/wwwroot/automate/demo/shared/app/config/parameters.yml /home/wwwroot/automate/demo/releases/2024.03.10-2340.241/app/config/parameters.yml')->once();

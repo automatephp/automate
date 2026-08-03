@@ -38,14 +38,18 @@ readonly class Session
 
     public function exec(string $command, bool $addWorkingDir = true): string
     {
-        $command = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath(), $command) : $command;
+        // "&&", not ";": should the release directory be missing, the command
+        // must not run anyway from the home directory of the SSH user
+        $command = $addWorkingDir ? sprintf('cd %s && %s', $this->getReleasePath(), $command) : $command;
 
         return $this->ssh->exec($command);
     }
 
     public function execAsync(string $command, bool $addWorkingDir = true): Process
     {
-        $command = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath(), $command) : $command;
+        // "&&", not ";": should the release directory be missing, the command
+        // must not run anyway from the home directory of the SSH user
+        $command = $addWorkingDir ? sprintf('cd %s && %s', $this->getReleasePath(), $command) : $command;
 
         return $this->ssh->execAsync($command);
     }
