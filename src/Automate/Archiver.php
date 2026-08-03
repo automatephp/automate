@@ -13,6 +13,7 @@ namespace Automate;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -42,20 +43,14 @@ class Archiver
         // Create archive in temp directory to avoid "file changed as we read it" error
         $tempArchive = sys_get_temp_dir().'/'.basename($archiveFile);
 
-        // Build tar command
-        $command = ['tar', '-czf', $tempArchive];
-
-        // Add exclusions
-        foreach ($exclude as $pattern) {
-            $command[] = '--exclude='.$pattern;
-        }
-
-        // Add the path to archive (use relative path to avoid absolute path warnings)
-        $relativePath = Path::makeRelative($path, $cwd);
-        $command[] = $relativePath ?: '.';
+        // Build tar command. The members are listed explicitly, NUL separated, so
+        // that "exclude" keeps the Finder semantics documented in the reference:
+        // tar's own --exclude only understands globs and would silently ignore a
+        // pattern such as "/^myfile.ext/".
+        $command = ['tar', '-czf', $tempArchive, '--null', '--files-from=-'];
 
         // Execute tar command
-        $process = new Process($command, $cwd);
+        $process = new Process($command, $cwd, input: $this->getMemberList($path, $exclude, $cwd));
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -65,6 +60,39 @@ class Archiver
         $this->filesystem->rename($tempArchive, $archiveFile, true);
 
         return $archiveFile;
+    }
+
+    /**
+     * Build the NUL separated list of files tar has to archive, relative to the
+     * current working directory.
+     *
+     * @param string[] $exclude
+     */
+    private function getMemberList(string $path, array $exclude, string $cwd): string
+    {
+        // use a relative path to avoid absolute path warnings
+        $relativePath = Path::makeRelative($path, $cwd) ?: '.';
+
+        if (!is_dir($path)) {
+            return $relativePath."\0";
+        }
+
+        $finder = Finder::create()
+            ->files()
+            ->ignoreDotFiles(false)
+            ->ignoreVCS(false)
+            ->in($path);
+
+        if ([] !== $exclude) {
+            $finder->notPath($exclude);
+        }
+
+        $list = '';
+        foreach ($finder as $file) {
+            $list .= Path::join($relativePath, $file->getRelativePathname())."\0";
+        }
+
+        return $list;
     }
 
     public function getArchiveFileName(string $path): string
