@@ -27,12 +27,11 @@ jobs:
                   extensions: fileinfo, gd, mbstring
 
             - name: Build site
-              uses: Cecilapp/Cecil-Action@v3
-              with:
-                version: '8.9.1'
-                args: 'doc/ -vv'
-                install_themes: 'no'
-                config: 'cecil.yml'
+              env:
+                  CECIL_VERSION: '8.9.1'
+              run: |
+                  curl -sSfLO "https://github.com/Cecilapp/Cecil/releases/download/${CECIL_VERSION}/cecil.phar"
+                  php cecil.phar build doc/ -vv --config=cecil.yml
 
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
