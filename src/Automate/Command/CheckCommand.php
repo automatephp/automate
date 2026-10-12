@@ -50,7 +50,7 @@ class CheckCommand extends BaseCommand
             $platform = $project->getPlatform($input->getArgument('platform'));
 
             $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
-            $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $platform->getDefaultBranch());
+            $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $platform->getDefaultBranch(), variables: $variableResolver->getHookVariables());
 
             $context->connect();
             $logger->section('Check git access');

@@ -24,10 +24,14 @@ readonly class Session
 
     private const string RELEASES_FOLDER = 'releases';
 
+    /**
+     * @param array<string, string> $environment exported to the commands run in the release directory; empty to export nothing
+     */
     public function __construct(
         private Server $server,
         private Ssh $ssh,
         private string $releaseId,
+        private array $environment = [],
     ) {
     }
 
@@ -38,16 +42,41 @@ readonly class Session
 
     public function exec(string $command, bool $addWorkingDir = true): string
     {
-        $command = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath(), $command) : $command;
-
-        return $this->ssh->exec($command);
+        return $this->ssh->exec($this->buildCommand($command, $addWorkingDir));
     }
 
     public function execAsync(string $command, bool $addWorkingDir = true): Process
     {
-        $command = $addWorkingDir ? sprintf('cd %s; %s', $this->getReleasePath(), $command) : $command;
+        return $this->ssh->execAsync($this->buildCommand($command, $addWorkingDir));
+    }
 
-        return $this->ssh->execAsync($command);
+    private function buildCommand(string $command, bool $addWorkingDir): string
+    {
+        if (!$addWorkingDir) {
+            return $command;
+        }
+
+        $command = sprintf('cd %s; %s', $this->getReleasePath(), $command);
+
+        if ([] === $this->environment) {
+            return $command;
+        }
+
+        $environment = [
+            'AUTOMATE_RELEASE_ID' => $this->releaseId,
+            'AUTOMATE_RELEASE_PATH' => $this->getReleasePath(),
+            'AUTOMATE_RELEASES_PATH' => $this->getReleasesPath(),
+            'AUTOMATE_SHARED_PATH' => $this->getSharedPath(),
+            'AUTOMATE_CURRENT_PATH' => $this->getCurrentPath(),
+            ...$this->environment,
+        ];
+
+        $exports = [];
+        foreach ($environment as $name => $value) {
+            $exports[] = sprintf('%s=%s', $name, escapeshellarg($value));
+        }
+
+        return sprintf('export %s; %s', implode(' ', $exports), $command);
     }
 
     public function upload(string $path, string $target): void
