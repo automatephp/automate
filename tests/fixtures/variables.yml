@@ -1,0 +1,23 @@
+repository: git@github.com:julienj/symfony-demo.git
+
+platforms:
+    review:
+        default_branch: master
+        servers:
+            vm:
+                host: review.example.com
+                user: automate
+                password: "%review_password%"
+                path: /srv/review/%slug%
+    production:
+        default_branch: master
+        servers:
+            prod:
+                host: prod.example.com
+                user: automate
+                password: "%prod_password%"
+                path: /srv/%unused_slug%
+
+post_deploy:
+    - "bash deploy.sh %slug%"
+    - "date +%%m%%d"
