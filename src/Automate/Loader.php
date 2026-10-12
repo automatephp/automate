@@ -29,7 +29,7 @@ class Loader
     /**
      * Load project configuration.
      */
-    public function load(string $path): Project
+    public function load(string $path, ?VariableResolver $resolver = null, ?string $platform = null): Project
     {
         $processor = new Processor();
 
@@ -42,6 +42,10 @@ class Loader
         $data = Yaml::parse($data);
 
         $processedConfiguration = $processor->processConfiguration($configuration, [$data]);
+
+        if ($resolver instanceof VariableResolver && null !== $platform) {
+            $processedConfiguration = $resolver->resolveConfiguration($processedConfiguration, $platform);
+        }
 
         foreach ($processedConfiguration['platforms'] as $platformName => $platform) {
             $processedConfiguration['platforms'][$platformName]['name'] = $platformName;
