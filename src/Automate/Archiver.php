@@ -35,6 +35,7 @@ class Archiver
      */
     public function archive(string $path, array $exclude = []): string
     {
+        $this->assertValidExcludes($exclude);
         $this->clear($path);
 
         $archiveFile = $this->getArchiveFileName($path);
@@ -47,10 +48,13 @@ class Archiver
         // that "exclude" keeps the Finder semantics documented in the reference:
         // tar's own --exclude only understands globs and would silently ignore a
         // pattern such as "/^myfile.ext/".
-        $command = ['tar', '-czf', $tempArchive, '--null', '--files-from=-'];
+        // --no-recursion: directories are listed too (empty ones, symlinks), and tar
+        // must not walk into them and re-add the excluded files.
+        $command = ['tar', '-czf', $tempArchive, '--null', '--no-recursion', '--files-from=-'];
 
         // Execute tar command
         $process = new Process($command, $cwd, input: $this->getMemberList($path, $exclude, $cwd));
+        $process->setTimeout(null);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -78,7 +82,6 @@ class Archiver
         }
 
         $finder = Finder::create()
-            ->files()
             ->ignoreDotFiles(false)
             ->ignoreVCS(false)
             ->in($path);
@@ -87,12 +90,29 @@ class Archiver
             $finder->notPath($exclude);
         }
 
-        $list = '';
+        $list = $relativePath."\0";
         foreach ($finder as $file) {
             $list .= Path::join($relativePath, $file->getRelativePathname())."\0";
         }
 
         return $list;
+    }
+
+    /**
+     * Finder silently treats an unparsable regular expression as a plain string and
+     * warns on every file: fail upfront instead.
+     *
+     * @param string[] $exclude
+     */
+    private function assertValidExcludes(array $exclude): void
+    {
+        foreach ($exclude as $pattern) {
+            $looksLikeRegex = 1 === preg_match('/^([^\w\s*?\\\\]).+\1[imsxuADUn]*$/s', $pattern);
+
+            if ($looksLikeRegex && false === @preg_match($pattern, '')) {
+                throw new \InvalidArgumentException(sprintf('Invalid "exclude" pattern "%s": %s. Escape the delimiter inside the expression, e.g. "/^folder\/subfolder/".', $pattern, preg_last_error_msg()));
+            }
+        }
     }
 
     public function getArchiveFileName(string $path): string

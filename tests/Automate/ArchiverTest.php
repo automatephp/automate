@@ -80,6 +80,41 @@ class ArchiverTest extends TestCase
         $this->assertContains('tests/fixtures/folder/.d.txt', $members);
     }
 
+    public function testArchiveKeepsDirectoriesWithoutRecursingIntoExcludedOnes(): void
+    {
+        $empty = self::PATH.'/empty';
+        $link = self::PATH.'/link';
+        mkdir($empty);
+        symlink('sub', $link);
+
+        try {
+            $members = $this->getArchiveMembers($this->archiver->archive(self::PATH, ['sub/b.txt']));
+        } finally {
+            rmdir($empty);
+            unlink($link);
+        }
+
+        $this->assertContains('tests/fixtures/folder/empty/', $members);
+        $this->assertContains('tests/fixtures/folder/link', $members);
+        $this->assertContains('tests/fixtures/folder/sub/', $members);
+        $this->assertNotContains('tests/fixtures/folder/sub/b.txt', $members);
+    }
+
+    public function testArchiveRejectsInvalidExcludePattern(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid "exclude" pattern "/^folder/subfolder/"');
+
+        $this->archiver->archive(self::PATH, ['/^folder/subfolder/']);
+    }
+
+    public function testArchiveAcceptsPlainStringsContainingSlashes(): void
+    {
+        $members = $this->getArchiveMembers($this->archiver->archive(self::PATH, ['sub/b.txt']));
+
+        $this->assertNotContains('tests/fixtures/folder/sub/b.txt', $members);
+    }
+
     /**
      * PharData caches archives by file name, and every archive built here shares
      * the same one: read the members with tar instead.
