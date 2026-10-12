@@ -44,7 +44,7 @@ class ContextTest extends AbstractMockTestCase
         $context = $this->createContext(static fn (): Process => new Process(['sh', '-c', $script]));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage($expected);
+        $this->expectExceptionMessage('[front-01] '.$expected);
 
         $context->execAsync('a command');
     }

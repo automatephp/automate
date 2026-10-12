@@ -111,13 +111,13 @@ class Context
 
                 $this->logger->result($output, $session->getServer());
             });
-            $process[] = $child;
+            $process[$session->getServer()->getName()] = $child;
         }
 
-        foreach ($process as $child) {
+        foreach ($process as $serverName => $child) {
             $child->wait();
             if (!$child->isSuccessful()) {
-                throw new \RuntimeException($this->getProcessError($child));
+                throw new \RuntimeException(sprintf('[%s] %s', $serverName, $this->getProcessError($child)));
             }
         }
     }
