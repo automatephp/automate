@@ -14,7 +14,6 @@ namespace Automate\Command;
 use Automate\Archiver;
 use Automate\Loader;
 use Automate\Ssh\SshFactory;
-use Automate\VariableResolver;
 use Automate\Workflow\Context;
 use Automate\Workflow\Session;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -35,20 +34,20 @@ class CheckCommand extends BaseCommand
     {
         $this
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
-            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE);
+            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
+            ->addVariableOption();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $loader = new Loader();
-        $project = $loader->load($input->getOption('config'));
-        $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
-        $variableResolver = new VariableResolver($io);
+        $variableResolver = $this->createVariableResolver($input, $io);
         $logger = $this->getLogger($io);
 
         try {
-            $variableResolver->process($platform);
+            $loader = new Loader();
+            $project = $loader->load($input->getOption('config'), $variableResolver, $input->getArgument('platform'));
+            $platform = $project->getPlatform($input->getArgument('platform'));
 
             $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
             $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $platform->getDefaultBranch());

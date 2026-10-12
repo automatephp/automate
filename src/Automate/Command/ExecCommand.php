@@ -13,7 +13,6 @@ namespace Automate\Command;
 
 use Automate\Loader;
 use Automate\Ssh\Ssh;
-use Automate\VariableResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,20 +35,20 @@ class ExecCommand extends BaseCommand
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('server', InputArgument::REQUIRED, 'server name')
             ->addArgument('cmd', InputArgument::REQUIRED, 'Command')
-            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE);
+            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
+            ->addVariableOption();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new SymfonyStyle($input, $output);
+        $variableResolver = $this->createVariableResolver($input, $io);
+
         $loader = new Loader();
-        $project = $loader->load($input->getOption('config'));
+        $project = $loader->load($input->getOption('config'), $variableResolver, $input->getArgument('platform'));
         $platform = $project->getPlatform($input->getArgument('platform'));
         $server = $platform->getServer($input->getArgument('server'));
         $command = $input->getArgument('cmd');
-
-        $io = new SymfonyStyle($input, $output);
-        $variableResolver = new VariableResolver($io);
-        $variableResolver->process($platform);
 
         $ssh = new Ssh($platform, $server, $variableResolver->getEnvVariables(), $input->getOption('config'));
         $ssh->login();
