@@ -103,7 +103,17 @@ on_deploy:
 
     - upload: "build/assets"
       exclude:
-        - '/^myfile.ext/'
-        - '/^folder/subfolder/'
+        - 'myfile.ext'
+        - '/^folder\/subfolder/'
       only: ['dddv-exemple-front-01']
 ~~~~
+
+Each `exclude` entry is matched against the path of every file, **relative to the
+uploaded directory**:
+
+- a plain string excludes every path containing it — `node_modules` drops the folder
+  wherever it appears ;
+- a regular expression, delimiters included, is matched against that same relative
+  path — `'/^folder\/subfolder/'` only drops `folder/subfolder` at the root of the
+  upload. Mind the escaped delimiter: `'/^folder/subfolder/'` is not a valid
+  regular expression.
