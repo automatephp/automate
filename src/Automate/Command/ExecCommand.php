@@ -19,6 +19,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -57,7 +58,11 @@ class ExecCommand extends BaseCommand
             $rs = $ssh->exec($command);
             $output->write($rs);
         } catch (\Exception $exception) {
-            $output->write($exception->getMessage());
+            // the parent process reports the failure of an asynchronous hook
+            // from the error output: writing there is what makes the reason
+            // visible instead of an empty error
+            $errorOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+            $errorOutput->write($exception->getMessage());
 
             return Command::FAILURE;
         }
