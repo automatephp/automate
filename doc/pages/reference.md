@@ -46,11 +46,44 @@ platforms:
 
 It’s possible to authenticate on the server with a password or with a private key. For the latter, you must define a path to the private key file and an optional passphrase (password) as the example above describes.
 
-You can use a variable with the notation "%variable_name%"    
-If one variable is detected Automate will search for the value in an environment variable « AUTOMATE__variable_name ».    
-If the environment variable doesn’t exist, Automate will ask to you to provide your password upon each deployment through in your terminal.
+The `password` is usually a variable, see "Variables" below: if it cannot be resolved, Automate asks you for it in your terminal.
 
-### 3. Shared_files
+### 3. Variables
+
+A `%variable_name%` token can be used in any string value of the configuration (`path`, `host`, hook commands, ...),
+alone or inside a larger string. A name matches `[a-z][a-z0-9_]*`.
+
+~~~~yaml
+platforms:
+    review:
+        default_branch: master
+        servers:
+            vm:
+                host: review.exemple.com
+                user: automate
+                password: "%review_password%"
+                path: /srv/review/%slug%
+
+post_deploy:
+    - "bash deploy.sh %slug%"
+~~~~
+
+Values are looked up in this order:
+
+1. the `--var name=value` option of `deploy`, `exec` and `check` (repeatable): `automate deploy review my-branch --var slug=my-branch`
+2. the environment variable `AUTOMATE__name`
+3. for a `password` only: an interactive prompt (the whole value must be `%name%`; any other password is used as is)
+
+Any other variable that cannot be resolved stops the command with an error naming the configuration key.
+Only the requested platform is resolved, the variables of the other platforms are not needed.
+
+Write `%%` to get a literal `%`. Beware of commands that contain a valid token, such as `date +%Y%m%d` (`%m%` is a token):
+write `date +%%Y%%m%%d` instead. Quote the YAML value when it starts with `%`.
+
+Values are inserted as is, without shell escaping: use trusted values or reference them in a command through the
+environment (`"$AUTOMATE__slug"`, see "Deployment Hooks").
+
+### 4. Shared_files
 
 The list of files to be shared with releases.    
 For example, some parameters files,…
@@ -61,7 +94,7 @@ shared_files:
     - ...
 ~~~~
 
-### 4. Shared_folders
+### 5. Shared_folders
 
 The list of folders to be shared between releases.    
 For example some uploaded pictures,…
@@ -72,7 +105,7 @@ shared_folders:
     - ...
 ~~~~
 
-### 5. Deployment Hooks
+### 6. Deployment Hooks
 
 Automate supports three types of deployment hooks to execute actions at different stages of the deployment process:
 
@@ -107,3 +140,19 @@ on_deploy:
         - '/^folder/subfolder/'
       only: ['dddv-exemple-front-01']
 ~~~~
+
+#### Hook environment
+
+Hook commands run with these environment variables:
+
+| Variable | Value |
+|---|---|
+| `AUTOMATE_PLATFORM` | platform name |
+| `AUTOMATE_SERVER` | name of the server the command runs on |
+| `AUTOMATE_GIT_REF` | git reference given to `deploy`, or the platform `default_branch` |
+| `AUTOMATE_RELEASE_ID` | release identifier, e.g. `2026.10.12-1715.123` |
+| `AUTOMATE_RELEASE_PATH` | `<path>/releases/<release id>` |
+| `AUTOMATE_RELEASES_PATH` | `<path>/releases` |
+| `AUTOMATE_SHARED_PATH` | `shared_path`, or `<path>/shared` |
+| `AUTOMATE_CURRENT_PATH` | `<path>/current` |
+| `AUTOMATE__<name>` | each variable given with `--var` or resolved from the configuration, except those used as a `password` |
