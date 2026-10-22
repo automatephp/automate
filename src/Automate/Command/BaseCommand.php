@@ -33,8 +33,8 @@ abstract class BaseCommand extends Command
         return new VariableResolver($io, VariableResolver::parseCliVariables($input->getOption('var')));
     }
 
-    protected function getLogger(SymfonyStyle $io): LoggerInterface
+    protected function getLogger(SymfonyStyle $io, ?VariableResolver $variableResolver = null): LoggerInterface
     {
-        return new ConsoleLogger($io);
+        return new ConsoleLogger($io, $variableResolver);
     }
 }

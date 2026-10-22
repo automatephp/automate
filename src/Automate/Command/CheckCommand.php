@@ -42,7 +42,7 @@ class CheckCommand extends BaseCommand
     {
         $io = new SymfonyStyle($input, $output);
         $variableResolver = $this->createVariableResolver($input, $io);
-        $logger = $this->getLogger($io);
+        $logger = $this->getLogger($io, $variableResolver);
 
         try {
             $loader = new Loader();

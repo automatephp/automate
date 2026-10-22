@@ -12,12 +12,14 @@
 namespace Automate\Logger;
 
 use Automate\Model\Server;
+use Automate\VariableResolver;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConsoleLogger implements LoggerInterface
 {
     public function __construct(
         private readonly SymfonyStyle $io,
+        private readonly ?VariableResolver $variableResolver = null,
     ) {
     }
 
@@ -28,7 +30,7 @@ class ConsoleLogger implements LoggerInterface
 
     public function command(string $name): void
     {
-        $this->io->text(sprintf('<info>%s</info>', $name));
+        $this->io->text(sprintf('<info>%s</info>', $this->mask($name)));
     }
 
     public function result(string $response, Server $server): void
@@ -53,5 +55,19 @@ class ConsoleLogger implements LoggerInterface
     public function error(string $message): void
     {
         $this->io->error($message);
+    }
+
+    /**
+     * Put the token back in place of its value, so that a secret used in a command never reaches the logs.
+     */
+    private function mask(string $text): string
+    {
+        $replacements = [];
+        foreach ($this->variableResolver?->getMaskedValues() ?? [] as $name => $value) {
+            $replacements[$value] = sprintf('%%%s%%', $name);
+        }
+
+        // strtr tries the longest value first
+        return [] === $replacements ? $text : strtr($text, $replacements);
     }
 }

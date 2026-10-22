@@ -50,7 +50,7 @@ class DeployCommand extends BaseCommand
         $project = $loader->load($input->getOption('config'), $variableResolver, $input->getArgument('platform'));
         $platform = $project->getPlatform($input->getArgument('platform'));
 
-        $logger = $this->getLogger($io);
+        $logger = $this->getLogger($io, $variableResolver);
         $logger->section('Start deployment');
 
         $gitRef = $input->getArgument('gitRef');
@@ -62,19 +62,16 @@ class DeployCommand extends BaseCommand
             ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
         ];
 
-        if ([] !== $variableResolver->getHookVariables()) {
-            $rows[] = ['Variables', implode("\n", array_map(
-                static fn (string $name, string $value): string => sprintf('%s=%s', $name, $value),
-                array_keys($variableResolver->getHookVariables()),
-                $variableResolver->getHookVariables(),
-            ))];
+        $hookVariables = $variableResolver->getHookVariables();
+        if ([] !== $hookVariables) {
+            $rows[] = ['Variables', implode(', ', array_keys($hookVariables))];
         }
 
         $io->table([], $rows);
 
         $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
-        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $gitRef, $input->getOption('force'), variables: $variableResolver->getHookVariables());
+        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $gitRef, $input->getOption('force'), variables: $hookVariables);
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {
