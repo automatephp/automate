@@ -1,0 +1,11 @@
+platforms:
+    review:
+        default_branch: master
+        servers:
+            vm:
+                host: 127.0.0.1
+                user: automate
+                password: p@ssw0rd
+                path: /srv/review
+on_remove:
+    - upload: "build"

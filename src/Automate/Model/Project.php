@@ -20,6 +20,7 @@ class Project
      * @param Action[]                $onFirstDeploy
      * @param Action[]                $onDeploy
      * @param Action[]                $postDeploy
+     * @param Action[]                $onRemove
      * @param array<string, Platform> $platforms
      */
     public function __construct(
@@ -30,6 +31,7 @@ class Project
         private array $onFirstDeploy = [],
         private array $onDeploy = [],
         private array $postDeploy = [],
+        private array $onRemove = [],
         private array $platforms = [],
     ) {
     }
@@ -150,6 +152,24 @@ class Project
     public function setPostDeploy(array $postDeploy): self
     {
         $this->postDeploy = $postDeploy;
+
+        return $this;
+    }
+
+    /**
+     * @return Action[]
+     */
+    public function getOnRemove(): array
+    {
+        return $this->onRemove;
+    }
+
+    /**
+     * @param Action[] $onRemove
+     */
+    public function setOnRemove(array $onRemove): self
+    {
+        $this->onRemove = $onRemove;
 
         return $this;
     }

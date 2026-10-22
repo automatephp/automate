@@ -19,6 +19,7 @@ use Automate\Model\Server;
 use Automate\Model\Upload;
 use Automate\VariableResolver;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class LoaderTest extends TestCase
@@ -127,5 +128,23 @@ class LoaderTest extends TestCase
         $this->assertEquals('date +%m%d', $project->getPostDeploy()[1]->getCmd());
         $this->assertEquals('%prod_password%', $project->getPlatform('production')->getServer('prod')->getPassword());
         $this->assertEquals('/srv/%unused_slug%', $project->getPlatform('production')->getServer('prod')->getPath());
+    }
+
+    public function testLoaderReadsTheOnRemoveHook(): void
+    {
+        $project = (new Loader())->load(__DIR__.'/../fixtures/onRemove.yml');
+
+        $this->assertCount(2, $project->getOnRemove());
+        $this->assertInstanceOf(Command::class, $project->getOnRemove()[0]);
+        $this->assertEquals('docker compose down', $project->getOnRemove()[0]->getCmd());
+        $this->assertEquals(['vm'], $project->getOnRemove()[1]->getOnly());
+    }
+
+    public function testLoaderRejectsAnUploadInTheOnRemoveHook(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "upload" action is not supported in "on_remove"');
+
+        (new Loader())->load(__DIR__.'/../fixtures/onRemoveUpload.yml');
     }
 }
