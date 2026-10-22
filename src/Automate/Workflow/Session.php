@@ -75,14 +75,33 @@ readonly class Session
         return false;
     }
 
+    public function withReleaseId(string $releaseId): self
+    {
+        return new self($this->server, $this->ssh, $releaseId, $this->environment, $this->firstDeploy);
+    }
+
+    /**
+     * Same session on the release that "current" points to, so that the release variables
+     * exported to a command describe the code that is live. Unchanged when "current" is not a symlink.
+     */
+    public function withCurrentRelease(): self
+    {
+        $releaseId = basename(trim($this->exec(sprintf('readlink %s || true', $this->getCurrentPath()), false)));
+
+        return '' === $releaseId ? $this : $this->withReleaseId($releaseId);
+    }
+
     public function login(): void
     {
         $this->ssh->login();
     }
 
-    public function exec(string $command, bool $addWorkingDir = true): string
+    /**
+     * @param ?string $workingDir directory of the command, the release path by default
+     */
+    public function exec(string $command, bool $addWorkingDir = true, ?string $workingDir = null): string
     {
-        return $this->ssh->exec($this->buildCommand($command, $addWorkingDir));
+        return $this->ssh->exec($this->buildCommand($command, $addWorkingDir, $workingDir));
     }
 
     public function execAsync(string $command, bool $addWorkingDir = true): Process
@@ -90,15 +109,15 @@ readonly class Session
         return $this->ssh->execAsync($this->buildCommand($command, $addWorkingDir));
     }
 
-    private function buildCommand(string $command, bool $addWorkingDir): string
+    private function buildCommand(string $command, bool $addWorkingDir, ?string $workingDir = null): string
     {
         if (!$addWorkingDir) {
             return $command;
         }
 
-        // "&&", not ";": should the release directory be missing, the command
+        // "&&", not ";": should the working directory be missing, the command
         // must not run anyway from the home directory of the SSH user
-        $command = sprintf('cd %s && %s', $this->getReleasePath(), $command);
+        $command = sprintf('cd %s && %s', $workingDir ?? $this->getReleasePath(), $command);
 
         $environment = [
             'AUTOMATE_RELEASE_ID' => $this->releaseId,
@@ -146,11 +165,8 @@ readonly class Session
 
     public function exists(string $path): bool
     {
-        if ('Y' === trim($this->exec(sprintf('if test -d "%s"; then echo "Y";fi', $path), false))) {
-            return true;
-        }
-
-        return 'Y' === trim($this->exec(sprintf('if test -f "%s"; then echo "Y";fi', $path), false));
+        // "-e" follows a symlink, "-L" is what sees a dangling one, such as "current" once its release is gone
+        return 'Y' === trim($this->exec(sprintf('if test -e "%s" || test -L "%s"; then echo "Y";fi', $path, $path), false));
     }
 
     public function symlink(string $target, string $link): void

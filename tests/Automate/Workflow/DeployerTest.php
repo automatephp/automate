@@ -46,7 +46,7 @@ class DeployerTest extends AbstractMockTestCase
             ." AUTOMATE_SHARED_PATH='/home/wwwroot/automate/demo/shared'"
             ." AUTOMATE_CURRENT_PATH='/home/wwwroot/automate/demo/current'"
             ." AUTOMATE_FIRST_DEPLOY='1'"
-            ." AUTOMATE_PLATFORM='development' AUTOMATE_SERVER='dddv-exemple-front-01' AUTOMATE_GIT_REF='master'; ";
+            ." AUTOMATE_PHASE='deploy' AUTOMATE_PLATFORM='development' AUTOMATE_SERVER='dddv-exemple-front-01' AUTOMATE_GIT_REF='master'; ";
 
         // gi clone
         $ssh->expects('exec')->with($env.'cd /home/wwwroot/automate/demo/releases/2024.03.10-2340.241 && git clone git@github.com:julienj/symfony-demo.git -q --recursive -b master .')->once();
@@ -127,7 +127,7 @@ class DeployerTest extends AbstractMockTestCase
             $ssh->shouldReceive('exec')->andReturnUsing(static function (string $command) use ($name, $isNew, &$commands): string {
                 $commands[$name][] = preg_replace('/^export [^;]*; cd [^;&]* && /', '', $command);
 
-                if (str_contains($command, 'test -d "/srv/'.$name.'/releases"')) {
+                if (str_contains($command, 'test -e "/srv/'.$name.'/releases"')) {
                     return $isNew[$name] ? '' : 'Y';
                 }
 
