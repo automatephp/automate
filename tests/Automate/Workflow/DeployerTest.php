@@ -5,11 +5,13 @@ namespace Automate\Tests\Workflow;
 use Automate\Archiver;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
+use Automate\Model\Server;
 use Automate\Ssh\Ssh;
 use Automate\Ssh\SshFactory;
 use Automate\Tests\AbstractMockTestCase;
 use Automate\Workflow\Context;
 use Automate\Workflow\Deployer;
+use Symfony\Component\Process\Process;
 
 class DeployerTest extends AbstractMockTestCase
 {
@@ -65,5 +67,83 @@ class DeployerTest extends AbstractMockTestCase
         $ssh->expects('exec')->with('find /home/wwwroot/automate/demo/releases -maxdepth 1 -mindepth 1 -type d')->once();
 
         $deployer->deploy();
+    }
+
+    public function testFirstDeployHookRunsOnNewServersOnly(): void
+    {
+        [$commands, $sections] = $this->deployTwoServers(['web1' => true, 'web2' => false]);
+
+        $this->assertContains('echo first', $commands['web1']);
+        $this->assertContains('echo first-web1', $commands['web1']);
+        $this->assertNotContains('echo first-web2', $commands['web1']);
+        $this->assertNotContains('echo first', $commands['web2']);
+        $this->assertNotContains('echo first-web1', $commands['web2']);
+        $this->assertContains('echo deploy', $commands['web2']);
+
+        $this->assertSame(
+            ['Pre deploy', 'First deploy', 'On deploy', 'Publish new release', 'Post deploy', 'Clear olds releases'],
+            $sections
+        );
+    }
+
+    public function testFirstDeployHookIsSkippedWhenNoServerIsNew(): void
+    {
+        [$commands, $sections] = $this->deployTwoServers(['web1' => false, 'web2' => false]);
+
+        foreach ($commands as $serverCommands) {
+            $this->assertNotContains('echo first', $serverCommands);
+        }
+
+        $this->assertNotContains('First deploy', $sections);
+    }
+
+    /**
+     * @param array<string, bool> $isNew
+     *
+     * @return array{array<string, string[]>, string[]}
+     */
+    private function deployTwoServers(array $isNew): array
+    {
+        $project = (new Loader())->load(__DIR__.'/../../fixtures/first_deploy.yml');
+        $platform = $project->getPlatform('production');
+
+        $commands = [];
+        $sections = [];
+        $logger = \Mockery::spy(LoggerInterface::class);
+        $logger->shouldReceive('section')->andReturnUsing(static function (string $name) use (&$sections): void {
+            $sections[] = $name;
+        });
+
+        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory->shouldReceive('create')->andReturnUsing(static function (Server $server) use (&$commands, $isNew): Ssh {
+            $name = $server->getName();
+            $ssh = \Mockery::mock(Ssh::class);
+            $ssh->shouldReceive('login');
+            $ssh->shouldReceive('execAsync')->andReturnUsing(static function (string $command) use ($name, &$commands): Process {
+                $commands[$name][] = preg_replace('/^export [^;]*; cd [^;&]* && /', '', $command);
+
+                return new Process(['true']);
+            });
+            $ssh->shouldReceive('exec')->andReturnUsing(static function (string $command) use ($name, $isNew, &$commands): string {
+                $commands[$name][] = preg_replace('/^export [^;]*; cd [^;&]* && /', '', $command);
+
+                if (str_contains($command, 'test -d "/srv/'.$name.'/releases"')) {
+                    return $isNew[$name] ? '' : 'Y';
+                }
+
+                if (str_starts_with($command, 'find /srv/'.$name.'/releases')) {
+                    return $isNew[$name] ? '' : '/srv/'.$name.'/releases/2024.03.09-1200.123';
+                }
+
+                return '';
+            });
+
+            return $ssh;
+        });
+
+        $context = new Context($project, $platform, $logger, $sshFactory, \Mockery::mock(Archiver::class), releaseId: '2024.03.10-2340.241');
+        $this->assertTrue((new Deployer($context))->deploy());
+
+        return [$commands, array_values(array_filter($sections, static fn (string $s): bool => 'Start deployment' !== $s))];
     }
 }

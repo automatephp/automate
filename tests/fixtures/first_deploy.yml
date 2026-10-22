@@ -1,0 +1,26 @@
+platforms:
+    production:
+        default_branch: master
+        servers:
+            web1:
+                host: 127.0.0.1
+                user: automate
+                password: p@ssw0rd
+                path: /srv/web1
+            web2:
+                host: 127.0.0.2
+                user: automate
+                password: p@ssw0rd
+                path: /srv/web2
+pre_deploy:
+    - "echo pre"
+on_first_deploy:
+    - "echo first"
+    - cmd: "echo first-web2"
+      only: web2
+    - cmd: "echo first-web1"
+      only: web1
+on_deploy:
+    - "echo deploy"
+post_deploy:
+    - "echo post"

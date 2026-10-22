@@ -50,6 +50,7 @@ readonly class Deployer
 
             $this->runHooks($this->context->getProject()->getPreDeploy(), 'Pre deploy');
             $this->initShared();
+            $this->runHooks($this->context->getProject()->getOnFirstDeploy(), 'First deploy', $this->context->getFirstDeployServers());
             $this->runHooks($this->context->getProject()->getOnDeploy(), 'On deploy');
 
             $dispatcher->dispatch(new DeployEvent($this->context), DeployEvents::DEPLOY);
@@ -117,20 +118,32 @@ readonly class Deployer
     /**
      * Run hook.
      *
-     * @param Action[] $actions
+     * @param Action[]  $actions
+     * @param ?string[] $servers restrict the hook to these servers (intersected with each action's "only")
      */
-    private function runHooks(array $actions, string $name): void
+    private function runHooks(array $actions, string $name, ?array $servers = null): void
     {
-        if ([] !== $actions) {
-            $this->context->getLogger()->section($name);
-            foreach ($actions as $action) {
-                if ($action instanceof Command) {
-                    $this->context->execAsync($action->getCmd(), $action->getOnly());
-                }
+        if ([] === $actions || [] === $servers) {
+            return;
+        }
 
-                if ($action instanceof Upload) {
-                    $this->context->upload($action->getPath(), $action->getExclude(), $action->getOnly());
+        $this->context->getLogger()->section($name);
+        foreach ($actions as $action) {
+            $only = $action->getOnly();
+            if (null !== $servers) {
+                $only = $only ? array_values(array_intersect($only, $servers)) : $servers;
+                // an empty list means "all servers" for the context
+                if ([] === $only) {
+                    continue;
                 }
+            }
+
+            if ($action instanceof Command) {
+                $this->context->execAsync($action->getCmd(), $only);
+            }
+
+            if ($action instanceof Upload) {
+                $this->context->upload($action->getPath(), $action->getExclude(), $only);
             }
         }
     }
