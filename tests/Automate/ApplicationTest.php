@@ -18,6 +18,16 @@ use Symfony\Component\Console\Output\StreamOutput;
 
 class ApplicationTest extends TestCase
 {
+    public function testCommands(): void
+    {
+        $app = new Application();
+
+        foreach (['deploy', 'check', 'remove', 'exec'] as $name) {
+            $this->assertTrue($app->has($name));
+            $this->assertFalse($app->get($name)->isHidden());
+        }
+    }
+
     public function testApp(): void
     {
         $app = new Application();

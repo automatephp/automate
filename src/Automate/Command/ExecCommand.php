@@ -11,8 +11,12 @@
 
 namespace Automate\Command;
 
+use Automate\Archiver;
 use Automate\Loader;
 use Automate\Ssh\Ssh;
+use Automate\Ssh\SshFactory;
+use Automate\Workflow\Context;
+use Automate\Workflow\Session;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,18 +28,18 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'exec',
-    description: 'Exec ssh command',
+    description: 'Run a command on one server of a platform',
 )]
 class ExecCommand extends BaseCommand
 {
     protected function configure(): void
     {
         $this
-            ->setHidden()
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
-            ->addArgument('server', InputArgument::REQUIRED, 'server name')
+            ->addArgument('server', InputArgument::REQUIRED, 'Server name')
             ->addArgument('cmd', InputArgument::REQUIRED, 'Command')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
+            ->addOption('current', null, InputOption::VALUE_NONE, 'Run the command in the current release, with the AUTOMATE_* variables of the hooks')
             ->addVariableOption();
     }
 
@@ -50,12 +54,30 @@ class ExecCommand extends BaseCommand
         $server = $platform->getServer($input->getArgument('server'));
         $command = $input->getArgument('cmd');
 
-        $ssh = new Ssh($platform, $server, $variableResolver->getEnvVariables(), $input->getOption('config'));
-        $ssh->login();
+        if ($input->getOption('current')) {
+            $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+            $context = new Context($project, $platform, $this->getLogger($io, $variableResolver), $sshFactory, new Archiver(), variables: $variableResolver->getHookVariables(), phase: 'exec');
+            $context->connect($server->getName());
+
+            $run = static function () use ($context, $command): string {
+                $rs = '';
+                $context->exec(static function (Session $session) use ($command, &$rs): void {
+                    $session = $session->withCurrentRelease();
+                    $rs = $session->exec($command, workingDir: $session->getCurrentPath());
+                });
+
+                return $rs;
+            };
+        } else {
+            // internal usage of the asynchronous hooks: a raw command, nothing added
+            $ssh = new Ssh($platform, $server, $variableResolver->getEnvVariables(), $input->getOption('config'));
+            $ssh->login();
+
+            $run = static fn (): string => $ssh->exec($command);
+        }
 
         try {
-            $rs = $ssh->exec($command);
-            $output->write($rs);
+            $output->write($run());
         } catch (\Exception $exception) {
             // the parent process reports the failure of an asynchronous hook
             // from the error output: writing there is what makes the reason
