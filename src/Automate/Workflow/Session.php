@@ -24,6 +24,8 @@ readonly class Session
 
     private const string RELEASES_FOLDER = 'releases';
 
+    private const string RELEASE_ID_PATTERN = '/^\d{4}\.\d{2}\.\d{2}-\d{4}\.\d{3}$/';
+
     /**
      * @param array<string, string> $environment exported, on top of the release paths, to the commands run in the release directory
      */
@@ -33,6 +35,15 @@ readonly class Session
         private string $releaseId,
         private array $environment = [],
     ) {
+    }
+
+    /**
+     * Whether the folder name of this path is a release id. Only the name is
+     * checked: the server path itself may contain a date-like segment.
+     */
+    public static function isReleaseId(string $path): bool
+    {
+        return 1 === preg_match(self::RELEASE_ID_PATTERN, basename(trim($path)));
     }
 
     public function login(): void
