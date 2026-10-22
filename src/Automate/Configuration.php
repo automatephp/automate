@@ -34,17 +34,18 @@ readonly class Configuration implements ConfigurationInterface
                 ->append($this->addCommandsNode('on_first_deploy'))
                 ->append($this->addCommandsNode('on_deploy'))
                 ->append($this->addCommandsNode('post_deploy'))
+                ->append($this->addCommandsNode('on_remove', allowUpload: false))
                 ->append($this->addPlatformsNode())
             ->end();
 
         return $treeBuilder;
     }
 
-    private function addCommandsNode(string $name): NodeDefinition
+    private function addCommandsNode(string $name, bool $allowUpload = true): NodeDefinition
     {
         $treeBuilder = new TreeBuilder($name);
 
-        return $treeBuilder->getRootNode()
+        $prototype = $treeBuilder->getRootNode()
             ->arrayPrototype()
                 ->beforeNormalization()
                     ->ifString()
@@ -62,8 +63,17 @@ readonly class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
-                ->end()
-            ->end();
+                ->end();
+
+        if (!$allowUpload) {
+            $prototype
+                ->validate()
+                    ->ifTrue(static fn(array $action): bool => isset($action['upload']))
+                    ->thenInvalid(sprintf('The "upload" action is not supported in "%s", only commands are.', $name))
+                ->end();
+        }
+
+        return $prototype->end();
     }
 
     private function addPlatformsNode(): NodeDefinition

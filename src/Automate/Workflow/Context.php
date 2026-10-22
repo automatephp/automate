@@ -31,6 +31,7 @@ class Context
 
     /**
      * @param array<string, string> $variables user variables exposed to the hooks as AUTOMATE__<name>
+     * @param string                $phase     'deploy', 'remove' or 'exec', exported to the hooks as AUTOMATE_PHASE
      */
     public function __construct(
         private readonly Project $project,
@@ -42,25 +43,40 @@ class Context
         private readonly bool $force = false,
         protected ?string $releaseId = null,
         private readonly array $variables = [],
+        private readonly string $phase = 'deploy',
     ) {
         if (!$this->releaseId) {
             $this->generateReleaseId();
         }
     }
 
-    public function connect(): void
+    /**
+     * @param ?string $serverName connect to this server only, to every server of the platform by default
+     */
+    public function connect(?string $serverName = null): void
     {
         foreach ($this->platform->getServers() as $server) {
+            if (null !== $serverName && $server->getName() !== $serverName) {
+                continue;
+            }
+
             $ssh = $this->sshFactory->create($server);
             $session = new Session($server, $ssh, $this->getReleaseId(), $this->getHookEnvironment($server));
             $session->login();
 
-            $session = $session->withFirstDeploy(!$session->hasReleases());
-            if ($session->isFirstDeploy()) {
-                $this->logger->info('First deployment', $server);
+            // only a deployment cares, and the lookup costs SSH round trips
+            if ('deploy' === $this->phase) {
+                $session = $session->withFirstDeploy(!$session->hasReleases());
+                if ($session->isFirstDeploy()) {
+                    $this->logger->info('First deployment', $server);
+                }
             }
 
             $this->sessions[$server->getName()] = $session;
+        }
+
+        if (null !== $serverName && !isset($this->sessions[$serverName])) {
+            throw new \InvalidArgumentException(sprintf('Missing server %s', $serverName));
         }
     }
 
@@ -70,10 +86,14 @@ class Context
     private function getHookEnvironment(Server $server): array
     {
         $environment = [
+            'AUTOMATE_PHASE' => $this->phase,
             'AUTOMATE_PLATFORM' => (string) $this->platform->getName(),
             'AUTOMATE_SERVER' => (string) $server->getName(),
-            'AUTOMATE_GIT_REF' => (string) ($this->gitRef ?? $this->platform->getDefaultBranch()),
         ];
+
+        if ('deploy' === $this->phase) {
+            $environment['AUTOMATE_GIT_REF'] = (string) ($this->gitRef ?? $this->platform->getDefaultBranch());
+        }
 
         foreach ($this->variables as $name => $value) {
             $environment['AUTOMATE__'.$name] = $value;

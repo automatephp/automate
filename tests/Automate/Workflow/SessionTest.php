@@ -93,6 +93,43 @@ class SessionTest extends AbstractMockTestCase
         $session->execAsync('ls');
     }
 
+    public function testExecCommandInAnotherWorkingDir(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with(self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0'; cd /var/www/current && ls")->once();
+
+        $this->getSession($ssh)->exec('ls', workingDir: '/var/www/current');
+    }
+
+    public function testWithReleaseIdChangesTheReleasePathAndKeepsTheEnvironment(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with(\Mockery::on(static fn (string $command): bool => str_contains($command, "AUTOMATE_RELEASE_ID='2024.01.01-0000.001'") && str_contains($command, "AUTOMATE_PLATFORM='review'")))->once();
+
+        $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review'])->withReleaseId('2024.01.01-0000.001');
+
+        $this->assertEquals('/var/www/releases/2024.01.01-0000.001', $session->getReleasePath());
+        $session->exec('ls');
+    }
+
+    public function testWithCurrentReleaseFollowsTheCurrentSymlink(): void
+    {
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('exec')->with('readlink /var/www/current || true')->once()->andReturns("/var/www/releases/2024.01.01-0000.001\n");
+
+        $session = $this->getSession($ssh)->withCurrentRelease();
+
+        $this->assertEquals('/var/www/releases/2024.01.01-0000.001', $session->getReleasePath());
+    }
+
+    public function testWithCurrentReleaseIsUnchangedWithoutSymlink(): void
+    {
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('exec')->with('readlink /var/www/current || true')->once()->andReturns('');
+
+        $this->assertEquals('/var/www/releases/2024.03.10-2340.241', $this->getSession($ssh)->withCurrentRelease()->getReleasePath());
+    }
+
     public function testMkdir(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
@@ -140,10 +177,13 @@ class SessionTest extends AbstractMockTestCase
         $session->rm('/home/a.txt');
     }
 
-    public function testFolderExists(): void
+    /**
+     * A single round trip that also sees a dangling symlink.
+     */
+    public function testExists(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
-        $ssh->expects('exec')->with('if test -d "/home/test"; then echo "Y";fi')->once()->andReturns('Y');
+        $ssh->expects('exec')->with('if test -e "/home/test" || test -L "/home/test"; then echo "Y";fi')->once()->andReturns("Y\n");
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session = $this->getSession($ssh);
@@ -151,16 +191,15 @@ class SessionTest extends AbstractMockTestCase
         $this->assertTrue($session->exists('/home/test'));
     }
 
-    public function testFileExists(): void
+    public function testDoesNotExist(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
-        $ssh->expects('exec')->with('if test -d "/home/test.txt"; then echo "Y";fi')->once()->andReturns('');
-        $ssh->expects('exec')->with('if test -f "/home/test.txt"; then echo "Y";fi')->once()->andReturns('Y');
+        $ssh->expects('exec')->with('if test -e "/home/missing" || test -L "/home/missing"; then echo "Y";fi')->once()->andReturns('');
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
         $session = $this->getSession($ssh);
 
-        $this->assertTrue($session->exists('/home/test.txt'));
+        $this->assertFalse($session->exists('/home/missing'));
     }
 
     public function testSymlink(): void
@@ -200,8 +239,7 @@ class SessionTest extends AbstractMockTestCase
     public function testHasReleasesIsFalseWithoutReleasesFolder(): void
     {
         $ssh = \Mockery::mock(Ssh::class);
-        $ssh->shouldReceive('exec')->with('if test -d "/var/www/releases"; then echo "Y";fi')->once()->andReturns('');
-        $ssh->shouldReceive('exec')->with('if test -f "/var/www/releases"; then echo "Y";fi')->once()->andReturns('');
+        $ssh->shouldReceive('exec')->with('if test -e "/var/www/releases" || test -L "/var/www/releases"; then echo "Y";fi')->once()->andReturns('');
 
         $this->assertFalse($this->getSession($ssh)->hasReleases());
     }
@@ -209,7 +247,7 @@ class SessionTest extends AbstractMockTestCase
     public function testHasReleasesIgnoresTheFailedRelease(): void
     {
         $ssh = \Mockery::mock(Ssh::class);
-        $ssh->shouldReceive('exec')->with('if test -d "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
+        $ssh->shouldReceive('exec')->with('if test -e "/var/www/releases" || test -L "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
         $ssh->shouldReceive('exec')->with('find /var/www/releases -maxdepth 1 -mindepth 1 -type d')->andReturns('/var/www/releases/failed');
 
         $this->assertFalse($this->getSession($ssh)->hasReleases());
@@ -218,7 +256,7 @@ class SessionTest extends AbstractMockTestCase
     public function testHasReleasesWithASuccessfulRelease(): void
     {
         $ssh = \Mockery::mock(Ssh::class);
-        $ssh->shouldReceive('exec')->with('if test -d "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
+        $ssh->shouldReceive('exec')->with('if test -e "/var/www/releases" || test -L "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
         $ssh->shouldReceive('exec')->with('find /var/www/releases -maxdepth 1 -mindepth 1 -type d')->andReturns("/var/www/releases/failed\n/var/www/releases/2024.03.09-1200.123");
 
         $this->assertTrue($this->getSession($ssh)->hasReleases());
@@ -231,7 +269,7 @@ class SessionTest extends AbstractMockTestCase
     public function testHasReleasesIgnoresTheFailedReleaseWhenThePathLooksLikeARelease(): void
     {
         $ssh = \Mockery::mock(Ssh::class);
-        $ssh->shouldReceive('exec')->with('if test -d "/srv/2024.01.01-1200.123/app/releases"; then echo "Y";fi')->andReturns('Y');
+        $ssh->shouldReceive('exec')->with('if test -e "/srv/2024.01.01-1200.123/app/releases" || test -L "/srv/2024.01.01-1200.123/app/releases"; then echo "Y";fi')->andReturns('Y');
         $ssh->shouldReceive('exec')->with('find /srv/2024.01.01-1200.123/app/releases -maxdepth 1 -mindepth 1 -type d')->andReturns('/srv/2024.01.01-1200.123/app/releases/failed');
 
         $this->assertFalse($this->getSession($ssh, path: '/srv/2024.01.01-1200.123/app')->hasReleases());

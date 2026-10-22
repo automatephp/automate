@@ -117,10 +117,48 @@ class ContextTest extends AbstractMockTestCase
         $this->assertStringContainsString("AUTOMATE_GIT_REF='master'", $this->runHook(null, []));
     }
 
+    public function testRemovalHooksExposeThePhaseAndNoGitRef(): void
+    {
+        $command = $this->runHook('feat/x', [], 'remove');
+
+        $this->assertStringContainsString("AUTOMATE_PHASE='remove'", $command);
+        $this->assertStringNotContainsString('AUTOMATE_GIT_REF', $command);
+        $this->assertStringContainsString("AUTOMATE_PHASE='deploy'", $this->runHook(null, []));
+    }
+
+    public function testConnectCanTargetASingleServer(): void
+    {
+        $platform = new Platform(name: 'review', defaultBranch: 'master');
+        $platform->addServer(new Server(name: 'a', path: '/srv/a'));
+        $platform->addServer(new Server(name: 'b', path: '/srv/b'));
+
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('login')->once();
+        $ssh->shouldReceive('exec')->andReturns('');
+        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory->shouldReceive('create')->once()->with(\Mockery::on(static fn (Server $server): bool => 'b' === $server->getName()))->andReturns($ssh);
+
+        (new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver()))->connect('b');
+    }
+
+    public function testConnectRejectsAnUnknownServer(): void
+    {
+        $platform = new Platform(name: 'review', defaultBranch: 'master');
+        $platform->addServer(new Server(name: 'a', path: '/srv/a'));
+
+        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory->shouldNotReceive('create');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Missing server c');
+
+        (new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver()))->connect('c');
+    }
+
     /**
      * @param array<string, string> $variables
      */
-    private function runHook(?string $gitRef, array $variables): string
+    private function runHook(?string $gitRef, array $variables, string $phase = 'deploy'): string
     {
         $server = new Server(name: 'vm', path: '/srv/review', password: 's3cret');
         $platform = new Platform(name: 'review', defaultBranch: 'master');
@@ -137,7 +175,7 @@ class ContextTest extends AbstractMockTestCase
         $sshFactory = \Mockery::mock(SshFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
-        $context = new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), $gitRef, releaseId: '2024.03.10-2340.241', variables: $variables);
+        $context = new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), $gitRef, releaseId: '2024.03.10-2340.241', variables: $variables, phase: $phase);
         $context->connect();
         $context->exec('./hook.sh');
 
@@ -159,7 +197,7 @@ class ContextTest extends AbstractMockTestCase
                 $executed[$server->getName()][] = $command;
 
                 return match (true) {
-                    'old' === $server->getName() && str_contains($command, 'test -d') => 'Y',
+                    'old' === $server->getName() && str_contains($command, 'test -e') => 'Y',
                     'old' === $server->getName() && str_starts_with($command, 'find') => '/srv/old/releases/2024.03.09-1200.123',
                     default => '',
                 };
@@ -177,5 +215,22 @@ class ContextTest extends AbstractMockTestCase
         $this->assertStringContainsString("AUTOMATE_FIRST_DEPLOY='1'", end($executed['new']));
         $this->assertStringContainsString("AUTOMATE_FIRST_DEPLOY='0'", end($executed['old']));
         $logger->shouldHaveReceived('info')->with('First deployment', \Mockery::on(static fn (Server $server): bool => 'new' === $server->getName()))->once();
+    }
+
+    public function testFirstDeploymentIsNotLookedUpOutsideOfADeployment(): void
+    {
+        $platform = new Platform(name: 'review', defaultBranch: 'master');
+        $platform->addServer(new Server(name: 'vm', path: '/srv/review'));
+
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('login')->once();
+        $ssh->shouldNotReceive('exec');
+        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory->shouldReceive('create')->andReturns($ssh);
+
+        $logger = \Mockery::spy(LoggerInterface::class);
+        (new Context(new Project(), $platform, $logger, $sshFactory, new Archiver(), phase: 'remove'))->connect();
+
+        $logger->shouldNotHaveReceived('info');
     }
 }

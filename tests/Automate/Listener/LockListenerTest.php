@@ -52,7 +52,7 @@ class LockListenerTest extends AbstractMockTestCase
 
         // the second server already holds a lock file
         $second->shouldReceive('exec')
-            ->with(sprintf('if test -f "%s"; then echo "Y";fi', self::LOCK_FILE))
+            ->with(sprintf('if test -e "%s" || test -L "%s"; then echo "Y";fi', self::LOCK_FILE, self::LOCK_FILE))
             ->andReturns('Y');
 
         $listener = new LockListener();
@@ -60,8 +60,8 @@ class LockListenerTest extends AbstractMockTestCase
         try {
             $listener->initLockFile(new DeployEvent($context));
             $this->fail('Expected the deployment to be rejected.');
-        } catch (\RuntimeException $exception) {
-            $this->assertSame('A deployment is already in progress', $exception->getMessage());
+        } catch (\RuntimeException $runtimeException) {
+            $this->assertSame('A deployment or a removal is already in progress', $runtimeException->getMessage());
         }
 
         $listener->clearLockFile(new DeployEvent($context));

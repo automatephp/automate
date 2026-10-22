@@ -70,7 +70,7 @@ post_deploy:
 
 Values are looked up in this order:
 
-1. the `--var name=value` option of `deploy`, `exec` and `check` (repeatable): `automate deploy review my-branch --var slug=my-branch`
+1. the `--var name=value` option of `deploy`, `check`, `remove` and `exec` (repeatable): `automate deploy review my-branch --var slug=my-branch`
 2. the environment variable `AUTOMATE__name`
 3. for a `password` only: an interactive prompt (the whole value must be `%name%`, with any name such as `%PROD_PASSWORD%`; any other password is used as is)
 
@@ -190,13 +190,31 @@ Hook commands run with these environment variables:
 
 | Variable | Value |
 |---|---|
+| `AUTOMATE_PHASE` | `deploy` for the deployment hooks, `remove` for `on_remove`, `exec` for `automate exec --current` |
 | `AUTOMATE_PLATFORM` | platform name |
 | `AUTOMATE_SERVER` | name of the server the command runs on |
-| `AUTOMATE_GIT_REF` | git reference given to `deploy`, or the platform `default_branch` |
+| `AUTOMATE_GIT_REF` | git reference given to `deploy`, or the platform `default_branch` (deployment hooks only) |
 | `AUTOMATE_RELEASE_ID` | release identifier, e.g. `2026.10.12-1715.123` |
 | `AUTOMATE_RELEASE_PATH` | `<path>/releases/<release id>` |
 | `AUTOMATE_RELEASES_PATH` | `<path>/releases` |
 | `AUTOMATE_SHARED_PATH` | `shared_path`, or `<path>/shared` |
 | `AUTOMATE_CURRENT_PATH` | `<path>/current` |
-| `AUTOMATE_FIRST_DEPLOY` | `1` if no release has been deployed yet on this server, `0` otherwise |
+| `AUTOMATE_FIRST_DEPLOY` | `1` if no release has been deployed yet on this server, `0` otherwise (always `0` outside of a deployment) |
 | `AUTOMATE__<name>` | each variable given with `--var` or resolved from the configuration, except those used as a `password` |
+
+During `on_remove` and `exec --current`, the `AUTOMATE_RELEASE_*` variables describe the release that `current` points to.
+
+### 7. Removal Hook
+
+**on_remove:** the list of commands launched on remote servers by `automate remove`, in the `current` release and
+**before** anything is deleted. Use it to stop what the project started (containers, cron jobs, workers, ...).
+It accepts commands and the `only` option, but no `upload` action.
+
+~~~~yaml
+on_remove:
+    - "docker compose down --volumes"
+    - cmd: "crontab -r"
+      only: ['dddv-exemple-front-01']
+~~~~
+
+If a command fails, nothing is deleted. Hooks are skipped on a server that has no `current` release.

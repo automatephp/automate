@@ -14,6 +14,7 @@ namespace Automate;
 use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
 use Automate\Command\ExecCommand;
+use Automate\Command\RemoveCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
@@ -46,6 +47,7 @@ class Application extends BaseApplication
         $commands[] = new DeployCommand();
         $commands[] = new CheckCommand();
         $commands[] = new ExecCommand();
+        $commands[] = new RemoveCommand();
 
         return $commands;
     }
