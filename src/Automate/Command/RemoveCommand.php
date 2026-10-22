@@ -55,7 +55,7 @@ class RemoveCommand extends BaseCommand
 
         $servers = [];
         foreach ($platform->getServers() as $server) {
-            $servers[] = sprintf('%s (%s): %s', $server->getName(), $server->getHost(), $server->getPath());
+            $servers[] = sprintf('%s (%s): %s', $server->getName(), $server->getLocation(), $server->getPath());
         }
 
         $rows = [

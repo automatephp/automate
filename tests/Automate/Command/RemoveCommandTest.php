@@ -36,4 +36,17 @@ class RemoveCommandTest extends TestCase
         $this->assertMatchesRegularExpression('/Variables\s+slug/', $tester->getDisplay());
         $this->assertStringNotContainsString('feat-x', $tester->getDisplay());
     }
+
+    public function testSummaryShowsTheLocalServers(): void
+    {
+        $tester = new CommandTester((new Application())->get('remove'));
+
+        $status = $tester->execute(
+            ['platform' => 'development', '--config' => __DIR__.'/../../fixtures/local.yml'],
+            ['interactive' => false],
+        );
+
+        $this->assertSame(Command::FAILURE, $status);
+        $this->assertStringContainsString('self (local): /home/wwwroot/automate/demo', $tester->getDisplay());
+    }
 }

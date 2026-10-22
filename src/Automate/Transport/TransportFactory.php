@@ -28,6 +28,10 @@ class TransportFactory
 
     public function create(Server $server): TransportInterface
     {
+        if ($server->isLocal()) {
+            return new LocalTransport();
+        }
+
         return new SshTransport($this->platform, $server, $this->variables, $this->configFile);
     }
 }

@@ -87,7 +87,7 @@ class DeployCommand extends BaseCommand
     {
         $servers = [];
         foreach ($platform->getServers() as $server) {
-            $servers[] = sprintf('%s (%s)', $server->getName(), $server->getHost());
+            $servers[] = sprintf('%s (%s)', $server->getName(), $server->getLocation());
         }
 
         return implode("\n", $servers);

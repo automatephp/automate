@@ -22,6 +22,7 @@ class Server
         private ?string $path = null,
         private ?string $sharedPath = null,
         private ?int $port = null,
+        private Transport $transport = Transport::Ssh,
     ) {
     }
 
@@ -119,5 +120,30 @@ class Server
         $this->port = $port;
 
         return $this;
+    }
+
+    public function getTransport(): Transport
+    {
+        return $this->transport;
+    }
+
+    public function setTransport(Transport $transport): self
+    {
+        $this->transport = $transport;
+
+        return $this;
+    }
+
+    public function isLocal(): bool
+    {
+        return Transport::Local === $this->transport;
+    }
+
+    /**
+     * Where the server is, for the summaries of the commands.
+     */
+    public function getLocation(): string
+    {
+        return $this->isLocal() ? Transport::Local->value : (string) $this->host;
     }
 }

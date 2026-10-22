@@ -1,0 +1,8 @@
+platforms:
+    development:
+        default_branch: master
+        servers:
+            self:
+                transport: local
+                user: www-data
+                path: /home/wwwroot/automate/demo
