@@ -112,13 +112,41 @@ shared_folders:
 
 ### 6. Deployment Hooks
 
-Automate supports three types of deployment hooks to execute actions at different stages of the deployment process:
+Automate supports four types of deployment hooks to execute actions at different stages of the deployment process:
 
 1. **pre_deploy:** List of actions to be executed on remote servers after downloading sources and before setting up shared folders and files.
 
-2. **on_deploy:** The list of commands to be launched on remote servers **before deployment**.
+2. **on_first_deploy:** List of actions executed **only on the servers where no release has been deployed yet**, after setting up shared folders and files and before `on_deploy`. Since the links to `shared` already exist, the hook can create files or folders there (a `.env.local`, a data folder, …) and `on_deploy` finds them in place.
 
-3. **post_deploy:** The list of commands to be launched on remote servers **after downloading sources** and **before** setting up shared folders and files.
+3. **on_deploy:** List of actions to be executed on remote servers after setting up shared folders and files and **before the release is published** (the `current` symbolic link still points to the previous release).
+
+4. **post_deploy:** List of actions to be executed on remote servers **after the release is published**.
+
+The steps of a deployment run in this order:
+
+1. clone the repository and checkout the requested reference
+2. `pre_deploy`
+3. setting up the shared folders and files
+4. `on_first_deploy` (new servers only)
+5. `on_deploy`
+6. publish the release (the `current` symbolic link)
+7. `post_deploy`
+8. clear the old releases
+
+#### First deployment
+
+A server is in its first deployment when its `releases` folder contains no release. A failed release (moved to
+`releases/failed`) does not count, so the next deployment is still a first one. The detection is made
+for each server: on a platform with a new server and an already installed one, only the new server runs
+`on_first_deploy`, and `only` restricts the hook further.
+
+~~~~yaml
+on_first_deploy:
+    - 'cp .env.dist "$AUTOMATE_SHARED_PATH/.env.local"'
+~~~~
+
+Commands can also check the `AUTOMATE_FIRST_DEPLOY` variable (see below), for example from `post_deploy`:
+`if [ "$AUTOMATE_FIRST_DEPLOY" = 1 ]; then bin/console doctrine:fixtures:load -n; fi`.
 
 
 #### Types of Actions
@@ -170,4 +198,5 @@ Hook commands run with these environment variables:
 | `AUTOMATE_RELEASES_PATH` | `<path>/releases` |
 | `AUTOMATE_SHARED_PATH` | `shared_path`, or `<path>/shared` |
 | `AUTOMATE_CURRENT_PATH` | `<path>/current` |
+| `AUTOMATE_FIRST_DEPLOY` | `1` if no release has been deployed yet on this server, `0` otherwise |
 | `AUTOMATE__<name>` | each variable given with `--var` or resolved from the configuration, except those used as a `password` |
