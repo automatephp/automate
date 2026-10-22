@@ -65,20 +65,25 @@ platforms:
                 path: /srv/review/%slug%
 
 post_deploy:
-    - "bash deploy.sh %slug%"
+    - "bash deploy.sh"   # reads $AUTOMATE__slug and $AUTOMATE_RELEASE_PATH
 ~~~~
 
 Values are looked up in this order:
 
 1. the `--var name=value` option of `deploy`, `exec` and `check` (repeatable): `automate deploy review my-branch --var slug=my-branch`
 2. the environment variable `AUTOMATE__name`
-3. for a `password` only: an interactive prompt (the whole value must be `%name%`; any other password is used as is)
+3. for a `password` only: an interactive prompt (the whole value must be `%name%`, with any name such as `%PROD_PASSWORD%`; any other password is used as is)
 
 Any other variable that cannot be resolved stops the command with an error naming the configuration key.
 Only the requested platform is resolved, the variables of the other platforms are not needed.
 
-Write `%%` to get a literal `%`. Beware of commands that contain a valid token, such as `date +%Y%m%d` (`%m%` is a token):
-write `date +%%Y%%m%%d` instead. Quote the YAML value when it starts with `%`.
+`--var` does not accept an empty value.
+
+Write `%%` to get a literal `%`. Beware of commands that contain a valid token, such as `date +%Y%m%d` (`%m%` is a token)
+or `printf '%s%s'` (`%s%` is a token): write `date +%%Y%%m%%d` and `printf '%%s%%s'` instead. Quote the YAML value when it starts with `%`.
+
+The deploy summary only lists the names of the variables, and their values are replaced by their `%name%` token in the
+commands printed in the console. They are still exported to the hooks (see "Hook environment").
 
 Values are inserted as is, without shell escaping: use trusted values or reference them in a command through the
 environment (`"$AUTOMATE__slug"`, see "Deployment Hooks").
