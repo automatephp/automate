@@ -77,7 +77,7 @@ class ClearListener implements EventSubscriberInterface
             $releases = array_map('trim', $releases);
             rsort($releases);
             // ignore others folders
-            $releases = array_filter($releases, static fn ($release): int|false => preg_match('/\d{4}\.\d{2}\.\d{2}-\d{4}\./', (string) $release));
+            $releases = array_filter($releases, Session::isReleaseId(...));
             $keep = $context->getPlatform()->getMaxReleases();
             while ($keep > 0) {
                 array_shift($releases);

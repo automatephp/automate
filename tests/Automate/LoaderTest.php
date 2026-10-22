@@ -89,6 +89,15 @@ class LoaderTest extends TestCase
         $this->assertEquals('/home/wwwroot/automate/demo', $server->getPath());
     }
 
+    public function testFirstDeployHookLoader(): void
+    {
+        $project = (new Loader())->load(__DIR__.'/../fixtures/first_deploy.yml');
+
+        $this->assertCount(3, $project->getOnFirstDeploy());
+        $this->assertSame('echo first', $project->getOnFirstDeploy()[0]->getCmd());
+        $this->assertSame(['web2'], $project->getOnFirstDeploy()[1]->getOnly());
+    }
+
     public function testSharedPathLoader(): void
     {
         $loader = new Loader();

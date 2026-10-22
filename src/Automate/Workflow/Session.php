@@ -24,6 +24,8 @@ readonly class Session
 
     private const string RELEASES_FOLDER = 'releases';
 
+    private const string RELEASE_ID_PATTERN = '/^\d{4}\.\d{2}\.\d{2}-\d{4}\.\d{3}$/';
+
     /**
      * @param array<string, string> $environment exported, on top of the release paths, to the commands run in the release directory
      */
@@ -32,7 +34,45 @@ readonly class Session
         private Ssh $ssh,
         private string $releaseId,
         private array $environment = [],
+        private bool $firstDeploy = false,
     ) {
+    }
+
+    public function withFirstDeploy(bool $firstDeploy): self
+    {
+        return new self($this->server, $this->ssh, $this->releaseId, $this->environment, $firstDeploy);
+    }
+
+    public function isFirstDeploy(): bool
+    {
+        return $this->firstDeploy;
+    }
+
+    /**
+     * Whether the folder name of this path is a release id. Only the name is
+     * checked: the server path itself may contain a date-like segment.
+     */
+    public static function isReleaseId(string $path): bool
+    {
+        return 1 === preg_match(self::RELEASE_ID_PATTERN, basename(trim($path)));
+    }
+
+    /**
+     * Whether at least one release exists (releases/failed does not count).
+     */
+    public function hasReleases(): bool
+    {
+        if (!$this->exists($this->getReleasesPath())) {
+            return false;
+        }
+
+        foreach ($this->listDirectory($this->getReleasesPath()) as $release) {
+            if (self::isReleaseId($release)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function login(): void
@@ -66,6 +106,7 @@ readonly class Session
             'AUTOMATE_RELEASES_PATH' => $this->getReleasesPath(),
             'AUTOMATE_SHARED_PATH' => $this->getSharedPath(),
             'AUTOMATE_CURRENT_PATH' => $this->getCurrentPath(),
+            'AUTOMATE_FIRST_DEPLOY' => $this->firstDeploy ? '1' : '0',
             ...$this->environment,
         ];
 

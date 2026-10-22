@@ -31,6 +31,7 @@ readonly class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->append($this->addCommandsNode('pre_deploy'))
+                ->append($this->addCommandsNode('on_first_deploy'))
                 ->append($this->addCommandsNode('on_deploy'))
                 ->append($this->addCommandsNode('post_deploy'))
                 ->append($this->addPlatformsNode())

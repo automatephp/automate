@@ -17,6 +17,7 @@ class Project
      * @param string[]                $sharedFiles
      * @param string[]                $sharedFolders
      * @param Action[]                $preDeploy
+     * @param Action[]                $onFirstDeploy
      * @param Action[]                $onDeploy
      * @param Action[]                $postDeploy
      * @param array<string, Platform> $platforms
@@ -26,6 +27,7 @@ class Project
         private array $sharedFiles = [],
         private array $sharedFolders = [],
         private array $preDeploy = [],
+        private array $onFirstDeploy = [],
         private array $onDeploy = [],
         private array $postDeploy = [],
         private array $platforms = [],
@@ -94,6 +96,24 @@ class Project
     public function setPreDeploy(array $preDeploy): self
     {
         $this->preDeploy = $preDeploy;
+
+        return $this;
+    }
+
+    /**
+     * @return Action[]
+     */
+    public function getOnFirstDeploy(): array
+    {
+        return $this->onFirstDeploy;
+    }
+
+    /**
+     * @param Action[] $onFirstDeploy
+     */
+    public function setOnFirstDeploy(array $onFirstDeploy): self
+    {
+        $this->onFirstDeploy = $onFirstDeploy;
 
         return $this;
     }

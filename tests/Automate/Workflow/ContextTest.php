@@ -141,8 +141,41 @@ class ContextTest extends AbstractMockTestCase
         $context->connect();
         $context->exec('./hook.sh');
 
-        $this->assertCount(1, $executed);
+        return end($executed);
+    }
 
-        return $executed[0];
+    public function testFirstDeploymentIsDetectedPerServer(): void
+    {
+        $platform = new Platform(name: 'prod', defaultBranch: 'master');
+        $platform->addServer(new Server(name: 'new', path: '/srv/new'));
+        $platform->addServer(new Server(name: 'old', path: '/srv/old'));
+
+        $executed = [];
+        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory->shouldReceive('create')->andReturnUsing(static function (Server $server) use (&$executed): Ssh {
+            $ssh = \Mockery::mock(Ssh::class);
+            $ssh->shouldReceive('login');
+            $ssh->shouldReceive('exec')->andReturnUsing(static function (string $command) use ($server, &$executed): string {
+                $executed[$server->getName()][] = $command;
+
+                return match (true) {
+                    'old' === $server->getName() && str_contains($command, 'test -d') => 'Y',
+                    'old' === $server->getName() && str_starts_with($command, 'find') => '/srv/old/releases/2024.03.09-1200.123',
+                    default => '',
+                };
+            });
+
+            return $ssh;
+        });
+
+        $logger = \Mockery::spy(LoggerInterface::class);
+        $context = new Context(new Project(), $platform, $logger, $sshFactory, new Archiver(), releaseId: '2024.03.10-2340.241', variables: ['slug' => 'x']);
+        $context->connect();
+        $context->exec('./hook.sh');
+
+        $this->assertSame(['new'], $context->getFirstDeployServers());
+        $this->assertStringContainsString("AUTOMATE_FIRST_DEPLOY='1'", end($executed['new']));
+        $this->assertStringContainsString("AUTOMATE_FIRST_DEPLOY='0'", end($executed['old']));
+        $logger->shouldHaveReceived('info')->with('First deployment', \Mockery::on(static fn (Server $server): bool => 'new' === $server->getName()))->once();
     }
 }

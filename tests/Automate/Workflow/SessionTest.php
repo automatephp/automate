@@ -6,6 +6,7 @@ use Automate\Model\Server;
 use Automate\Ssh\Ssh;
 use Automate\Tests\AbstractMockTestCase;
 use Automate\Workflow\Session;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
 
 class SessionTest extends AbstractMockTestCase
@@ -41,7 +42,7 @@ class SessionTest extends AbstractMockTestCase
     public function testExecCommandWithWorkingDir(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
-        $ssh->expects('exec')->with(self::RELEASE_EXPORTS.'; cd /var/www/releases/2024.03.10-2340.241 && ls')->once();
+        $ssh->expects('exec')->with(self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0'; cd /var/www/releases/2024.03.10-2340.241 && ls")->once();
 
         $session = $this->getSession($ssh);
 
@@ -52,7 +53,7 @@ class SessionTest extends AbstractMockTestCase
     {
         $ssh = \Mockery::spy(Ssh::class);
         $ssh->expects('exec')->with(
-            self::RELEASE_EXPORTS." AUTOMATE_PLATFORM='review' AUTOMATE__slug='feat-x'; cd /var/www/releases/2024.03.10-2340.241 && ls"
+            self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0' AUTOMATE_PLATFORM='review' AUTOMATE__slug='feat-x'; cd /var/www/releases/2024.03.10-2340.241 && ls"
         )->once();
 
         $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review', 'AUTOMATE__slug' => 'feat-x']);
@@ -84,7 +85,7 @@ class SessionTest extends AbstractMockTestCase
     {
         $ssh = \Mockery::spy(Ssh::class);
         $ssh->expects('execAsync')->with(
-            self::RELEASE_EXPORTS." AUTOMATE_PLATFORM='review'; cd /var/www/releases/2024.03.10-2340.241 && ls"
+            self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0' AUTOMATE_PLATFORM='review'; cd /var/www/releases/2024.03.10-2340.241 && ls"
         )->once()->andReturns(new Process(['true']));
 
         $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review']);
@@ -196,12 +197,83 @@ class SessionTest extends AbstractMockTestCase
         $session->listDirectory('/data');
     }
 
+    public function testHasReleasesIsFalseWithoutReleasesFolder(): void
+    {
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('exec')->with('if test -d "/var/www/releases"; then echo "Y";fi')->once()->andReturns('');
+        $ssh->shouldReceive('exec')->with('if test -f "/var/www/releases"; then echo "Y";fi')->once()->andReturns('');
+
+        $this->assertFalse($this->getSession($ssh)->hasReleases());
+    }
+
+    public function testHasReleasesIgnoresTheFailedRelease(): void
+    {
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('exec')->with('if test -d "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
+        $ssh->shouldReceive('exec')->with('find /var/www/releases -maxdepth 1 -mindepth 1 -type d')->andReturns('/var/www/releases/failed');
+
+        $this->assertFalse($this->getSession($ssh)->hasReleases());
+    }
+
+    public function testHasReleasesWithASuccessfulRelease(): void
+    {
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('exec')->with('if test -d "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
+        $ssh->shouldReceive('exec')->with('find /var/www/releases -maxdepth 1 -mindepth 1 -type d')->andReturns("/var/www/releases/failed\n/var/www/releases/2024.03.09-1200.123");
+
+        $this->assertTrue($this->getSession($ssh)->hasReleases());
+    }
+
+    /**
+     * A failed release under a server path that looks like a release id must
+     * not count as a release.
+     */
+    public function testHasReleasesIgnoresTheFailedReleaseWhenThePathLooksLikeARelease(): void
+    {
+        $ssh = \Mockery::mock(Ssh::class);
+        $ssh->shouldReceive('exec')->with('if test -d "/srv/2024.01.01-1200.123/app/releases"; then echo "Y";fi')->andReturns('Y');
+        $ssh->shouldReceive('exec')->with('find /srv/2024.01.01-1200.123/app/releases -maxdepth 1 -mindepth 1 -type d')->andReturns('/srv/2024.01.01-1200.123/app/releases/failed');
+
+        $this->assertFalse($this->getSession($ssh, path: '/srv/2024.01.01-1200.123/app')->hasReleases());
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function releaseIdProvider(): iterable
+    {
+        yield 'release id' => ['2024.03.09-1200.123', true];
+        yield 'full path' => ['/var/www/releases/2024.03.09-1200.123', true];
+        yield 'trailing new line' => ["/var/www/releases/2024.03.09-1200.123\n", true];
+        yield 'failed' => ['failed', false];
+        yield 'prefixed' => ['failed-2024.03.09-1200.123', false];
+        yield 'suffixed' => ['2024.03.09-1200.123.bak', false];
+        yield 'date-like parent only' => ['/srv/2024.01.01-1200.123/app/releases/failed', false];
+    }
+
+    #[DataProvider('releaseIdProvider')]
+    public function testIsReleaseId(string $path, bool $expected): void
+    {
+        $this->assertSame($expected, Session::isReleaseId($path));
+    }
+
+    public function testFirstDeploymentIsExportedToTheHooks(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with(\Mockery::on(static fn (string $command): bool => str_contains($command, "AUTOMATE_FIRST_DEPLOY='1'")))->once();
+
+        $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review'])->withFirstDeploy(true);
+
+        $this->assertTrue($session->isFirstDeploy());
+        $session->exec('ls');
+    }
+
     /**
      * @param array<string, string> $environment
      */
-    private function getSession(Ssh $ssh, array $environment = []): Session
+    private function getSession(Ssh $ssh, array $environment = [], string $path = '/var/www'): Session
     {
-        $server = new Server(name : 'server1', path: '/var/www');
+        $server = new Server(name : 'server1', path: $path);
 
         return new Session($server, $ssh, '2024.03.10-2340.241', $environment);
     }

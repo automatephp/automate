@@ -25,7 +25,7 @@ class Context
     protected bool $isDeployed = false;
 
     /**
-     * @var Session[]
+     * @var array<string, Session> indexed by server name
      */
     protected array $sessions = [];
 
@@ -54,6 +54,12 @@ class Context
             $ssh = $this->sshFactory->create($server);
             $session = new Session($server, $ssh, $this->getReleaseId(), $this->getHookEnvironment($server));
             $session->login();
+
+            $session = $session->withFirstDeploy(!$session->hasReleases());
+            if ($session->isFirstDeploy()) {
+                $this->logger->info('First deployment', $server);
+            }
+
             $this->sessions[$server->getName()] = $session;
         }
     }
@@ -74,6 +80,14 @@ class Context
         }
 
         return $environment;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFirstDeployServers(): array
+    {
+        return array_keys(array_filter($this->sessions, static fn (Session $session): bool => $session->isFirstDeploy()));
     }
 
     /**
