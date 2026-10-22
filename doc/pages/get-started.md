@@ -120,3 +120,35 @@ Automate will create the following directory structure to the remote server:
 
 This is the schema of all your project’s architecture    
 You have to target your domain name inside the folder ```/your/project/path/current/```.
+
+
+### 5. Removing a deployment
+
+The following command removes the project from the servers of a platform, for example to clean up a temporary environment:
+
+~~~~bash
+automate remove ‹platform› [--yes] [--force] [--keep-shared] [--var name=value] -c [path_of_config_file]
+~~~~
+
+For each server, Automate runs the `on_remove` hooks (see the reference) in the `current` release, then deletes the `releases` folder,
+the `current` link and the `shared` folder, and finally the project path itself if nothing else is left in it.
+
+* **--yes** : do not ask for confirmation. Required when the command runs without a terminal (CI).
+* **--keep-shared** : keep the shared folder (uploads, `.env.local`, ...). The project path is then kept too.
+* **--force** : ignore an existing `automate.lock` file.
+
+A `shared_path` located outside of the project path is never deleted, as other projects may use it.
+The command can be run again safely: when the project path does not exist, there is nothing to remove.
+
+### 6. Running a command on a server
+
+~~~~bash
+automate exec ‹platform› ‹server› "‹command›" [--current] [--var name=value] -c [path_of_config_file]
+~~~~
+
+By default the command runs as is on the server. With **--current**, it runs in the `current` release,
+with the same environment variables as the hooks (see "Hook environment" in the reference):
+
+~~~~bash
+automate exec production prod-exemple-front-01 "php bin/console cache:clear" --current
+~~~~
