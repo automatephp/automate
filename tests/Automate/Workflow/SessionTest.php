@@ -6,9 +6,13 @@ use Automate\Model\Server;
 use Automate\Ssh\Ssh;
 use Automate\Tests\AbstractMockTestCase;
 use Automate\Workflow\Session;
+use Symfony\Component\Process\Process;
 
 class SessionTest extends AbstractMockTestCase
 {
+    private const string RELEASE_EXPORTS = "export AUTOMATE_RELEASE_ID='2024.03.10-2340.241' AUTOMATE_RELEASE_PATH='/var/www/releases/2024.03.10-2340.241'"
+        ." AUTOMATE_RELEASES_PATH='/var/www/releases' AUTOMATE_SHARED_PATH='/var/www/shared' AUTOMATE_CURRENT_PATH='/var/www/current'";
+
     public function testSessionPath(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
@@ -37,19 +41,53 @@ class SessionTest extends AbstractMockTestCase
     public function testExecCommandWithWorkingDir(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
-        $ssh->expects('exec')->with('cd /var/www/releases/2024.03.10-2340.241 && ls');
+        $ssh->expects('exec')->with(self::RELEASE_EXPORTS.'; cd /var/www/releases/2024.03.10-2340.241 && ls')->once();
 
         $session = $this->getSession($ssh);
 
         $session->exec('ls');
     }
 
-    public function testExecAsyncCommandWithWorkingDir(): void
+    public function testExecCommandExportsTheEnvironment(): void
     {
         $ssh = \Mockery::spy(Ssh::class);
-        $ssh->expects('execAsync')->with('cd /var/www/releases/2024.03.10-2340.241 && ls');
+        $ssh->expects('exec')->with(
+            self::RELEASE_EXPORTS." AUTOMATE_PLATFORM='review' AUTOMATE__slug='feat-x'; cd /var/www/releases/2024.03.10-2340.241 && ls"
+        )->once();
 
-        $session = $this->getSession($ssh);
+        $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review', 'AUTOMATE__slug' => 'feat-x']);
+
+        $session->exec('ls');
+    }
+
+    public function testExecCommandEscapesSingleQuotesInTheEnvironment(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with(\Mockery::on(static fn (string $command): bool => str_contains($command, "AUTOMATE__x='a'\\''; rm -rf /; echo '\\''b'")))->once();
+
+        $session = $this->getSession($ssh, ['AUTOMATE__x' => "a'; rm -rf /; echo 'b"]);
+
+        $session->exec('ls');
+    }
+
+    public function testInternalCommandsDoNotExportTheEnvironment(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('exec')->with('ls')->once();
+
+        $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review']);
+
+        $session->exec('ls', false);
+    }
+
+    public function testExecAsyncExportsTheEnvironment(): void
+    {
+        $ssh = \Mockery::spy(Ssh::class);
+        $ssh->expects('execAsync')->with(
+            self::RELEASE_EXPORTS." AUTOMATE_PLATFORM='review'; cd /var/www/releases/2024.03.10-2340.241 && ls"
+        )->once()->andReturns(new Process(['true']));
+
+        $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review']);
 
         $session->execAsync('ls');
     }
@@ -158,10 +196,13 @@ class SessionTest extends AbstractMockTestCase
         $session->listDirectory('/data');
     }
 
-    private function getSession(Ssh $ssh): Session
+    /**
+     * @param array<string, string> $environment
+     */
+    private function getSession(Ssh $ssh, array $environment = []): Session
     {
         $server = new Server(name : 'server1', path: '/var/www');
 
-        return new Session($server, $ssh, '2024.03.10-2340.241');
+        return new Session($server, $ssh, '2024.03.10-2340.241', $environment);
     }
 }

@@ -15,7 +15,6 @@ use Automate\Archiver;
 use Automate\Loader;
 use Automate\Model\Platform;
 use Automate\Ssh\SshFactory;
-use Automate\VariableResolver;
 use Automate\Workflow\Context;
 use Automate\Workflow\Deployer;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -38,34 +37,41 @@ class DeployCommand extends BaseCommand
             ->addArgument('platform', InputArgument::REQUIRED, 'Platform name')
             ->addArgument('gitRef', InputArgument::OPTIONAL, 'Branch or tag name')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Configuration file path', self::CONFIG_FILE)
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy');
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to deploy')
+            ->addVariableOption();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $loader = new Loader();
-        $project = $loader->load($input->getOption('config'));
-        $platform = $project->getPlatform($input->getArgument('platform'));
         $io = new SymfonyStyle($input, $output);
+        $variableResolver = $this->createVariableResolver($input, $io);
 
-        $variableResolver = new VariableResolver($io);
-        $variableResolver->process($platform);
+        $loader = new Loader();
+        $project = $loader->load($input->getOption('config'), $variableResolver, $input->getArgument('platform'));
+        $platform = $project->getPlatform($input->getArgument('platform'));
 
-        $logger = $this->getLogger($io);
+        $logger = $this->getLogger($io, $variableResolver);
         $logger->section('Start deployment');
 
         $gitRef = $input->getArgument('gitRef');
 
-        $io->table([], [
+        $rows = [
             ['Repository', $project->getRepository()],
             ['Platform', $platform->getName()],
             ['Servers', $this->getServersList($platform)],
             ['Version', $input->getArgument('gitRef') ?: $platform->getDefaultBranch()],
-        ]);
+        ];
+
+        $hookVariables = $variableResolver->getHookVariables();
+        if ([] !== $hookVariables) {
+            $rows[] = ['Variables', implode(', ', array_keys($hookVariables))];
+        }
+
+        $io->table([], $rows);
 
         $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
-        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $gitRef, $input->getOption('force'));
+        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $gitRef, $input->getOption('force'), variables: $hookVariables);
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {

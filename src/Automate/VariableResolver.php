@@ -19,37 +19,103 @@ class VariableResolver
 {
     private const string ENV_PREFIX = 'AUTOMATE__';
 
-    private const string VAR_PREFIX = '%';
+    private const string NAME_PATTERN = '[a-z][a-z0-9_]*';
 
-    private const string VAR_SUFFIX = '%';
+    /** @var array<string, true> */
+    private array $passwordVariables = [];
 
-    /** @var array<string, string> */
-    private array $variables = [];
-
-    public function __construct(
-        private readonly SymfonyStyle $io,
-    ) {
+    /**
+     * @param array<string, string> $variables values given with --var, they take precedence over the environment
+     */
+    public function __construct(private readonly SymfonyStyle $io, private array $variables = [])
+    {
     }
 
+    /**
+     * @param string[] $options raw "name=value" options
+     *
+     * @return array<string, string>
+     */
+    public static function parseCliVariables(array $options): array
+    {
+        $variables = [];
+        foreach ($options as $option) {
+            $parts = explode('=', $option, 2);
+            if (2 !== count($parts) || 1 !== preg_match('/^'.self::NAME_PATTERN.'$/', $parts[0])) {
+                throw new \InvalidArgumentException(sprintf('Invalid variable "%s": expected "name=value" with a name matching %s.', $option, self::NAME_PATTERN));
+            }
+
+            // the value is forwarded to the "exec" child process through its environment, where "" means unset
+            if ('' === $parts[1]) {
+                throw new \InvalidArgumentException(sprintf('Invalid variable "%s": the value cannot be empty.', $option));
+            }
+
+            $variables[$parts[0]] = $parts[1];
+        }
+
+        return $variables;
+    }
+
+    /**
+     * Replace %name% tokens in every string of the configuration, for the requested platform only
+     * so that the secrets and variables of the other platforms are never required.
+     *
+     * @param array<string, mixed> $config normalized configuration
+     *
+     * @return array<string, mixed>
+     */
+    public function resolveConfiguration(array $config, string $platform): array
+    {
+        // passwords first, so that a variable used both as a password and elsewhere is prompted
+        // whatever the order of the keys in the file
+        $passwords = [];
+        foreach ($config['platforms'][$platform]['servers'] ?? [] as $server => $serverConfig) {
+            if (is_array($serverConfig) && is_string($serverConfig['password'] ?? null)) {
+                $passwords[$server] = $this->resolvePassword($serverConfig['password']);
+                unset($config['platforms'][$platform]['servers'][$server]['password']);
+            }
+        }
+
+        foreach ($config as $key => $value) {
+            if ('platforms' === $key && is_array($value)) {
+                if (isset($value[$platform])) {
+                    $config[$key][$platform] = $this->resolveValue($value[$platform], 'platforms.'.$platform);
+                }
+
+                continue;
+            }
+
+            $config[$key] = $this->resolveValue($value, (string) $key);
+        }
+
+        foreach ($passwords as $server => $password) {
+            $config['platforms'][$platform]['servers'][$server]['password'] = $password;
+        }
+
+        return $config;
+    }
+
+    /**
+     * @deprecated use resolveConfiguration() through the Loader
+     */
     public function process(Platform $platform): void
     {
         foreach ($platform->getServers() as $server) {
-            if ($server->getPassword() && $this->isVariable($server->getPassword())) {
-                $password = $this->resolveVariable($server->getPassword());
-                $this->variables[$server->getPassword()] = $password;
-                $server->setPassword($password);
+            if ($server->getPassword()) {
+                $server->setPassword($this->resolvePassword($server->getPassword()));
             }
         }
     }
 
     /**
+     * Every resolved variable, passwords included, to reload the same configuration in the "exec" child process.
+     *
      * @return array<string, string>
      */
     public function getEnvVariables(): array
     {
         $envs = [];
         foreach ($this->variables as $name => $variable) {
-            $name = trim($name, '%');
             $envs[self::ENV_PREFIX.$name] = $variable;
         }
 
@@ -57,26 +123,77 @@ class VariableResolver
     }
 
     /**
-     * Return true if value is a variable.
+     * Variables that are safe to expose to hooks.
+     *
+     * @return array<string, string>
      */
-    private function isVariable(string $value): bool
+    public function getHookVariables(): array
     {
-        $first = substr($value, -1);
-        $last = substr($value, 0, 1);
-
-        return self::VAR_PREFIX === $first && self::VAR_SUFFIX === $last;
+        return array_diff_key($this->variables, $this->passwordVariables);
     }
 
     /**
-     * Resolve a variable.
+     * Every resolved value, passwords included, to keep them out of the console output.
+     *
+     * @return array<string, string>
      */
-    private function resolveVariable(string $value): string
+    public function getMaskedValues(): array
     {
-        $name = substr($value, 1, strlen($value) - 2);
+        return $this->variables;
+    }
+
+    private function resolveValue(mixed $value, string $path): mixed
+    {
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = $this->resolveValue($item, $path.'.'.$key);
+            }
+
+            return $value;
+        }
+
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return preg_replace_callback(
+            '/%%|%('.self::NAME_PATTERN.')%/',
+            fn (array $match): string => isset($match[1]) ? $this->resolveVariable($match[1], $path) : '%',
+            $value,
+        ) ?? $value;
+    }
+
+    /**
+     * A password is a variable only when it is entirely "%name%" (any name, as it always was),
+     * anything else is a literal secret.
+     */
+    private function resolvePassword(string $value): string
+    {
+        if (1 !== preg_match('/^%([^%]+)%$/', $value, $matches)) {
+            return $value;
+        }
+
+        $this->passwordVariables[$matches[1]] = true;
+
+        return $this->resolveVariable($matches[1]);
+    }
+
+    /**
+     * @param ?string $path configuration path of the token, null for a password field (the only one allowed to prompt)
+     */
+    private function resolveVariable(string $name, ?string $path = null): string
+    {
+        if (isset($this->variables[$name])) {
+            return $this->variables[$name];
+        }
 
         $env = getenv(self::ENV_PREFIX.$name);
         if (false !== $env && '' !== $env) {
-            return $env;
+            return $this->variables[$name] = $env;
+        }
+
+        if (null !== $path) {
+            throw new \RuntimeException(sprintf('Unable to resolve the variable "%%%s%%" used in "%s". Pass --var %s=<value> or set the "%s" environment variable.', $name, $path, $name, self::ENV_PREFIX.$name).' If it is not a variable, write each literal "%" as "%%" (e.g. date +%%Y%%m%%d, printf \'%%s\').');
         }
 
         try {
@@ -87,9 +204,9 @@ class VariableResolver
         }
 
         if (!is_string($answer) || '' === $answer) {
-            throw new \RuntimeException(sprintf('Unable to resolve the variable "%s". Set the "%s" environment variable or run the command interactively.', $value, self::ENV_PREFIX.$name));
+            throw new \RuntimeException(sprintf('Unable to resolve the variable "%%%s%%". Set the "%s" environment variable or run the command interactively.', $name, self::ENV_PREFIX.$name));
         }
 
-        return $answer;
+        return $this->variables[$name] = $answer;
     }
 }

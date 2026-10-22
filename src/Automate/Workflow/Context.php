@@ -15,6 +15,7 @@ use Automate\Archiver;
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
+use Automate\Model\Server;
 use Automate\Ssh\SshFactory;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
@@ -28,6 +29,9 @@ class Context
      */
     protected array $sessions = [];
 
+    /**
+     * @param array<string, string> $variables user variables exposed to the hooks as AUTOMATE__<name>
+     */
     public function __construct(
         private readonly Project $project,
         private readonly Platform $platform,
@@ -37,6 +41,7 @@ class Context
         private readonly ?string $gitRef = null,
         private readonly bool $force = false,
         protected ?string $releaseId = null,
+        private readonly array $variables = [],
     ) {
         if (!$this->releaseId) {
             $this->generateReleaseId();
@@ -47,10 +52,28 @@ class Context
     {
         foreach ($this->platform->getServers() as $server) {
             $ssh = $this->sshFactory->create($server);
-            $session = new Session($server, $ssh, $this->getReleaseId());
+            $session = new Session($server, $ssh, $this->getReleaseId(), $this->getHookEnvironment($server));
             $session->login();
             $this->sessions[$server->getName()] = $session;
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getHookEnvironment(Server $server): array
+    {
+        $environment = [
+            'AUTOMATE_PLATFORM' => (string) $this->platform->getName(),
+            'AUTOMATE_SERVER' => (string) $server->getName(),
+            'AUTOMATE_GIT_REF' => (string) ($this->gitRef ?? $this->platform->getDefaultBranch()),
+        ];
+
+        foreach ($this->variables as $name => $value) {
+            $environment['AUTOMATE__'.$name] = $value;
+        }
+
+        return $environment;
     }
 
     /**

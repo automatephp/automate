@@ -24,10 +24,14 @@ readonly class Session
 
     private const string RELEASES_FOLDER = 'releases';
 
+    /**
+     * @param array<string, string> $environment exported, on top of the release paths, to the commands run in the release directory
+     */
     public function __construct(
         private Server $server,
         private Ssh $ssh,
         private string $releaseId,
+        private array $environment = [],
     ) {
     }
 
@@ -38,20 +42,39 @@ readonly class Session
 
     public function exec(string $command, bool $addWorkingDir = true): string
     {
-        // "&&", not ";": should the release directory be missing, the command
-        // must not run anyway from the home directory of the SSH user
-        $command = $addWorkingDir ? sprintf('cd %s && %s', $this->getReleasePath(), $command) : $command;
-
-        return $this->ssh->exec($command);
+        return $this->ssh->exec($this->buildCommand($command, $addWorkingDir));
     }
 
     public function execAsync(string $command, bool $addWorkingDir = true): Process
     {
+        return $this->ssh->execAsync($this->buildCommand($command, $addWorkingDir));
+    }
+
+    private function buildCommand(string $command, bool $addWorkingDir): string
+    {
+        if (!$addWorkingDir) {
+            return $command;
+        }
+
         // "&&", not ";": should the release directory be missing, the command
         // must not run anyway from the home directory of the SSH user
-        $command = $addWorkingDir ? sprintf('cd %s && %s', $this->getReleasePath(), $command) : $command;
+        $command = sprintf('cd %s && %s', $this->getReleasePath(), $command);
 
-        return $this->ssh->execAsync($command);
+        $environment = [
+            'AUTOMATE_RELEASE_ID' => $this->releaseId,
+            'AUTOMATE_RELEASE_PATH' => $this->getReleasePath(),
+            'AUTOMATE_RELEASES_PATH' => $this->getReleasesPath(),
+            'AUTOMATE_SHARED_PATH' => $this->getSharedPath(),
+            'AUTOMATE_CURRENT_PATH' => $this->getCurrentPath(),
+            ...$this->environment,
+        ];
+
+        $exports = [];
+        foreach ($environment as $name => $value) {
+            $exports[] = sprintf('%s=%s', $name, escapeshellarg($value));
+        }
+
+        return sprintf('export %s; %s', implode(' ', $exports), $command);
     }
 
     public function upload(string $path, string $target): void
