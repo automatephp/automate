@@ -106,13 +106,14 @@ class LoaderTest extends TestCase
     public function testLoaderResolvesVariablesOfTheRequestedPlatform(): void
     {
         $io = \Mockery::mock(SymfonyStyle::class);
-        $resolver = new VariableResolver($io, ['slug' => 'feat-x', 'review_password' => 'secret']);
+        $resolver = new VariableResolver($io, ['slug' => 'feat-x', 'review_password' => 'secret', 'dotted_password' => 'dotted']);
 
         $project = (new Loader())->load(__DIR__.'/../fixtures/variables.yml', $resolver, 'review');
 
         $server = $project->getPlatform('review')->getServer('vm');
         $this->assertEquals('/srv/review/feat-x', $server->getPath());
         $this->assertEquals('secret', $server->getPassword());
+        $this->assertEquals('dotted', $project->getPlatform('review')->getServer('web.example.com')->getPassword());
         $this->assertEquals('bash deploy.sh feat-x', $project->getPostDeploy()[0]->getCmd());
         $this->assertEquals('date +%m%d', $project->getPostDeploy()[1]->getCmd());
         $this->assertEquals('%prod_password%', $project->getPlatform('production')->getServer('prod')->getPassword());

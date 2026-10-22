@@ -45,6 +45,11 @@ class VariableResolver
                 throw new \InvalidArgumentException(sprintf('Invalid variable "%s": expected "name=value" with a name matching %s.', $option, self::NAME_PATTERN));
             }
 
+            // the value is forwarded to the "exec" child process through its environment, where "" means unset
+            if ('' === $parts[1]) {
+                throw new \InvalidArgumentException(sprintf('Invalid variable "%s": the value cannot be empty.', $option));
+            }
+
             $variables[$parts[0]] = $parts[1];
         }
 
@@ -61,6 +66,16 @@ class VariableResolver
      */
     public function resolveConfiguration(array $config, string $platform): array
     {
+        // passwords first, so that a variable used both as a password and elsewhere is prompted
+        // whatever the order of the keys in the file
+        $passwords = [];
+        foreach ($config['platforms'][$platform]['servers'] ?? [] as $server => $serverConfig) {
+            if (is_array($serverConfig) && is_string($serverConfig['password'] ?? null)) {
+                $passwords[$server] = $this->resolvePassword($serverConfig['password']);
+                unset($config['platforms'][$platform]['servers'][$server]['password']);
+            }
+        }
+
         foreach ($config as $key => $value) {
             if ('platforms' === $key && is_array($value)) {
                 if (isset($value[$platform])) {
@@ -73,6 +88,10 @@ class VariableResolver
             $config[$key] = $this->resolveValue($value, (string) $key);
         }
 
+        foreach ($passwords as $server => $password) {
+            $config['platforms'][$platform]['servers'][$server]['password'] = $password;
+        }
+
         return $config;
     }
 
@@ -82,10 +101,8 @@ class VariableResolver
     public function process(Platform $platform): void
     {
         foreach ($platform->getServers() as $server) {
-            $password = $server->getPassword();
-            if ($password && 1 === preg_match('/^%('.self::NAME_PATTERN.')%$/', $password, $matches)) {
-                $server->setPassword($this->resolveVariable($matches[1]));
-                $this->passwordVariables[$matches[1]] = true;
+            if ($server->getPassword()) {
+                $server->setPassword($this->resolvePassword($server->getPassword()));
             }
         }
     }
@@ -106,13 +123,23 @@ class VariableResolver
     }
 
     /**
-     * Variables that are safe to expose to hooks and to the console.
+     * Variables that are safe to expose to hooks.
      *
      * @return array<string, string>
      */
     public function getHookVariables(): array
     {
         return array_diff_key($this->variables, $this->passwordVariables);
+    }
+
+    /**
+     * Every resolved value, passwords included, to keep them out of the console output.
+     *
+     * @return array<string, string>
+     */
+    public function getMaskedValues(): array
+    {
+        return $this->variables;
     }
 
     private function resolveValue(mixed $value, string $path): mixed
@@ -129,22 +156,26 @@ class VariableResolver
             return $value;
         }
 
-        // a password is a variable only when it is entirely "%name%", anything else is a literal secret
-        if (1 === preg_match('/^platforms\.[^.]+\.servers\.[^.]+\.password$/', $path)) {
-            if (1 !== preg_match('/^%('.self::NAME_PATTERN.')%$/', $value, $matches)) {
-                return $value;
-            }
-
-            $this->passwordVariables[$matches[1]] = true;
-
-            return $this->resolveVariable($matches[1]);
-        }
-
         return preg_replace_callback(
             '/%%|%('.self::NAME_PATTERN.')%/',
             fn (array $match): string => isset($match[1]) ? $this->resolveVariable($match[1], $path) : '%',
             $value,
         ) ?? $value;
+    }
+
+    /**
+     * A password is a variable only when it is entirely "%name%" (any name, as it always was),
+     * anything else is a literal secret.
+     */
+    private function resolvePassword(string $value): string
+    {
+        if (1 !== preg_match('/^%([^%]+)%$/', $value, $matches)) {
+            return $value;
+        }
+
+        $this->passwordVariables[$matches[1]] = true;
+
+        return $this->resolveVariable($matches[1]);
     }
 
     /**
@@ -162,7 +193,7 @@ class VariableResolver
         }
 
         if (null !== $path) {
-            throw new \RuntimeException(sprintf('Unable to resolve the variable "%%%s%%" used in "%s". Pass --var %s=<value> or set the "%s" environment variable.', $name, $path, $name, self::ENV_PREFIX.$name));
+            throw new \RuntimeException(sprintf('Unable to resolve the variable "%%%s%%" used in "%s". Pass --var %s=<value> or set the "%s" environment variable.', $name, $path, $name, self::ENV_PREFIX.$name).' If it is not a variable, write each literal "%" as "%%" (e.g. date +%%Y%%m%%d, printf \'%%s\').');
         }
 
         try {

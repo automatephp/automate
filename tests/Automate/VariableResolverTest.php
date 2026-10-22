@@ -220,6 +220,69 @@ class VariableResolverTest extends AbstractMockTestCase
         $this->assertSame('/srv/%nope%', $config['platforms']['prod']['servers']['vm']['path']);
     }
 
+    public function testLegacyUppercasePasswordVariable(): void
+    {
+        putenv('AUTOMATE__PROD_PASSWORD=fromenv');
+
+        try {
+            $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class));
+            $config = $resolver->resolveConfiguration(['platforms' => ['prod' => ['servers' => ['vm' => ['password' => '%PROD_PASSWORD%']]]]], 'prod');
+        } finally {
+            putenv('AUTOMATE__PROD_PASSWORD');
+        }
+
+        $this->assertSame('fromenv', $config['platforms']['prod']['servers']['vm']['password']);
+        $this->assertSame([], $resolver->getHookVariables());
+    }
+
+    public function testPasswordOfAServerNamedWithDotsIsAskedAndNotExposed(): void
+    {
+        $io = \Mockery::mock(SymfonyStyle::class);
+        $io->expects('askHidden')->with('Enter a value for password "pwd"')->andReturns('s3cret');
+        $resolver = new VariableResolver($io);
+
+        $config = $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['web.example.com' => ['password' => '%pwd%']]]]], 'review');
+
+        $this->assertSame('s3cret', $config['platforms']['review']['servers']['web.example.com']['password']);
+        $this->assertSame([], $resolver->getHookVariables());
+    }
+
+    public function testPasswordIsResolvedBeforeTheHooksWhateverTheKeyOrder(): void
+    {
+        $io = \Mockery::mock(SymfonyStyle::class);
+        $io->expects('askHidden')->with('Enter a value for password "pwd"')->andReturns('s3cret');
+        $resolver = new VariableResolver($io);
+
+        $config = $resolver->resolveConfiguration([
+            'post_deploy' => [['cmd' => 'login %pwd%']],
+            'platforms' => ['review' => ['servers' => ['vm' => ['password' => '%pwd%']]]],
+        ], 'review');
+
+        $this->assertSame('login s3cret', $config['post_deploy'][0]['cmd']);
+        $this->assertSame('s3cret', $config['platforms']['review']['servers']['vm']['password']);
+    }
+
+    public function testUnresolvedTokenErrorSuggestsEscapingThePercentSign(): void
+    {
+        $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('write each literal "%" as "%%"');
+
+        $resolver->resolveConfiguration(['post_deploy' => [['cmd' => "printf '%s%s'"]]], 'review');
+    }
+
+    public function testMaskedValuesIncludePasswords(): void
+    {
+        $io = \Mockery::mock(SymfonyStyle::class);
+        $io->expects('askHidden')->andReturns('s3cret');
+        $resolver = new VariableResolver($io, ['slug' => 'x']);
+
+        $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['password' => '%pwd%']]]]], 'review');
+
+        $this->assertSame(['slug' => 'x', 'pwd' => 's3cret'], $resolver->getMaskedValues());
+    }
+
     public function testCliVariablesAreReloadedByTheExecChild(): void
     {
         $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class), ['slug' => 'feat-x']);
@@ -251,5 +314,6 @@ class VariableResolverTest extends AbstractMockTestCase
         yield 'no value' => ['slug'];
         yield 'bad name' => ['Slug=x'];
         yield 'empty name' => ['=x'];
+        yield 'empty value' => ['slug='];
     }
 }

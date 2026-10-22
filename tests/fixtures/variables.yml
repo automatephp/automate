@@ -9,6 +9,11 @@ platforms:
                 user: automate
                 password: "%review_password%"
                 path: /srv/review/%slug%
+            web.example.com:
+                host: web.example.com
+                user: automate
+                password: "%dotted_password%"
+                path: /srv/review/%slug%
     production:
         default_branch: master
         servers:
