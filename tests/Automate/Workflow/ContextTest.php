@@ -16,9 +16,9 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
-use Automate\Ssh\SshFactory;
 use Automate\Tests\AbstractMockTestCase;
+use Automate\Transport\TransportFactory;
+use Automate\Transport\TransportInterface;
 use Automate\Workflow\Context;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
@@ -64,14 +64,14 @@ class ContextTest extends AbstractMockTestCase
     private function createContext(callable $process): Context
     {
         $platform = new Platform('production');
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
 
         // two servers, otherwise execAsync falls back on the synchronous path
         foreach (['front-01', 'front-02'] as $name) {
             $server = (new Server())->setName($name)->setPath('/home/wwwroot/demo');
             $platform->addServer($server);
 
-            $ssh = \Mockery::spy(Ssh::class);
+            $ssh = \Mockery::spy(TransportInterface::class);
             $ssh->shouldReceive('execAsync')->andReturnUsing($process);
             $sshFactory->shouldReceive('create')->with($server)->andReturns($ssh);
         }
@@ -132,10 +132,10 @@ class ContextTest extends AbstractMockTestCase
         $platform->addServer(new Server(name: 'a', path: '/srv/a'));
         $platform->addServer(new Server(name: 'b', path: '/srv/b'));
 
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('login')->once();
         $ssh->shouldReceive('exec')->andReturns('');
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->once()->with(\Mockery::on(static fn (Server $server): bool => 'b' === $server->getName()))->andReturns($ssh);
 
         (new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver()))->connect('b');
@@ -146,7 +146,7 @@ class ContextTest extends AbstractMockTestCase
         $platform = new Platform(name: 'review', defaultBranch: 'master');
         $platform->addServer(new Server(name: 'a', path: '/srv/a'));
 
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldNotReceive('create');
 
         $this->expectException(\InvalidArgumentException::class);
@@ -165,14 +165,14 @@ class ContextTest extends AbstractMockTestCase
         $platform->addServer($server);
 
         $executed = [];
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('login');
         $ssh->shouldReceive('exec')->andReturnUsing(static function (string $command) use (&$executed): string {
             $executed[] = $command;
 
             return '';
         });
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
         $context = new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), $gitRef, releaseId: '2024.03.10-2340.241', variables: $variables, phase: $phase);
@@ -189,9 +189,9 @@ class ContextTest extends AbstractMockTestCase
         $platform->addServer(new Server(name: 'old', path: '/srv/old'));
 
         $executed = [];
-        $sshFactory = \Mockery::mock(SshFactory::class);
-        $sshFactory->shouldReceive('create')->andReturnUsing(static function (Server $server) use (&$executed): Ssh {
-            $ssh = \Mockery::mock(Ssh::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
+        $sshFactory->shouldReceive('create')->andReturnUsing(static function (Server $server) use (&$executed): TransportInterface {
+            $ssh = \Mockery::mock(TransportInterface::class);
             $ssh->shouldReceive('login');
             $ssh->shouldReceive('exec')->andReturnUsing(static function (string $command) use ($server, &$executed): string {
                 $executed[$server->getName()][] = $command;
@@ -222,10 +222,10 @@ class ContextTest extends AbstractMockTestCase
         $platform = new Platform(name: 'review', defaultBranch: 'master');
         $platform->addServer(new Server(name: 'vm', path: '/srv/review'));
 
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('login')->once();
         $ssh->shouldNotReceive('exec');
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
         $logger = \Mockery::spy(LoggerInterface::class);

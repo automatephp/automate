@@ -18,9 +18,9 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
-use Automate\Ssh\SshFactory;
 use Automate\Tests\AbstractMockTestCase;
+use Automate\Transport\TransportFactory;
+use Automate\Transport\TransportInterface;
 use Automate\Workflow\Context;
 
 class ClearListenerTest extends AbstractMockTestCase
@@ -40,10 +40,10 @@ class ClearListenerTest extends AbstractMockTestCase
         $server = (new Server())->setName('front-01')->setPath('/srv/2024.01.01-1200.123/app');
         $platform->addServer($server);
 
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('find /srv/2024.01.01-1200.123/app/releases -maxdepth 1 -mindepth 1 -type d')->andReturns($releases);
 
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->with($server)->andReturns($ssh);
 
         $context = new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, \Mockery::mock(Archiver::class), releaseId: '2024.03.10-2340.241');

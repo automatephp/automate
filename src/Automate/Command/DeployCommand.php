@@ -14,7 +14,7 @@ namespace Automate\Command;
 use Automate\Archiver;
 use Automate\Loader;
 use Automate\Model\Platform;
-use Automate\Ssh\SshFactory;
+use Automate\Transport\TransportFactory;
 use Automate\Workflow\Context;
 use Automate\Workflow\Deployer;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -69,9 +69,9 @@ class DeployCommand extends BaseCommand
 
         $io->table([], $rows);
 
-        $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+        $transportFactory = new TransportFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
-        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $gitRef, $input->getOption('force'), variables: $hookVariables);
+        $context = new Context($project, $platform, $logger, $transportFactory, new Archiver(), $gitRef, $input->getOption('force'), variables: $hookVariables);
         $workflow = new Deployer($context);
 
         if (!$workflow->deploy()) {

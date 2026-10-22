@@ -13,8 +13,7 @@ namespace Automate\Command;
 
 use Automate\Archiver;
 use Automate\Loader;
-use Automate\Ssh\Ssh;
-use Automate\Ssh\SshFactory;
+use Automate\Transport\TransportFactory;
 use Automate\Workflow\Context;
 use Automate\Workflow\Session;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -54,9 +53,10 @@ class ExecCommand extends BaseCommand
         $server = $platform->getServer($input->getArgument('server'));
         $command = $input->getArgument('cmd');
 
+        $transportFactory = new TransportFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+
         if ($input->getOption('current')) {
-            $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
-            $context = new Context($project, $platform, $this->getLogger($io, $variableResolver), $sshFactory, new Archiver(), variables: $variableResolver->getHookVariables(), phase: 'exec');
+            $context = new Context($project, $platform, $this->getLogger($io, $variableResolver), $transportFactory, new Archiver(), variables: $variableResolver->getHookVariables(), phase: 'exec');
             $context->connect($server->getName());
 
             $run = static function () use ($context, $command): string {
@@ -70,10 +70,10 @@ class ExecCommand extends BaseCommand
             };
         } else {
             // internal usage of the asynchronous hooks: a raw command, nothing added
-            $ssh = new Ssh($platform, $server, $variableResolver->getEnvVariables(), $input->getOption('config'));
-            $ssh->login();
+            $transport = $transportFactory->create($server);
+            $transport->login();
 
-            $run = static fn (): string => $ssh->exec($command);
+            $run = static fn (): string => $transport->exec($command);
         }
 
         try {

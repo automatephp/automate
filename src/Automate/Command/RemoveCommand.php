@@ -13,7 +13,7 @@ namespace Automate\Command;
 
 use Automate\Archiver;
 use Automate\Loader;
-use Automate\Ssh\SshFactory;
+use Automate\Transport\TransportFactory;
 use Automate\Workflow\Context;
 use Automate\Workflow\Remover;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -77,9 +77,9 @@ class RemoveCommand extends BaseCommand
             return Command::FAILURE;
         }
 
-        $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+        $transportFactory = new TransportFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
 
-        $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), force: $input->getOption('force'), variables: $hookVariables, phase: 'remove');
+        $context = new Context($project, $platform, $logger, $transportFactory, new Archiver(), force: $input->getOption('force'), variables: $hookVariables, phase: 'remove');
         $workflow = new Remover($context, $input->getOption('keep-shared'));
 
         if (!$workflow->remove()) {

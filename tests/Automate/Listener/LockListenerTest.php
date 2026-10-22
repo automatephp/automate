@@ -18,9 +18,9 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
-use Automate\Ssh\SshFactory;
 use Automate\Tests\AbstractMockTestCase;
+use Automate\Transport\TransportFactory;
+use Automate\Transport\TransportInterface;
 use Automate\Workflow\Context;
 
 class LockListenerTest extends AbstractMockTestCase
@@ -90,14 +90,14 @@ class LockListenerTest extends AbstractMockTestCase
     private function createContext(): array
     {
         $platform = new Platform('production');
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshList = [];
 
         foreach (['front-01', 'front-02'] as $name) {
             $server = (new Server())->setName($name)->setPath('/home/wwwroot/demo');
             $platform->addServer($server);
 
-            $ssh = \Mockery::spy(Ssh::class);
+            $ssh = \Mockery::spy(TransportInterface::class);
             $sshFactory->shouldReceive('create')->with($server)->andReturns($ssh);
             $sshList[] = $ssh;
         }

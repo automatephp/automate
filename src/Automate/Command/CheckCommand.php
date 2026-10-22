@@ -13,7 +13,7 @@ namespace Automate\Command;
 
 use Automate\Archiver;
 use Automate\Loader;
-use Automate\Ssh\SshFactory;
+use Automate\Transport\TransportFactory;
 use Automate\Workflow\Context;
 use Automate\Workflow\Session;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -49,8 +49,8 @@ class CheckCommand extends BaseCommand
             $project = $loader->load($input->getOption('config'), $variableResolver, $input->getArgument('platform'));
             $platform = $project->getPlatform($input->getArgument('platform'));
 
-            $sshFactory = new SshFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
-            $context = new Context($project, $platform, $logger, $sshFactory, new Archiver(), $platform->getDefaultBranch(), variables: $variableResolver->getHookVariables());
+            $transportFactory = new TransportFactory($platform, $variableResolver->getEnvVariables(), $input->getOption('config'));
+            $context = new Context($project, $platform, $logger, $transportFactory, new Archiver(), $platform->getDefaultBranch(), variables: $variableResolver->getHookVariables());
 
             $context->connect();
             $logger->section('Check git access');

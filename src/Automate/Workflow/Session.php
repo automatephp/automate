@@ -12,7 +12,7 @@
 namespace Automate\Workflow;
 
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
+use Automate\Transport\TransportInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -31,7 +31,7 @@ readonly class Session
      */
     public function __construct(
         private Server $server,
-        private Ssh $ssh,
+        private TransportInterface $transport,
         private string $releaseId,
         private array $environment = [],
         private bool $firstDeploy = false,
@@ -40,7 +40,7 @@ readonly class Session
 
     public function withFirstDeploy(bool $firstDeploy): self
     {
-        return new self($this->server, $this->ssh, $this->releaseId, $this->environment, $firstDeploy);
+        return new self($this->server, $this->transport, $this->releaseId, $this->environment, $firstDeploy);
     }
 
     public function isFirstDeploy(): bool
@@ -77,7 +77,7 @@ readonly class Session
 
     public function withReleaseId(string $releaseId): self
     {
-        return new self($this->server, $this->ssh, $releaseId, $this->environment, $this->firstDeploy);
+        return new self($this->server, $this->transport, $releaseId, $this->environment, $this->firstDeploy);
     }
 
     /**
@@ -93,7 +93,7 @@ readonly class Session
 
     public function login(): void
     {
-        $this->ssh->login();
+        $this->transport->login();
     }
 
     /**
@@ -101,12 +101,12 @@ readonly class Session
      */
     public function exec(string $command, bool $addWorkingDir = true, ?string $workingDir = null): string
     {
-        return $this->ssh->exec($this->buildCommand($command, $addWorkingDir, $workingDir));
+        return $this->transport->exec($this->buildCommand($command, $addWorkingDir, $workingDir));
     }
 
     public function execAsync(string $command, bool $addWorkingDir = true): Process
     {
-        return $this->ssh->execAsync($this->buildCommand($command, $addWorkingDir));
+        return $this->transport->execAsync($this->buildCommand($command, $addWorkingDir));
     }
 
     private function buildCommand(string $command, bool $addWorkingDir, ?string $workingDir = null): string
@@ -139,7 +139,7 @@ readonly class Session
 
     public function upload(string $path, string $target): void
     {
-        $this->ssh->upload($path, $target);
+        $this->transport->upload($path, $target);
     }
 
     public function mkdir(string $path, bool $recursive = false): void

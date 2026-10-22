@@ -8,9 +8,9 @@ use Automate\Model\Command;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
-use Automate\Ssh\SshFactory;
 use Automate\Tests\AbstractMockTestCase;
+use Automate\Transport\TransportFactory;
+use Automate\Transport\TransportInterface;
 use Automate\Workflow\Context;
 use Automate\Workflow\Remover;
 
@@ -214,10 +214,10 @@ class RemoverTest extends AbstractMockTestCase
             $platform->addServer(new Server(name: $name, path: $path, sharedPath: $sharedPath));
         }
 
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('login');
         $ssh->shouldReceive('exec')->andReturnUsing($this->fakeServer(...));
-        $sshFactory = \Mockery::mock(SshFactory::class);
+        $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
         $context = new Context((new Project())->setOnRemove($hooks), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), force: $force, releaseId: '2024.03.10-2340.241', phase: 'remove');
