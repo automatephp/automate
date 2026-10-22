@@ -43,6 +43,7 @@ class DeployerTest extends AbstractMockTestCase
             ." AUTOMATE_RELEASES_PATH='/home/wwwroot/automate/demo/releases'"
             ." AUTOMATE_SHARED_PATH='/home/wwwroot/automate/demo/shared'"
             ." AUTOMATE_CURRENT_PATH='/home/wwwroot/automate/demo/current'"
+            ." AUTOMATE_FIRST_DEPLOY='1'"
             ." AUTOMATE_PLATFORM='development' AUTOMATE_SERVER='dddv-exemple-front-01' AUTOMATE_GIT_REF='master'; ";
 
         // gi clone
