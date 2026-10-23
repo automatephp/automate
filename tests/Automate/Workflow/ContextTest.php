@@ -20,6 +20,7 @@ use Automate\Tests\AbstractMockTestCase;
 use Automate\Transport\TransportFactory;
 use Automate\Transport\TransportInterface;
 use Automate\Workflow\Context;
+use Automate\Workflow\Session;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
 
@@ -88,6 +89,23 @@ class ContextTest extends AbstractMockTestCase
         $context->connect();
 
         return $context;
+    }
+
+    public function testReleaseIdsOfTheSameMinuteAreSortedChronologically(): void
+    {
+        $ids = array_map(
+            static fn (string $time): string => Context::createReleaseId(\DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', '2024-03-10 23:40:'.$time)),
+            ['00.000', '07.950', '08.050', '59.999'],
+        );
+
+        $this->assertSame(['2024.03.10-2340.000', '2024.03.10-2340.079', '2024.03.10-2340.080', '2024.03.10-2340.599'], $ids);
+        $sorted = $ids;
+        sort($sorted);
+        $this->assertSame($ids, $sorted);
+
+        foreach ($ids as $id) {
+            $this->assertTrue(Session::isReleaseId($id));
+        }
     }
 
     public function testHooksReceiveTheDeploymentContext(): void

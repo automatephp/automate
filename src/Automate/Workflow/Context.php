@@ -262,16 +262,20 @@ class Context
 
     private function generateReleaseId(): void
     {
-        $date = new \DateTime();
+        $this->releaseId = self::createReleaseId();
+    }
 
-        $this->releaseId = sprintf(
-            '%s.%s.%s-%s%s.%s',
-            $date->format('Y'),
-            $date->format('m'),
-            $date->format('d'),
-            $date->format('H'),
-            $date->format('i'),
-            random_int(100, 999)
+    /**
+     * The suffix is the time elapsed in the minute (in tenths of a second) rather than a random number:
+     * releases are sorted by name, so two releases of the same minute must stay in chronological order.
+     */
+    public static function createReleaseId(\DateTimeInterface $date = new \DateTimeImmutable()): string
+    {
+        return sprintf(
+            '%s-%s.%03d',
+            $date->format('Y.m.d'),
+            $date->format('Hi'),
+            (int) $date->format('s') * 10 + intdiv((int) $date->format('v'), 100)
         );
     }
 
