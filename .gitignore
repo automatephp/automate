@@ -9,3 +9,4 @@ test.yml
 doc/.cache
 doc/.cecil
 doc/_site
+doc/static/pagefind

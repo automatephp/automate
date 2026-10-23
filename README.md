@@ -7,11 +7,23 @@ You can use Automate from your workstation or through an integration server like
 
 ## Installation
 
-> curl -LSs https://www.automate-deployer.com/install | bash
+```bash
+curl -LSs https://www.automate-deployer.com/install | bash
+```
 
-## Usage
+See the [installation guide](https://www.automate-deployer.com/docs/installation/) for the supported platforms, the manual download and the PHAR.
 
-https://www.automate-deployer.com
+## Documentation
+
+https://www.automate-deployer.com/docs/introduction/
+
+- [Quick start](https://www.automate-deployer.com/docs/quick-start/)
+- [Configuration reference](https://www.automate-deployer.com/docs/configuration/)
+- [Hooks](https://www.automate-deployer.com/docs/hooks/)
+- [Commands](https://www.automate-deployer.com/docs/commands/)
+- [CI integration](https://www.automate-deployer.com/docs/ci-integration/)
+
+The website lives in `doc/` and is built with [Cecil](https://cecil.app): `make doc-serve` previews it locally.
 
 ## Contributing
 

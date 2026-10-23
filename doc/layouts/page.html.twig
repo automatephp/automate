@@ -1,11 +1,145 @@
 {% extends '_base.html.twig' %}
 
-{% block nav %}
-    {% include 'partials/navigation.html.twig' with { menu: site.menus.main } %}
+{% block body_class %}body--docs{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="{{ url('pagefind/pagefind-ui.css') }}" onerror="this.remove()">
 {% endblock %}
 
-{% block content %}
-    <div class="c-doc">
-        {{ page.content }}
+{% block structured_data %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "TechArticle",
+                "headline": "{{ page.title|e('js') }}",
+                "description": "{{ page.description|default('')|e('js') }}",
+                "url": "{{ url(page, {canonical: true}) }}",
+                "inLanguage": "en",
+                "dateModified": "{{ page.date|date('Y-m-d') }}",
+                "isPartOf": { "@id": "{{ url('/', {canonical: true}) }}#website" },
+                "about": { "@id": "{{ url('/', {canonical: true}) }}#software" },
+                "author": { "@type": "Person", "name": "{{ site.author.name }}", "url": "{{ site.author.url }}" }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    { "@type": "ListItem", "position": 1, "name": "Automate", "item": "{{ url('/', {canonical: true}) }}" },
+                    { "@type": "ListItem", "position": 2, "name": "Documentation", "item": "{{ url('docs/introduction', {canonical: true}) }}" },
+                    { "@type": "ListItem", "position": 3, "name": "{{ page.title|e('js') }}", "item": "{{ url(page, {canonical: true}) }}" }
+                ]
+            }
+        ]
+    }
+    </script>
+{% endblock %}
+
+{% block layout %}
+    {# Flat list of the documentation pages, in reading order #}
+    {% set flat = [] %}
+    {% for group in site.docs.nav %}
+        {% for id in group.items %}
+            {% set flat = flat|merge([id]) %}
+        {% endfor %}
+    {% endfor %}
+    {% set position = -1 %}
+    {% for id in flat %}
+        {% if id == page.id %}{% set position = loop.index0 %}{% endif %}
+    {% endfor %}
+
+    <div class="docs">
+        <aside class="sidebar" id="sidebar" data-sidebar>
+            <div class="sidebar__head">
+                <span class="sidebar__title">Documentation</span>
+                <button class="sidebar__close" type="button" data-sidebar-toggle aria-label="Close the documentation menu">
+                    {% include 'partials/icons.html.twig' with {name: 'close'} only %}
+                </button>
+            </div>
+            <nav class="sidebar__nav" aria-label="Documentation">
+                {% for group in site.docs.nav %}
+                    <div class="sidebar__group">
+                        <div class="sidebar__group-title">{{ group.title }}</div>
+                        <ul class="sidebar__list">
+                            {% for id in group.items %}
+                                {% set item = site.page(id) %}
+                                {% if item %}
+                                    <li>
+                                        <a class="sidebar__link{% if id == page.id %} is-current{% endif %}" href="{{ url(item) }}"{% if id == page.id %} aria-current="page"{% endif %}>{{ item.title }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </nav>
+            {% set version = getenv('AUTOMATE_VERSION') %}
+            <div class="sidebar__version">
+                {% if version %}
+                    Latest release: <strong>{{ version }}</strong> · <a href="{{ site.repository }}/releases/tag/{{ version }}" target="_blank" rel="noopener">changelog</a>
+                {% else %}
+                    <a href="{{ site.repository }}/releases" target="_blank" rel="noopener">Latest release</a>
+                {% endif %}
+            </div>
+        </aside>
+        <div class="sidebar__backdrop" data-sidebar-toggle hidden></div>
+
+        <main class="content" id="content">
+            <article class="prose" data-pagefind-body>
+                <h1>{{ page.title }}</h1>
+                {% if page.description|default %}
+                    <p class="prose__lead">{{ page.description }}</p>
+                {% endif %}
+                {{ page.content }}
+            </article>
+
+            <div class="content__meta">
+                <a class="content__edit" href="{{ site.edit_url }}{{ page.id }}.md" target="_blank" rel="noopener">
+                    {% include 'partials/icons.html.twig' with {name: 'edit'} only %}
+                    Edit this page on GitHub
+                </a>
+            </div>
+
+            {% if position >= 0 %}
+                <nav class="pager" aria-label="Previous and next page">
+                    {% if position > 0 %}
+                        {% set prev = site.page(flat[position - 1]) %}
+                        <a class="pager__link pager__link--prev" href="{{ url(prev) }}">
+                            <span class="pager__label">{% include 'partials/icons.html.twig' with {name: 'arrow-left'} only %} Previous</span>
+                            <span class="pager__title">{{ prev.title }}</span>
+                        </a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                    {% if position < flat|length - 1 %}
+                        {% set next = site.page(flat[position + 1]) %}
+                        <a class="pager__link pager__link--next" href="{{ url(next) }}">
+                            <span class="pager__label">Next {% include 'partials/icons.html.twig' with {name: 'arrow-right'} only %}</span>
+                            <span class="pager__title">{{ next.title }}</span>
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </main>
+
+        <aside class="toc" aria-label="On this page">
+            {% set toc = page.body|toc %}
+            {% if toc is not empty %}
+                <div class="toc__inner" data-toc>
+                    <div class="toc__title">On this page</div>
+                    {{ toc }}
+                </div>
+            {% endif %}
+        </aside>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/plaintext.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="{{ url('pagefind/pagefind-ui.js') }}" onerror="this.remove()"></script>
 {% endblock %}

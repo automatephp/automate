@@ -3,7 +3,10 @@
   "directories": ["src"],
   "files": [
     "LICENSE",
-    "vendor/symfony/console/Resources/bin/hiddeninput.exe"
+    "vendor/symfony/console/Resources/bin/hiddeninput.exe",
+    "vendor/symfony/console/Resources/completion.bash",
+    "vendor/symfony/console/Resources/completion.fish",
+    "vendor/symfony/console/Resources/completion.zsh"
   ],
   "finder": [
     {

@@ -1,14 +1,38 @@
 title: Automate
-baseline: ''
+baseline: 'Deploy to your servers with one command'
 baseurl: 'https://automate-deployer.com/'
-description: 'Automate, a deployment tool'
+description: 'Automate is a deployment tool for Linux servers: describe your platforms in a YAML file, deploy with one command from your workstation or your CI.'
 author:
   name: Julien Jacottet
   url: 'https://github.com/automatephp/automate'
-image: favicon.png
+image: og-image.png
+
+language: en
+languages:
+  - code: en
+    name: English
+    locale: en_US
+
+repository: 'https://github.com/automatephp/automate'
+edit_url: 'https://github.com/automatephp/automate/edit/main/doc/pages/'
+
+pages:
+  body:
+    toc: [h2, h3]
+
 menus:
   main:
     - id: index
       enabled: false
 
-
+# Sidebar of the documentation: groups of page identifiers, in reading order.
+docs:
+  nav:
+    - title: Getting started
+      items: [docs/introduction, docs/installation, docs/quick-start]
+    - title: Concepts
+      items: [docs/deployment-lifecycle, docs/deployment-strategies]
+    - title: Reference
+      items: [docs/configuration, docs/hooks, docs/variables, docs/commands]
+    - title: Guides
+      items: [docs/ci-integration, docs/recipes, docs/troubleshooting]

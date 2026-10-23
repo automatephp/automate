@@ -30,8 +30,18 @@ install: ## Install project
 	@$(PHP_CONT) composer install
 
 ## —— Doc 📖 ————————————————————————————————————————————————————————————————————
-doc-serve: ## Serve doc website
-	cecil serve doc
+AUTOMATE_VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null)
+
+doc-build: ## Build the doc website and its search index into doc/_site
+	AUTOMATE_VERSION=$(AUTOMATE_VERSION) cecil build doc --config=cecil.yml
+	npx -y pagefind@1.3.0 --site doc/_site
+
+# "cecil serve" builds into doc/.cecil/preview, not doc/_site: the search index is
+# generated into doc/static/pagefind, which Cecil copies into every output.
+doc-serve: ## Serve the doc website locally, with the search index
+	AUTOMATE_VERSION=$(AUTOMATE_VERSION) cecil build doc --config=cecil.yml
+	npx -y pagefind@1.3.0 --site doc/_site --output-path doc/static/pagefind
+	AUTOMATE_VERSION=$(AUTOMATE_VERSION) cecil serve doc --config=cecil.yml
 
 ## —— CI ✨ ————————————————————————————————————————————————————————————————————
 ci: cs phpstan rector test ## Run all all checks
