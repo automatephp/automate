@@ -21,7 +21,7 @@ server {
     }
 
     location ~ ^/index\.php(/|$) {
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
@@ -36,7 +36,7 @@ Caddy resolves the link by default in `php_fastcgi` (`resolve_root_symlink` is e
 ```text
 www.acme.io {
     root * /var/www/shop/current/public
-    php_fastcgi unix//run/php/php8.3-fpm.sock
+    php_fastcgi unix//run/php/php8.4-fpm.sock
     file_server
 }
 ```

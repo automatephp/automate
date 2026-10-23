@@ -112,7 +112,6 @@ If a command fails, nothing is deleted on any server. The hook is skipped on a s
 
 ```yaml
 post_rollback:
-    - sudo systemctl reload php8.3-fpm
     - cmd: php bin/console messenger:stop-workers
       only: [web-01]
 ```
