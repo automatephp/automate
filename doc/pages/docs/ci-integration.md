@@ -193,4 +193,4 @@ stop:review:
 
 ## Other runners
 
-Any runner works the same way: download the binary (or the PHAR with PHP 8.3+), export the `AUTOMATE__*` variables, run `automate deploy`. On macOS runners, use the `automate-darwin-arm64` binary.
+Any runner works the same way: download the binary (or the PHAR with PHP 8.4+), export the `AUTOMATE__*` variables, run `automate deploy`. On macOS runners, use the `automate-darwin-arm64` binary.

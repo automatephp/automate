@@ -104,7 +104,7 @@ class DeployerTest extends AbstractMockTestCase
      */
     private function deployTwoServers(array $isNew): array
     {
-        $project = (new Loader())->load(__DIR__.'/../../fixtures/first_deploy.yml');
+        $project = new Loader()->load(__DIR__.'/../../fixtures/first_deploy.yml');
         $platform = $project->getPlatform('production');
 
         $commands = [];
@@ -142,7 +142,7 @@ class DeployerTest extends AbstractMockTestCase
         });
 
         $context = new Context($project, $platform, $logger, $sshFactory, \Mockery::mock(Archiver::class), releaseId: '2024.03.10-2340.241');
-        $this->assertTrue((new Deployer($context))->deploy());
+        $this->assertTrue(new Deployer($context)->deploy());
 
         return [$commands, array_values(array_filter($sections, static fn (string $s): bool => 'Start deployment' !== $s))];
     }

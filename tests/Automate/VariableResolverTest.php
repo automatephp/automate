@@ -52,7 +52,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $platform->addServer($server);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unable to resolve the variable "%missing_password%". Set the "AUTOMATE__missing_password" environment variable or run the command interactively.');
+        $this->expectExceptionMessageIsOrContains('Unable to resolve the variable "%missing_password%". Set the "AUTOMATE__missing_password" environment variable or run the command interactively.');
 
         $resolver->process($platform);
     }
@@ -71,7 +71,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $platform->addServer($server);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unable to resolve the variable "%missing_password%". Set the "AUTOMATE__missing_password" environment variable or run the command interactively.');
+        $this->expectExceptionMessageIsOrContains('Unable to resolve the variable "%missing_password%". Set the "AUTOMATE__missing_password" environment variable or run the command interactively.');
 
         $resolver->process($platform);
     }
@@ -155,7 +155,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unable to resolve the variable "%m%" used in "post_deploy.0.cmd"');
+        $this->expectExceptionMessageIsOrContains('Unable to resolve the variable "%m%" used in "post_deploy.0.cmd"');
 
         $resolver->resolveConfiguration(['post_deploy' => [['cmd' => 'date +%Y%m%d']]], 'review');
     }
@@ -169,7 +169,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver = new VariableResolver($io);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unable to resolve the variable "%nope%" used in "platforms.review.servers.vm.path"');
+        $this->expectExceptionMessageIsOrContains('Unable to resolve the variable "%nope%" used in "platforms.review.servers.vm.path"');
 
         $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['path' => '/srv/%nope%']]]]], 'review');
     }
@@ -194,7 +194,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver = new VariableResolver($io);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unable to resolve the variable "%pwd%". Set the "AUTOMATE__pwd" environment variable or run the command interactively.');
+        $this->expectExceptionMessageIsOrContains('Unable to resolve the variable "%pwd%". Set the "AUTOMATE__pwd" environment variable or run the command interactively.');
 
         $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['password' => '%pwd%']]]]], 'review');
     }
@@ -267,7 +267,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('write each literal "%" as "%%"');
+        $this->expectExceptionMessageIsOrContains('write each literal "%" as "%%"');
 
         $resolver->resolveConfiguration(['post_deploy' => [['cmd' => "printf '%s%s'"]]], 'review');
     }

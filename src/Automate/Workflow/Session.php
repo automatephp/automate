@@ -66,13 +66,7 @@ readonly class Session
             return false;
         }
 
-        foreach ($this->listDirectory($this->getReleasesPath()) as $release) {
-            if (self::isReleaseId($release)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->listDirectory($this->getReleasesPath()), fn (string $release): bool => self::isReleaseId($release));
     }
 
     public function withReleaseId(string $releaseId): self
@@ -221,7 +215,7 @@ readonly class Session
 
         // if the shared path is not configured on the server configuration
         if (null === $serverSharedPath) {
-            $serverSharedPath = Path::join($this->server->getPath(), self::SHARED_FOLDER);
+            return Path::join($this->server->getPath(), self::SHARED_FOLDER);
         }
 
         return $serverSharedPath;

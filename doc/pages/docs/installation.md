@@ -63,7 +63,7 @@ Pinning is recommended in CI pipelines so that a new release never changes a bui
 
 ## PHAR
 
-The PHAR requires **PHP 8.3 or later**. The `openssl` and `gmp` (or `bcmath`) extensions are recommended: they make the SSH key exchange much faster.
+The PHAR requires **PHP 8.4 or later**. The `openssl` and `gmp` (or `bcmath`) extensions are recommended: they make the SSH key exchange much faster.
 
 ```bash
 curl -LSs -o automate.phar https://github.com/automatephp/automate/releases/latest/download/automate.phar

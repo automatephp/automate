@@ -93,7 +93,7 @@ class LoaderTest extends TestCase
 
     public function testFirstDeployHookLoader(): void
     {
-        $project = (new Loader())->load(__DIR__.'/../fixtures/first_deploy.yml');
+        $project = new Loader()->load(__DIR__.'/../fixtures/first_deploy.yml');
 
         $this->assertCount(3, $project->getOnFirstDeploy());
         $this->assertSame('echo first', $project->getOnFirstDeploy()[0]->getCmd());
@@ -119,7 +119,7 @@ class LoaderTest extends TestCase
         $io = \Mockery::mock(SymfonyStyle::class);
         $resolver = new VariableResolver($io, ['slug' => 'feat-x', 'review_password' => 'secret', 'dotted_password' => 'dotted']);
 
-        $project = (new Loader())->load(__DIR__.'/../fixtures/variables.yml', $resolver, 'review');
+        $project = new Loader()->load(__DIR__.'/../fixtures/variables.yml', $resolver, 'review');
 
         $server = $project->getPlatform('review')->getServer('vm');
         $this->assertEquals('/srv/review/feat-x', $server->getPath());
@@ -133,7 +133,7 @@ class LoaderTest extends TestCase
 
     public function testLoaderReadsTheOnRemoveHook(): void
     {
-        $project = (new Loader())->load(__DIR__.'/../fixtures/onRemove.yml');
+        $project = new Loader()->load(__DIR__.'/../fixtures/onRemove.yml');
 
         $this->assertCount(2, $project->getOnRemove());
         $this->assertInstanceOf(Command::class, $project->getOnRemove()[0]);
@@ -144,14 +144,14 @@ class LoaderTest extends TestCase
     public function testLoaderRejectsAnUploadInTheOnRemoveHook(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The "upload" action is not supported in "on_remove"');
+        $this->expectExceptionMessageIsOrContains('The "upload" action is not supported in "on_remove"');
 
-        (new Loader())->load(__DIR__.'/../fixtures/onRemoveUpload.yml');
+        new Loader()->load(__DIR__.'/../fixtures/onRemoveUpload.yml');
     }
 
     public function testLoadLocalServer(): void
     {
-        $project = (new Loader())->load(__DIR__.'/../fixtures/local.yml');
+        $project = new Loader()->load(__DIR__.'/../fixtures/local.yml');
 
         $server = $project->getPlatform('development')->getServer('self');
         $this->assertSame(Transport::Local, $server->getTransport());
@@ -162,7 +162,7 @@ class LoaderTest extends TestCase
 
     public function testServerUsesSshByDefault(): void
     {
-        $project = (new Loader())->load(__DIR__.'/../fixtures/simple.yml');
+        $project = new Loader()->load(__DIR__.'/../fixtures/simple.yml');
 
         $server = $project->getPlatform('development')->getServer('dddv-exemple-front-01');
         $this->assertSame(Transport::Ssh, $server->getTransport());
@@ -172,32 +172,32 @@ class LoaderTest extends TestCase
     public function testSshServerRequiresHostAndUser(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('automate.platforms.development.servers.web');
-        $this->expectExceptionMessage('The "host" option is required with the "ssh" transport.');
+        $this->expectExceptionMessageIsOrContains('automate.platforms.development.servers.web');
+        $this->expectExceptionMessageIsOrContains('The "host" option is required with the "ssh" transport.');
 
-        (new Loader())->load(__DIR__.'/../fixtures/ssh_without_host.yml');
+        new Loader()->load(__DIR__.'/../fixtures/ssh_without_host.yml');
     }
 
     public function testLocalServerRejectsSshOptions(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('automate.platforms.development.servers.self');
-        $this->expectExceptionMessage('The "user" option is not supported with the "local" transport');
+        $this->expectExceptionMessageIsOrContains('automate.platforms.development.servers.self');
+        $this->expectExceptionMessageIsOrContains('The "user" option is not supported with the "local" transport');
 
-        (new Loader())->load(__DIR__.'/../fixtures/local_with_ssh_options.yml');
+        new Loader()->load(__DIR__.'/../fixtures/local_with_ssh_options.yml');
     }
 
     public function testUnknownTransportIsRejected(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('ftp');
+        $this->expectExceptionMessageIsOrContains('ftp');
 
-        (new Loader())->load(__DIR__.'/../fixtures/unknown_transport.yml');
+        new Loader()->load(__DIR__.'/../fixtures/unknown_transport.yml');
     }
 
     public function testLoaderReadsThePostRollbackHook(): void
     {
-        $project = (new Loader())->load(__DIR__.'/../fixtures/rollback.yml');
+        $project = new Loader()->load(__DIR__.'/../fixtures/rollback.yml');
 
         $this->assertCount(2, $project->getPostRollback());
         $this->assertEquals('docker compose down', $project->getPostRollback()[0]->getCmd());
@@ -208,8 +208,8 @@ class LoaderTest extends TestCase
     public function testLoaderRejectsAnUploadInThePostRollbackHook(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The "upload" action is not supported in "post_rollback"');
+        $this->expectExceptionMessageIsOrContains('The "upload" action is not supported in "post_rollback"');
 
-        (new Loader())->load(__DIR__.'/../fixtures/postRollbackUpload.yml');
+        new Loader()->load(__DIR__.'/../fixtures/postRollbackUpload.yml');
     }
 }

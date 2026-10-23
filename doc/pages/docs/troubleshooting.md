@@ -90,7 +90,7 @@ Run [`automate rollback <platform>`](/docs/commands/#rollback) to point `current
 
 ## Windows
 
-The install script and the static binaries target Linux and macOS. On Windows, run the PHAR with PHP 8.3+. The `local` transport is not available there; deploying to remote servers over SSH works.
+The install script and the static binaries target Linux and macOS. On Windows, run the PHAR with PHP 8.4+. The `local` transport is not available there; deploying to remote servers over SSH works.
 
 ## Getting help
 

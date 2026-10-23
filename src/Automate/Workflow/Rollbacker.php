@@ -82,7 +82,7 @@ readonly class Rollbacker
                 throw new \RuntimeException(sprintf('[%s] "current" does not point to a release', $name));
             }
 
-            $available = array_map(basename(...), array_map('trim', $session->listDirectory($session->getReleasesPath())));
+            $available = array_map(basename(...), array_map(trim(...), $session->listDirectory($session->getReleasesPath())));
             $available = array_values(array_filter($available, Session::isReleaseId(...)));
             sort($available, SORT_STRING);
 

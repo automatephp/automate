@@ -81,7 +81,7 @@ The [Deployment lifecycle](/docs/deployment-lifecycle/) page details every step.
 
 **On your machine** (or your CI runner):
 
-- Linux x86_64 or macOS Apple Silicon for the prebuilt binary, or PHP 8.3+ for the PHAR. See [Installation](/docs/installation/).
+- Linux x86_64 or macOS Apple Silicon for the prebuilt binary, or PHP 8.4+ for the PHAR. See [Installation](/docs/installation/).
 - `tar`, when you use `upload` actions.
 
 **On each server:**
