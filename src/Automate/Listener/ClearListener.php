@@ -74,7 +74,7 @@ class ClearListener implements EventSubscriberInterface
 
         $context->exec(static function (Session $session) use ($context): void {
             $releases = $session->listDirectory($session->getReleasesPath());
-            $releases = array_map('trim', $releases);
+            $releases = array_map(trim(...), $releases);
             rsort($releases);
             // ignore others folders
             $releases = array_filter($releases, Session::isReleaseId(...));

@@ -13,8 +13,9 @@ namespace Automate\Transport;
 
 use Automate\Model\Platform;
 use Automate\Model\Server;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Net\SFTP;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Exception\BaseException;
+use phpseclib4\Net\SFTP;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -75,10 +76,10 @@ class SshTransport implements TransportInterface
             throw new \RuntimeException('The connection is not active');
         }
 
-        $rs = $this->sftp->put($target, $path, SFTP::SOURCE_LOCAL_FILE);
-
-        if (!$rs) {
-            throw new \RuntimeException('Sftp error');
+        try {
+            $this->sftp->put($target, $path, SFTP::SOURCE_LOCAL_FILE);
+        } catch (BaseException $baseException) {
+            throw new \RuntimeException('Sftp error: '.$baseException->getMessage(), 0, $baseException);
         }
     }
 

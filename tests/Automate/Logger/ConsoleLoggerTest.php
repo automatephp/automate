@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Automate\Tests\Logger;
 
 use Automate\Logger\ConsoleLogger;
@@ -17,7 +19,7 @@ class ConsoleLoggerTest extends AbstractMockTestCase
         $io = new SymfonyStyle(new ArrayInput([]), $output);
         $resolver = new VariableResolver($io, ['api_token' => 's3cret', 'slug' => 's3cret-slug']);
 
-        (new ConsoleLogger($io, $resolver))->command("curl -H 'Bearer s3cret' /srv/s3cret-slug");
+        new ConsoleLogger($io, $resolver)->command("curl -H 'Bearer s3cret' /srv/s3cret-slug");
 
         $this->assertStringContainsString("curl -H 'Bearer %api_token%' /srv/%slug%", $output->fetch());
     }
@@ -27,7 +29,7 @@ class ConsoleLoggerTest extends AbstractMockTestCase
         $output = new BufferedOutput();
         $io = new SymfonyStyle(new ArrayInput([]), $output);
 
-        (new ConsoleLogger($io))->command('ls -la');
+        new ConsoleLogger($io)->command('ls -la');
 
         $this->assertStringContainsString('ls -la', $output->fetch());
     }

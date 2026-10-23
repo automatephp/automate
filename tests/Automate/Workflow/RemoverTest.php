@@ -220,9 +220,9 @@ class RemoverTest extends AbstractMockTestCase
         $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
-        $context = new Context((new Project())->setOnRemove($hooks), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), force: $force, releaseId: '2024.03.10-2340.241', phase: 'remove');
+        $context = new Context(new Project()->setOnRemove($hooks), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), force: $force, releaseId: '2024.03.10-2340.241', phase: 'remove');
 
-        return (new Remover($context, $keepShared))->remove();
+        return new Remover($context, $keepShared)->remove();
     }
 
     private function fakeServer(string $command): string

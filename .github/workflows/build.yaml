@@ -19,7 +19,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.3
+                    php-version: 8.4
                     coverage: none
                     tools: box
 
@@ -68,7 +68,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.3
+                    php-version: 8.4
                     coverage: none
 
             -   name: Get static-php-cli binary
@@ -87,7 +87,7 @@ jobs:
 
             -   name: Build static binary
                 run: |
-                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" --with-php=8.3 --retry=3
+                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" --with-php=8.4 --retry=3
                     bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" ${{ matrix.build_options }}
                     bin/spc micro:combine build/automate.phar --output build/${{ matrix.filename }}
 

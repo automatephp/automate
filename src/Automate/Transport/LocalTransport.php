@@ -39,7 +39,7 @@ class LocalTransport implements TransportInterface
 
     public function upload(string $path, string $target): void
     {
-        (new Filesystem())->copy($path, $target, true);
+        new Filesystem()->copy($path, $target, true);
     }
 
     public function execAsync(string $command): Process

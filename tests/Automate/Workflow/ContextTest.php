@@ -45,7 +45,7 @@ class ContextTest extends AbstractMockTestCase
         $context = $this->createContext(static fn (): Process => new Process(['sh', '-c', $script]));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('[front-01] '.$expected);
+        $this->expectExceptionMessageIsOrContains('[front-01] '.$expected);
 
         $context->execAsync('a command');
     }
@@ -69,7 +69,7 @@ class ContextTest extends AbstractMockTestCase
 
         // two servers, otherwise execAsync falls back on the synchronous path
         foreach (['front-01', 'front-02'] as $name) {
-            $server = (new Server())->setName($name)->setPath('/home/wwwroot/demo');
+            $server = new Server()->setName($name)->setPath('/home/wwwroot/demo');
             $platform->addServer($server);
 
             $ssh = \Mockery::spy(TransportInterface::class);
@@ -156,7 +156,7 @@ class ContextTest extends AbstractMockTestCase
         $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->once()->with(\Mockery::on(static fn (Server $server): bool => 'b' === $server->getName()))->andReturns($ssh);
 
-        (new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver()))->connect('b');
+        new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver())->connect('b');
     }
 
     public function testConnectRejectsAnUnknownServer(): void
@@ -168,9 +168,9 @@ class ContextTest extends AbstractMockTestCase
         $sshFactory->shouldNotReceive('create');
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Missing server c');
+        $this->expectExceptionMessageIsOrContains('Missing server c');
 
-        (new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver()))->connect('c');
+        new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver())->connect('c');
     }
 
     /**
@@ -178,7 +178,7 @@ class ContextTest extends AbstractMockTestCase
      */
     private function runHook(?string $gitRef, array $variables, string $phase = 'deploy'): string
     {
-        $server = new Server(name: 'vm', path: '/srv/review', password: 's3cret');
+        $server = new Server(name: 'vm', password: 's3cret', path: '/srv/review');
         $platform = new Platform(name: 'review', defaultBranch: 'master');
         $platform->addServer($server);
 
@@ -247,7 +247,7 @@ class ContextTest extends AbstractMockTestCase
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
         $logger = \Mockery::spy(LoggerInterface::class);
-        (new Context(new Project(), $platform, $logger, $sshFactory, new Archiver(), phase: 'remove'))->connect();
+        new Context(new Project(), $platform, $logger, $sshFactory, new Archiver(), phase: 'remove')->connect();
 
         $logger->shouldNotHaveReceived('info');
     }
