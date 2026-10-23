@@ -36,6 +36,7 @@ readonly class Configuration implements ConfigurationInterface
                 ->append($this->addCommandsNode('on_deploy'))
                 ->append($this->addCommandsNode('post_deploy'))
                 ->append($this->addCommandsNode('on_remove', allowUpload: false))
+                ->append($this->addCommandsNode('post_rollback', allowUpload: false))
                 ->append($this->addPlatformsNode())
             ->end();
 

@@ -194,4 +194,22 @@ class LoaderTest extends TestCase
 
         (new Loader())->load(__DIR__.'/../fixtures/unknown_transport.yml');
     }
+
+    public function testLoaderReadsThePostRollbackHook(): void
+    {
+        $project = (new Loader())->load(__DIR__.'/../fixtures/rollback.yml');
+
+        $this->assertCount(2, $project->getPostRollback());
+        $this->assertEquals('docker compose down', $project->getPostRollback()[0]->getCmd());
+        $this->assertEquals(['vm'], $project->getPostRollback()[1]->getOnly());
+        $this->assertSame([], $project->getOnRemove());
+    }
+
+    public function testLoaderRejectsAnUploadInThePostRollbackHook(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "upload" action is not supported in "post_rollback"');
+
+        (new Loader())->load(__DIR__.'/../fixtures/postRollbackUpload.yml');
+    }
 }

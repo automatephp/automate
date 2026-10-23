@@ -61,7 +61,7 @@ class LockListenerTest extends AbstractMockTestCase
             $listener->initLockFile(new DeployEvent($context));
             $this->fail('Expected the deployment to be rejected.');
         } catch (\RuntimeException $runtimeException) {
-            $this->assertSame('A deployment or a removal is already in progress', $runtimeException->getMessage());
+            $this->assertSame('A deployment, a removal or a rollback is already in progress', $runtimeException->getMessage());
         }
 
         $listener->clearLockFile(new DeployEvent($context));

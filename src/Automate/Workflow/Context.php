@@ -31,7 +31,7 @@ class Context
 
     /**
      * @param array<string, string> $variables user variables exposed to the hooks as AUTOMATE__<name>
-     * @param string                $phase     'deploy', 'remove' or 'exec', exported to the hooks as AUTOMATE_PHASE
+     * @param string                $phase     'deploy', 'remove', 'rollback' or 'exec', exported to the hooks as AUTOMATE_PHASE
      */
     public function __construct(
         private readonly Project $project,

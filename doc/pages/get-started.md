@@ -140,7 +140,25 @@ the `current` link and the `shared` folder, and finally the project path itself 
 A `shared_path` located outside of the project path is never deleted, as other projects may use it.
 The command can be run again safely: when the project path does not exist, there is nothing to remove.
 
-### 6. Running a command on a server
+### 6. Rolling back a deployment
+
+The following command points `current` back to a previous release:
+
+~~~~bash
+automate rollback ‹platform› [release] [--yes] [--force] [--var name=value] -c [path_of_config_file]
+~~~~
+
+Without **release**, each server goes back to the release that precedes the one `current` points to
+(for example `2024.04.22-1302.159`; the available releases are those kept by `max_releases`).
+Nothing is changed unless every server has a valid target, and all the servers must agree on it.
+Once `current` is switched and the `post_rollback` hooks (see the reference) have run, the release that was left is moved to
+`releases/failed`, where it can be inspected until the next deployment removes it: a second rollback therefore goes one release
+further back. If a hook fails, that release stays in place.
+
+* **--yes** : do not ask for confirmation. Required when the command runs without a terminal (CI).
+* **--force** : ignore an existing `automate.lock` file.
+
+### 7. Running a command on a server
 
 ~~~~bash
 automate exec ‹platform› ‹server› "‹command›" [--current] [--var name=value] -c [path_of_config_file]

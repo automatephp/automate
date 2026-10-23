@@ -210,7 +210,7 @@ Hook commands run with these environment variables:
 
 | Variable | Value |
 |---|---|
-| `AUTOMATE_PHASE` | `deploy` for the deployment hooks, `remove` for `on_remove`, `exec` for `automate exec --current` |
+| `AUTOMATE_PHASE` | `deploy` for the deployment hooks, `remove` for `on_remove`, `rollback` for `post_rollback`, `exec` for `automate exec --current` |
 | `AUTOMATE_PLATFORM` | platform name |
 | `AUTOMATE_SERVER` | name of the server the command runs on |
 | `AUTOMATE_GIT_REF` | git reference given to `deploy`, or the platform `default_branch` (deployment hooks only) |
@@ -222,7 +222,7 @@ Hook commands run with these environment variables:
 | `AUTOMATE_FIRST_DEPLOY` | `1` if no release has been deployed yet on this server, `0` otherwise (always `0` outside of a deployment) |
 | `AUTOMATE__<name>` | each variable given with `--var` or resolved from the configuration, except those used as a `password` |
 
-During `on_remove` and `exec --current`, the `AUTOMATE_RELEASE_*` variables describe the release that `current` points to.
+During `on_remove`, `post_rollback` and `exec --current`, the `AUTOMATE_RELEASE_*` variables describe the release that `current` points to.
 
 ### 7. Removal Hook
 
@@ -238,3 +238,18 @@ on_remove:
 ~~~~
 
 If a command fails, nothing is deleted. Hooks are skipped on a server that has no `current` release.
+
+### 8. Rollback Hook
+
+**post_rollback:** the list of commands launched on remote servers by `automate rollback`, in the `current` release,
+**after** it has been switched back to the previous release and before the release that was left is moved to `releases/failed`.
+Use it to restart or reload what runs the code (php-fpm, workers, ...). It accepts commands and the `only` option, but no `upload` action.
+
+~~~~yaml
+post_rollback:
+    - "sudo systemctl reload php8.3-fpm"
+    - cmd: "php bin/console messenger:stop-workers"
+      only: ['dddv-exemple-front-01']
+~~~~
+
+If a command fails, the rollback fails and the release that was left stays in place.
