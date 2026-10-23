@@ -1,8 +1,13 @@
-{% extends ['page.html.twig'] %}
+{% extends '_base.html.twig' %}
 
-{%- block content ~%}
-      <div class="c-404">
-            <img src="{{ asset('404.png') }}" alt="Page not found">
-            <h1 class="c-404__title">{% trans %}Page not found{% endtrans %}</h1>
-      </div>
-{%- endblock ~%}
+{% block layout %}
+    <main class="notfound">
+        <p class="eyebrow">Error 404</p>
+        <h1>Page not found</h1>
+        <p>The page you are looking for does not exist or has moved.</p>
+        <div class="actions">
+            <a class="button button--primary" href="{{ url('docs/introduction') }}">Open the documentation</a>
+            <a class="button button--ghost" href="{{ url('/') }}">Back to home</a>
+        </div>
+    </main>
+{% endblock %}
