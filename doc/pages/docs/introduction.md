@@ -10,11 +10,11 @@ Every deployment creates a new, isolated **release** on each server. When all yo
 
 ## Features
 
-- **Atomic, zero-downtime releases.** Each deployment lives in its own timestamped folder; publishing is a single symlink switch.
+- **Atomic, zero-downtime releases.** Each deployment lives in its own timestamped folder; publishing is a single symlink switch, and so is rolling back with `automate rollback`.
 - **Multi-server platforms.** Deploy to one server or to a whole fleet. Hooks run in parallel on every server, and any command can be restricted to a subset with `only`.
 - **Shared files and folders.** Keep `.env.local`, uploads or caches across releases: Automate links them into every new release.
 - **Git, CI build, or both.** Clone the repository on the server, upload the artifacts built by your CI, or mix the two. See [Deployment strategies](/docs/deployment-strategies/).
-- **Hooks at every stage.** Run commands before the release is prepared, on the first deployment of a server, before publishing, after publishing, and when a project is removed. See [Hooks](/docs/hooks/).
+- **Hooks at every stage.** Run commands before the release is prepared, on the first deployment of a server, before publishing, after publishing, after a rollback, and when a project is removed. See [Hooks](/docs/hooks/).
 - **Secrets from the environment.** Passwords and other values are resolved from `--var` options or `AUTOMATE__*` environment variables, and masked in the output. See [Variables](/docs/variables/).
 - **Safe by default.** A lock file prevents two deployments from overlapping, failed releases are set aside, and old releases are pruned automatically.
 - **Any stack.** PHP, Node, Ruby, Python, static sites: if it runs on a Linux server, Automate can deploy it. Automate itself is a single static binary with no runtime dependency.

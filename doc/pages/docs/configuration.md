@@ -63,6 +63,9 @@ post_deploy:
 
 on_remove:
     - sudo systemctl stop shop-worker
+
+post_rollback:
+    - sudo systemctl restart shop-worker
 ```
 
 ## Root options
@@ -78,6 +81,7 @@ on_remove:
 | `on_deploy` | list | `[]` | Actions run before the release is published |
 | `post_deploy` | list | `[]` | Actions run after the release is published |
 | `on_remove` | list | `[]` | Commands run by `automate remove` before anything is deleted |
+| `post_rollback` | list | `[]` | Commands run by `automate rollback` after `current` is switched back |
 
 Hooks are described in detail on the [Hooks](/docs/hooks/) page.
 
@@ -178,7 +182,7 @@ platforms:
 
 Commands run as the user who launches Automate and inherit its environment. The `host`, `user`, `password` and `ssh_key` options are rejected with the `local` transport, since Automate cannot switch user: run Automate as the user who must own the releases.
 
-All the commands work with a local server: `deploy`, `check`, `remove` and `exec --current`. The local transport needs a POSIX system (Linux, macOS); it does not work when Automate itself runs on Windows.
+All the commands work with a local server: `deploy`, `rollback`, `check`, `remove` and `exec --current`. The local transport needs a POSIX system (Linux, macOS); it does not work when Automate itself runs on Windows.
 
 ## Validation
 

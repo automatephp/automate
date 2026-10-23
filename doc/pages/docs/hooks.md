@@ -1,6 +1,6 @@
 ---
 title: "Hooks"
-description: "Run commands and upload files at each stage of a deployment: pre_deploy, on_first_deploy, on_deploy, post_deploy and on_remove, with the environment variables they receive."
+description: "Run commands and upload files at each stage of a deployment: pre_deploy, on_first_deploy, on_deploy, post_deploy, on_remove and post_rollback, with the environment variables they receive."
 ---
 
 Hooks are lists of **actions** run on the servers at a given stage of a deployment. Every hook is optional.
@@ -12,6 +12,7 @@ Hooks are lists of **actions** run on the servers at a given stage of a deployme
 | `on_deploy` | After the shared items, **before** the release is published | The new release |
 | `post_deploy` | **After** the release is published | The new release, now `current` |
 | `on_remove` | By `automate remove`, before anything is deleted | The `current` release |
+| `post_rollback` | By `automate rollback`, **after** `current` is switched back | The restored release, now `current` |
 
 The full sequence is described in the [Deployment lifecycle](/docs/deployment-lifecycle/).
 
@@ -71,7 +72,7 @@ Automate packs the files in a `tar.gz` archive, sends it to each server and extr
 - a **plain string** excludes every path that contains it: `node_modules` drops that folder wherever it appears;
 - a **regular expression**, with its delimiters, is matched against the same relative path: `'/^tests\//'` only drops the `tests` folder at the root of the upload. Escape the delimiter inside the expression: `'/^folder/subfolder/'` is not a valid pattern and is rejected.
 
-`upload` is not allowed in `on_remove`.
+`upload` is not allowed in `on_remove` and `post_rollback`.
 
 ## First deployment
 
@@ -105,13 +106,26 @@ on_remove:
 
 If a command fails, nothing is deleted on any server. The hook is skipped on a server that has no `current` release.
 
+## Rollback hook
+
+`post_rollback` lists the commands run by [`automate rollback`](/docs/commands/#rollback) in the restored release, **after** `current` has been switched back to it and before the release that was left is moved to `releases/failed`. Use it to reload or restart what runs the code: PHP-FPM, workers, a Node server.
+
+```yaml
+post_rollback:
+    - sudo systemctl reload php8.3-fpm
+    - cmd: php bin/console messenger:stop-workers
+      only: [web-01]
+```
+
+If a command fails, the rollback is reported as failed: `current` already points to the restored release, and the release that was left stays in `releases/`.
+
 ## Hook environment
 
 Every command runs with these environment variables, so scripts can locate the release and the shared folder without hard-coding paths:
 
 | Variable | Value |
 |---|---|
-| `AUTOMATE_PHASE` | `deploy` for the deployment hooks, `remove` for `on_remove`, `exec` for `automate exec --current` |
+| `AUTOMATE_PHASE` | `deploy` for the deployment hooks, `remove` for `on_remove`, `rollback` for `post_rollback`, `exec` for `automate exec --current` |
 | `AUTOMATE_PLATFORM` | The platform name |
 | `AUTOMATE_SERVER` | The name of the server the command runs on |
 | `AUTOMATE_GIT_REF` | The reference given to `deploy`, or the `default_branch` of the platform (deployment hooks only) |
@@ -123,7 +137,7 @@ Every command runs with these environment variables, so scripts can locate the r
 | `AUTOMATE_FIRST_DEPLOY` | `1` on a server with no release yet, `0` otherwise. Always `0` outside of a deployment |
 | `AUTOMATE__<name>` | Each [variable](/docs/variables/) given with `--var` or resolved from the configuration, except the ones used as a `password` |
 
-During `on_remove` and `exec --current`, the `AUTOMATE_RELEASE_*` variables describe the release that `current` points to.
+During `on_remove`, `post_rollback` and `exec --current`, the `AUTOMATE_RELEASE_*` variables describe the release that `current` points to.
 
 ```yaml
 post_deploy:

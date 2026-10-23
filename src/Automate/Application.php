@@ -15,6 +15,7 @@ use Automate\Command\CheckCommand;
 use Automate\Command\DeployCommand;
 use Automate\Command\ExecCommand;
 use Automate\Command\RemoveCommand;
+use Automate\Command\RollbackCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
@@ -48,6 +49,7 @@ class Application extends BaseApplication
         $commands[] = new CheckCommand();
         $commands[] = new ExecCommand();
         $commands[] = new RemoveCommand();
+        $commands[] = new RollbackCommand();
 
         return $commands;
     }

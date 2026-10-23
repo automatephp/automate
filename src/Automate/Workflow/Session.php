@@ -81,14 +81,24 @@ readonly class Session
     }
 
     /**
+     * Id of the release that "current" points to, null when "current" is not a symlink.
+     */
+    public function getCurrentReleaseId(): ?string
+    {
+        $releaseId = basename(trim($this->exec(sprintf('readlink %s || true', $this->getCurrentPath()), false)));
+
+        return '' === $releaseId ? null : $releaseId;
+    }
+
+    /**
      * Same session on the release that "current" points to, so that the release variables
      * exported to a command describe the code that is live. Unchanged when "current" is not a symlink.
      */
     public function withCurrentRelease(): self
     {
-        $releaseId = basename(trim($this->exec(sprintf('readlink %s || true', $this->getCurrentPath()), false)));
+        $releaseId = $this->getCurrentReleaseId();
 
-        return '' === $releaseId ? $this : $this->withReleaseId($releaseId);
+        return null === $releaseId ? $this : $this->withReleaseId($releaseId);
     }
 
     public function login(): void

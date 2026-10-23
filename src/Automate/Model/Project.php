@@ -21,6 +21,7 @@ class Project
      * @param Action[]                $onDeploy
      * @param Action[]                $postDeploy
      * @param Action[]                $onRemove
+     * @param Action[]                $postRollback
      * @param array<string, Platform> $platforms
      */
     public function __construct(
@@ -32,6 +33,7 @@ class Project
         private array $onDeploy = [],
         private array $postDeploy = [],
         private array $onRemove = [],
+        private array $postRollback = [],
         private array $platforms = [],
     ) {
     }
@@ -170,6 +172,24 @@ class Project
     public function setOnRemove(array $onRemove): self
     {
         $this->onRemove = $onRemove;
+
+        return $this;
+    }
+
+    /**
+     * @return Action[]
+     */
+    public function getPostRollback(): array
+    {
+        return $this->postRollback;
+    }
+
+    /**
+     * @param Action[] $postRollback
+     */
+    public function setPostRollback(array $postRollback): self
+    {
+        $this->postRollback = $postRollback;
 
         return $this;
     }

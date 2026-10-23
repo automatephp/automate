@@ -24,7 +24,7 @@ post_deploy:
 
 Values are looked up in this order:
 
-1. the `--var name=value` option of `deploy`, `check`, `remove` and `exec`, which can be repeated:
+1. the `--var name=value` option of `deploy`, `rollback`, `check`, `remove` and `exec`, which can be repeated:
    `automate deploy review my-branch --var slug=my-branch`
 2. the environment variable `AUTOMATE__name`, for example `AUTOMATE__review_password`;
 3. for a `password` only, an **interactive prompt** in the terminal.

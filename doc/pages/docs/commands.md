@@ -1,6 +1,6 @@
 ---
 title: "Commands"
-description: "Reference of the Automate command line: deploy, check, exec and remove, with their arguments and options."
+description: "Reference of the Automate command line: deploy, rollback, check, exec and remove, with their arguments and options."
 ---
 
 ```text
@@ -10,6 +10,7 @@ automate <command> [arguments] [options]
 | Command | Purpose |
 |---|---|
 | [`deploy`](#deploy) | Deploy a platform |
+| [`rollback`](#rollback) | Point `current` back to a previous release |
 | [`check`](#check) | Verify the connection to the servers and the access to the repository |
 | [`exec`](#exec) | Run a command on one server |
 | [`remove`](#remove) | Remove the project from the servers of a platform |
@@ -49,6 +50,33 @@ automate deploy review my-branch --var slug=my-branch
 ```
 
 The command prints a summary (repository, platform, servers, version, variable names), then each step with the output of the commands prefixed by the server name. It exits with a non-zero status when the deployment fails.
+
+## rollback
+
+```bash
+automate rollback <platform> [<release>] [--yes] [--force] [-c <file>] [--var name=value]
+```
+
+Points `current` back to a previous release on every server of the platform, without cloning or building anything. The command shows the servers and the targeted release, then asks for confirmation. See [Rolling back](/docs/deployment-lifecycle/#rolling-back).
+
+| Argument or option | Description |
+|---|---|
+| `platform` | Name of the platform |
+| `release` | Id of the release to go back to, for example `2026.10.22-1805.341`. Default: the release that precedes the `current` one on each server |
+| `-y, --yes` | Do not ask for confirmation. Required when the command runs without a terminal |
+| `-f, --force` | Ignore an existing `automate.lock` file |
+
+```bash
+automate rollback production
+automate rollback production 2026.10.22-1805.341
+automate rollback production --yes
+```
+
+On each server, Automate switches `current` to the target release, runs the [`post_rollback` hooks](/docs/hooks/#rollback-hook) in it, then moves the release that was left to `releases/failed`, where it stays for inspection until the next deployment.
+
+- Nothing is changed unless every server has a valid target: `current` must point to one of the listed releases, the target must exist on the server, and without an explicit `release` all the servers must agree on the previous one. Otherwise the command stops and asks for an explicit release.
+- If a `post_rollback` command fails, `current` has already been switched, the release that was left stays in `releases/`, and the command exits with a non-zero status.
+- Since the release that was left is no longer listed, a second `rollback` goes one release further back.
 
 ## check
 

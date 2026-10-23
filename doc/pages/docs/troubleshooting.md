@@ -11,9 +11,9 @@ To reproduce a command exactly as a hook runs it, use [`automate exec --current`
 
 ## Errors
 
-### A deployment is already in progress
+### A deployment, a removal or a rollback is already in progress
 
-An `automate.lock` file exists in the project `path` of a server. Either another deployment is really running, or a previous one crashed before releasing the lock (lost connection, killed process).
+An `automate.lock` file exists in the project `path` of a server. Either another command is really running, or a previous one crashed before releasing the lock (lost connection, killed process).
 
 When you are sure nothing is running, deploy with `--force` or remove the lock:
 
@@ -71,7 +71,7 @@ The command exited with a non-zero status without printing anything. Run it with
 
 ## Inspecting a failed release
 
-When a deployment fails before publishing, its release is moved to `releases/failed` on each server. The folder is kept until the next deployment, so you can look at it:
+When a deployment fails before publishing, its release is moved to `releases/failed` on each server. The release left by `automate rollback` goes there too. The folder is kept until the next deployment, so you can look at it:
 
 ```bash
 automate exec production web-01 "ls -la /var/www/shop/releases/failed"
@@ -86,7 +86,7 @@ automate exec production web-01 "cat /var/www/shop/releases/failed/var/log/prod.
 
 ## Rolling back
 
-Point `current` to a previous release on every server, as described in [Deployment lifecycle](/docs/deployment-lifecycle/#rolling-back).
+Run [`automate rollback <platform>`](/docs/commands/#rollback) to point `current` back to the previous release on every server, or give it a release id. See [Deployment lifecycle](/docs/deployment-lifecycle/#rolling-back).
 
 ## Windows
 
