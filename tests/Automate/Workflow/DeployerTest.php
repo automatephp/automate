@@ -6,9 +6,9 @@ use Automate\Archiver;
 use Automate\Loader;
 use Automate\Logger\LoggerInterface;
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
-use Automate\Ssh\SshFactory;
 use Automate\Tests\AbstractMockTestCase;
+use Automate\Transport\TransportFactory;
+use Automate\Transport\TransportInterface;
 use Automate\Workflow\Context;
 use Automate\Workflow\Deployer;
 use Symfony\Component\Process\Process;
@@ -22,8 +22,8 @@ class DeployerTest extends AbstractMockTestCase
         $platform = $project->getPlatform('development');
         $logger = \Mockery::spy(LoggerInterface::class);
 
-        $ssh = \Mockery::spy(Ssh::class);
-        $sshFactory = \Mockery::spy(SshFactory::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
+        $sshFactory = \Mockery::spy(TransportFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
         $archiver = \Mockery::mock(Archiver::class);
@@ -114,10 +114,10 @@ class DeployerTest extends AbstractMockTestCase
             $sections[] = $name;
         });
 
-        $sshFactory = \Mockery::mock(SshFactory::class);
-        $sshFactory->shouldReceive('create')->andReturnUsing(static function (Server $server) use (&$commands, $isNew): Ssh {
+        $sshFactory = \Mockery::mock(TransportFactory::class);
+        $sshFactory->shouldReceive('create')->andReturnUsing(static function (Server $server) use (&$commands, $isNew): TransportInterface {
             $name = $server->getName();
-            $ssh = \Mockery::mock(Ssh::class);
+            $ssh = \Mockery::mock(TransportInterface::class);
             $ssh->shouldReceive('login');
             $ssh->shouldReceive('execAsync')->andReturnUsing(static function (string $command) use ($name, &$commands): Process {
                 $commands[$name][] = preg_replace('/^export [^;]*; cd [^;&]* && /', '', $command);

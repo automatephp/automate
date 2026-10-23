@@ -1,0 +1,7 @@
+platforms:
+    development:
+        default_branch: master
+        servers:
+            web:
+                user: automate
+                path: /home/wwwroot/automate/demo

@@ -3,8 +3,8 @@
 namespace Automate\Tests\Workflow;
 
 use Automate\Model\Server;
-use Automate\Ssh\Ssh;
 use Automate\Tests\AbstractMockTestCase;
+use Automate\Transport\TransportInterface;
 use Automate\Workflow\Session;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
@@ -16,7 +16,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testSessionPath(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $session = $this->getSession($ssh);
 
         $this->assertEquals('/var/www/current', $session->getCurrentPath());
@@ -27,7 +27,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testExecCommand(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('ls');
 
         $session = $this->getSession($ssh);
@@ -41,7 +41,7 @@ class SessionTest extends AbstractMockTestCase
      */
     public function testExecCommandWithWorkingDir(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with(self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0'; cd /var/www/releases/2024.03.10-2340.241 && ls")->once();
 
         $session = $this->getSession($ssh);
@@ -51,7 +51,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testExecCommandExportsTheEnvironment(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with(
             self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0' AUTOMATE_PLATFORM='review' AUTOMATE__slug='feat-x'; cd /var/www/releases/2024.03.10-2340.241 && ls"
         )->once();
@@ -63,7 +63,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testExecCommandEscapesSingleQuotesInTheEnvironment(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with(\Mockery::on(static fn (string $command): bool => str_contains($command, "AUTOMATE__x='a'\\''; rm -rf /; echo '\\''b'")))->once();
 
         $session = $this->getSession($ssh, ['AUTOMATE__x' => "a'; rm -rf /; echo 'b"]);
@@ -73,7 +73,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testInternalCommandsDoNotExportTheEnvironment(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('ls')->once();
 
         $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review']);
@@ -83,7 +83,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testExecAsyncExportsTheEnvironment(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('execAsync')->with(
             self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0' AUTOMATE_PLATFORM='review'; cd /var/www/releases/2024.03.10-2340.241 && ls"
         )->once()->andReturns(new Process(['true']));
@@ -95,7 +95,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testExecCommandInAnotherWorkingDir(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with(self::RELEASE_EXPORTS." AUTOMATE_FIRST_DEPLOY='0'; cd /var/www/current && ls")->once();
 
         $this->getSession($ssh)->exec('ls', workingDir: '/var/www/current');
@@ -103,7 +103,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testWithReleaseIdChangesTheReleasePathAndKeepsTheEnvironment(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with(\Mockery::on(static fn (string $command): bool => str_contains($command, "AUTOMATE_RELEASE_ID='2024.01.01-0000.001'") && str_contains($command, "AUTOMATE_PLATFORM='review'")))->once();
 
         $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review'])->withReleaseId('2024.01.01-0000.001');
@@ -114,7 +114,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testWithCurrentReleaseFollowsTheCurrentSymlink(): void
     {
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('readlink /var/www/current || true')->once()->andReturns("/var/www/releases/2024.01.01-0000.001\n");
 
         $session = $this->getSession($ssh)->withCurrentRelease();
@@ -124,7 +124,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testWithCurrentReleaseIsUnchangedWithoutSymlink(): void
     {
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('readlink /var/www/current || true')->once()->andReturns('');
 
         $this->assertEquals('/var/www/releases/2024.03.10-2340.241', $this->getSession($ssh)->withCurrentRelease()->getReleasePath());
@@ -132,7 +132,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testMkdir(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('mkdir /path/to/folder')->once();
         $ssh->expects('exec')->with('mkdir -p /path/to/folder')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
@@ -145,7 +145,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testMv(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('mv /home/a.txt /home/b.txt')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
@@ -156,7 +156,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testMvWithMkdir(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('mkdir -p /data');
         $ssh->expects('exec')->with('mv /home/a /data/usr')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
@@ -168,7 +168,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testRm(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('rm /home/a.txt')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
@@ -182,7 +182,7 @@ class SessionTest extends AbstractMockTestCase
      */
     public function testExists(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('if test -e "/home/test" || test -L "/home/test"; then echo "Y";fi')->once()->andReturns("Y\n");
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
@@ -193,7 +193,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testDoesNotExist(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('if test -e "/home/missing" || test -L "/home/missing"; then echo "Y";fi')->once()->andReturns('');
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
@@ -204,7 +204,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testSymlink(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('ln -sfn /data/a.txt /data/b.txt')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
@@ -215,7 +215,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testTouch(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('mkdir -p /data')->once();
         $ssh->expects('exec')->with('touch /data/a.txt')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
@@ -227,7 +227,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testListDirectory(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with('find /data -maxdepth 1 -mindepth 1 -type d')->once();
         $ssh->shouldReceive()->getExitStatus()->andReturns(0);
 
@@ -238,7 +238,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testHasReleasesIsFalseWithoutReleasesFolder(): void
     {
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('if test -e "/var/www/releases" || test -L "/var/www/releases"; then echo "Y";fi')->once()->andReturns('');
 
         $this->assertFalse($this->getSession($ssh)->hasReleases());
@@ -246,7 +246,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testHasReleasesIgnoresTheFailedRelease(): void
     {
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('if test -e "/var/www/releases" || test -L "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
         $ssh->shouldReceive('exec')->with('find /var/www/releases -maxdepth 1 -mindepth 1 -type d')->andReturns('/var/www/releases/failed');
 
@@ -255,7 +255,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testHasReleasesWithASuccessfulRelease(): void
     {
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('if test -e "/var/www/releases" || test -L "/var/www/releases"; then echo "Y";fi')->andReturns('Y');
         $ssh->shouldReceive('exec')->with('find /var/www/releases -maxdepth 1 -mindepth 1 -type d')->andReturns("/var/www/releases/failed\n/var/www/releases/2024.03.09-1200.123");
 
@@ -268,7 +268,7 @@ class SessionTest extends AbstractMockTestCase
      */
     public function testHasReleasesIgnoresTheFailedReleaseWhenThePathLooksLikeARelease(): void
     {
-        $ssh = \Mockery::mock(Ssh::class);
+        $ssh = \Mockery::mock(TransportInterface::class);
         $ssh->shouldReceive('exec')->with('if test -e "/srv/2024.01.01-1200.123/app/releases" || test -L "/srv/2024.01.01-1200.123/app/releases"; then echo "Y";fi')->andReturns('Y');
         $ssh->shouldReceive('exec')->with('find /srv/2024.01.01-1200.123/app/releases -maxdepth 1 -mindepth 1 -type d')->andReturns('/srv/2024.01.01-1200.123/app/releases/failed');
 
@@ -297,7 +297,7 @@ class SessionTest extends AbstractMockTestCase
 
     public function testFirstDeploymentIsExportedToTheHooks(): void
     {
-        $ssh = \Mockery::spy(Ssh::class);
+        $ssh = \Mockery::spy(TransportInterface::class);
         $ssh->expects('exec')->with(\Mockery::on(static fn (string $command): bool => str_contains($command, "AUTOMATE_FIRST_DEPLOY='1'")))->once();
 
         $session = $this->getSession($ssh, ['AUTOMATE_PLATFORM' => 'review'])->withFirstDeploy(true);
@@ -309,7 +309,7 @@ class SessionTest extends AbstractMockTestCase
     /**
      * @param array<string, string> $environment
      */
-    private function getSession(Ssh $ssh, array $environment = [], string $path = '/var/www'): Session
+    private function getSession(TransportInterface $ssh, array $environment = [], string $path = '/var/www'): Session
     {
         $server = new Server(name : 'server1', path: $path);
 

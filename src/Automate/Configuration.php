@@ -11,6 +11,7 @@
 
 namespace Automate;
 
+use Automate\Model\Transport;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -104,9 +105,32 @@ readonly class Configuration implements ConfigurationInterface
             ->normalizeKeys(false)
             ->useAttributeAsKey('name')
             ->arrayPrototype()
+                ->validate()
+                    ->always(static function (array $server): array {
+                        if (Transport::Ssh->value === $server['transport']) {
+                            foreach (['host', 'user'] as $option) {
+                                if (!isset($server[$option])) {
+                                    throw new \InvalidArgumentException(sprintf('The "%s" option is required with the "%s" transport.', $option, $server['transport']));
+                                }
+                            }
+
+                            return $server;
+                        }
+
+                        // silently ignoring "user: www-data" would let one believe the commands run as that user
+                        foreach (['host', 'user', 'password', 'ssh_key'] as $option) {
+                            if (isset($server[$option])) {
+                                throw new \InvalidArgumentException(sprintf('The "%s" option is not supported with the "%s" transport: the commands run on the current machine as the user who launches Automate.', $option, $server['transport']));
+                            }
+                        }
+
+                        return $server;
+                    })
+                ->end()
                 ->children()
-                    ->scalarNode('host')->isRequired()->cannotBeEmpty()->end()
-                    ->scalarNode('user')->isRequired()->cannotBeEmpty()->end()
+                    ->enumNode('transport')->values(Transport::values())->defaultValue(Transport::Ssh->value)->end()
+                    ->scalarNode('host')->cannotBeEmpty()->end()
+                    ->scalarNode('user')->cannotBeEmpty()->end()
                     ->scalarNode('password')->end()
                     ->scalarNode('ssh_key')->cannotBeEmpty()->end()
                     ->scalarNode('path')->isRequired()->cannotBeEmpty()->end()

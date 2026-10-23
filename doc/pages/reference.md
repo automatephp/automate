@@ -48,6 +48,26 @@ It’s possible to authenticate on the server with a password or with a private 
 
 The `password` is usually a variable, see "Variables" below: if it cannot be resolved, Automate asks you for it in your terminal.
 
+#### Deploying on the local machine
+
+By default, servers are reached over SSH (`transport: ssh`). To deploy on the machine that runs Automate, use the `local` transport: no SSH connection is involved, commands are run directly and uploads are copied on the file system.
+
+~~~~yaml
+platforms:
+    production:
+        default_branch: master
+        servers:
+            self:
+                transport: local
+                path: /home/wwwroot/
+~~~~
+
+With the `local` transport, the commands run on the current machine as the user who launches Automate, and they inherit its environment. The `host`, `user`, `password` and `ssh_key` options are rejected: Automate cannot switch user, so declaring one would be misleading. Run Automate itself as the user who must own the releases.
+
+Every command works with a local server: `deploy`, `check`, `remove` and `exec --current`.
+
+The local transport runs the commands through `/bin/sh` (`export`, `&&`, `test`...), exactly as they are sent to an SSH server. It therefore requires a POSIX system (Linux, macOS): it does not work when Automate itself runs on Windows.
+
 ### 3. Variables
 
 A `%variable_name%` token can be used in any string value of the configuration (`path`, `host`, hook commands, ...),

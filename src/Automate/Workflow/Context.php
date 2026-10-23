@@ -16,7 +16,7 @@ use Automate\Logger\LoggerInterface;
 use Automate\Model\Platform;
 use Automate\Model\Project;
 use Automate\Model\Server;
-use Automate\Ssh\SshFactory;
+use Automate\Transport\TransportFactory;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -37,7 +37,7 @@ class Context
         private readonly Project $project,
         private readonly Platform $platform,
         private readonly LoggerInterface $logger,
-        private readonly SshFactory $sshFactory,
+        private readonly TransportFactory $transportFactory,
         private readonly Archiver $archiver,
         private readonly ?string $gitRef = null,
         private readonly bool $force = false,
@@ -60,8 +60,8 @@ class Context
                 continue;
             }
 
-            $ssh = $this->sshFactory->create($server);
-            $session = new Session($server, $ssh, $this->getReleaseId(), $this->getHookEnvironment($server));
+            $transport = $this->transportFactory->create($server);
+            $session = new Session($server, $transport, $this->getReleaseId(), $this->getHookEnvironment($server));
             $session->login();
 
             // only a deployment cares, and the lookup costs SSH round trips

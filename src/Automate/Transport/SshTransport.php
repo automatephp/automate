@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\Ssh;
+namespace Automate\Transport;
 
 use Automate\Model\Platform;
 use Automate\Model\Server;
@@ -18,7 +18,7 @@ use phpseclib3\Net\SFTP;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
-class Ssh
+class SshTransport implements TransportInterface
 {
     private ?SFTP $sftp = null;
 

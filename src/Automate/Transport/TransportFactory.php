@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Automate\Ssh;
+namespace Automate\Transport;
 
 use Automate\Model\Platform;
 use Automate\Model\Server;
 
-class SshFactory
+class TransportFactory
 {
     /**
      * @param array<string, string> $variables
@@ -26,8 +26,12 @@ class SshFactory
     ) {
     }
 
-    public function create(Server $server): Ssh
+    public function create(Server $server): TransportInterface
     {
-        return new Ssh($this->platform, $server, $this->variables, $this->configFile);
+        if ($server->isLocal()) {
+            return new LocalTransport();
+        }
+
+        return new SshTransport($this->platform, $server, $this->variables, $this->configFile);
     }
 }

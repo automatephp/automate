@@ -16,6 +16,7 @@ use Automate\Model\Action;
 use Automate\Model\Command;
 use Automate\Model\Project;
 use Automate\Model\Server;
+use Automate\Model\Transport;
 use Automate\Model\Upload;
 use Automate\VariableResolver;
 use PHPUnit\Framework\TestCase;
@@ -146,5 +147,51 @@ class LoaderTest extends TestCase
         $this->expectExceptionMessage('The "upload" action is not supported in "on_remove"');
 
         (new Loader())->load(__DIR__.'/../fixtures/onRemoveUpload.yml');
+    }
+
+    public function testLoadLocalServer(): void
+    {
+        $project = (new Loader())->load(__DIR__.'/../fixtures/local.yml');
+
+        $server = $project->getPlatform('development')->getServer('self');
+        $this->assertSame(Transport::Local, $server->getTransport());
+        $this->assertTrue($server->isLocal());
+        $this->assertNull($server->getHost());
+        $this->assertNull($server->getUser());
+    }
+
+    public function testServerUsesSshByDefault(): void
+    {
+        $project = (new Loader())->load(__DIR__.'/../fixtures/simple.yml');
+
+        $server = $project->getPlatform('development')->getServer('dddv-exemple-front-01');
+        $this->assertSame(Transport::Ssh, $server->getTransport());
+        $this->assertFalse($server->isLocal());
+    }
+
+    public function testSshServerRequiresHostAndUser(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('automate.platforms.development.servers.web');
+        $this->expectExceptionMessage('The "host" option is required with the "ssh" transport.');
+
+        (new Loader())->load(__DIR__.'/../fixtures/ssh_without_host.yml');
+    }
+
+    public function testLocalServerRejectsSshOptions(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('automate.platforms.development.servers.self');
+        $this->expectExceptionMessage('The "user" option is not supported with the "local" transport');
+
+        (new Loader())->load(__DIR__.'/../fixtures/local_with_ssh_options.yml');
+    }
+
+    public function testUnknownTransportIsRejected(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('ftp');
+
+        (new Loader())->load(__DIR__.'/../fixtures/unknown_transport.yml');
     }
 }

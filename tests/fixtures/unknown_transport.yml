@@ -1,0 +1,7 @@
+platforms:
+    development:
+        default_branch: master
+        servers:
+            web:
+                transport: ftp
+                path: /home/wwwroot/automate/demo
