@@ -15,6 +15,8 @@ use Automate\Event\DeployEvent;
 use Automate\Event\DeployEvents;
 use Automate\Event\RemoveEvent;
 use Automate\Event\RemoveEvents;
+use Automate\Event\RollbackEvent;
+use Automate\Event\RollbackEvents;
 use Automate\Model\Server;
 use Automate\Workflow\Session;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -40,20 +42,23 @@ class LockListener implements EventSubscriberInterface
             RemoveEvents::INIT => 'initLockFile',
             RemoveEvents::TERMINATE => 'clearLockFile',
             RemoveEvents::FAILED => 'clearLockFile',
+            RollbackEvents::INIT => 'initLockFile',
+            RollbackEvents::TERMINATE => 'clearLockFile',
+            RollbackEvents::FAILED => 'clearLockFile',
         ];
     }
 
     /**
-     * Check if a deployment or a removal is already in progress
+     * Check if a deployment, a removal or a rollback is already in progress
      * and create lock file.
      */
-    public function initLockFile(DeployEvent|RemoveEvent $event): void
+    public function initLockFile(DeployEvent|RemoveEvent|RollbackEvent $event): void
     {
         $context = $event->getContext();
 
         $context->exec(function (Session $session) use ($context): void {
             if ($session->exists($this->getLockFilePath($session->getServer())) && !$context->isForce()) {
-                throw new \RuntimeException('A deployment or a removal is already in progress');
+                throw new \RuntimeException('A deployment, a removal or a rollback is already in progress');
             }
 
             $session->touch($this->getLockFilePath($session->getServer()));
@@ -68,7 +73,7 @@ class LockListener implements EventSubscriberInterface
     /**
      * Remove lock file.
      */
-    public function clearLockFile(DeployEvent|RemoveEvent $event): void
+    public function clearLockFile(DeployEvent|RemoveEvent|RollbackEvent $event): void
     {
         if ([] === $this->lockedServers) {
             return;
