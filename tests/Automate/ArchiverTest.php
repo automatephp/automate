@@ -103,7 +103,7 @@ class ArchiverTest extends TestCase
     public function testArchiveRejectsInvalidExcludePattern(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid "exclude" pattern "/^folder/subfolder/"');
+        $this->expectExceptionMessageIsOrContains('Invalid "exclude" pattern "/^folder/subfolder/"');
 
         $this->archiver->archive(self::PATH, ['/^folder/subfolder/']);
     }

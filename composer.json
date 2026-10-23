@@ -3,7 +3,7 @@
     "description": "Deployment Tool",
     "type": "project",
     "require": {
-        "php": ">=8.3",
+        "php": ">=8.4.1",
         "symfony/console": "^7.4",
         "symfony/yaml": "^7.4",
         "symfony/event-dispatcher": "^7.4",
@@ -13,15 +13,15 @@
         "symfony/process": "^7.4",
         "symfony/http-client": "^7.4",
         "symfony/property-access": "^7.4",
-        "phpseclib/phpseclib": "^3.0.56",
-        "phpdocumentor/reflection-docblock": "^5.6",
+        "phpseclib/phpseclib": "^4.0",
+        "phpdocumentor/reflection-docblock": "^6.0",
         "symfony/finder": "^7.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.5",
-        "phpstan/phpstan": "^1.12",
-        "rector/rector": "^1.2",
-        "mockery/mockery": "^1.6",
+        "phpunit/phpunit": "^13.4",
+        "phpstan/phpstan": "^2.3",
+        "rector/rector": "^2.7",
+        "mockery/mockery": "^1.6.15",
         "friendsofphp/php-cs-fixer": "^3.95",
         "symfony/var-dumper": "^7.4"
     },

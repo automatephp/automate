@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Automate\Tests\Command;
 
 use Automate\Application;
@@ -11,7 +13,7 @@ class RemoveCommandTest extends TestCase
 {
     public function testRemovalIsRefusedWithoutConfirmation(): void
     {
-        $tester = new CommandTester((new Application())->get('remove'));
+        $tester = new CommandTester(new Application()->get('remove'));
 
         $status = $tester->execute(
             ['platform' => 'review', '--config' => __DIR__.'/../../fixtures/onRemove.yml'],
@@ -26,7 +28,7 @@ class RemoveCommandTest extends TestCase
 
     public function testSummaryListsTheVariableNames(): void
     {
-        $tester = new CommandTester((new Application())->get('remove'));
+        $tester = new CommandTester(new Application()->get('remove'));
 
         $tester->execute(
             ['platform' => 'review', '--config' => __DIR__.'/../../fixtures/onRemove.yml', '--var' => ['slug=feat-x']],
@@ -39,7 +41,7 @@ class RemoveCommandTest extends TestCase
 
     public function testSummaryShowsTheLocalServers(): void
     {
-        $tester = new CommandTester((new Application())->get('remove'));
+        $tester = new CommandTester(new Application()->get('remove'));
 
         $status = $tester->execute(
             ['platform' => 'development', '--config' => __DIR__.'/../../fixtures/local.yml'],

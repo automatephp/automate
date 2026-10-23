@@ -276,9 +276,9 @@ class RollbackerTest extends AbstractMockTestCase
         $sshFactory = \Mockery::mock(TransportFactory::class);
         $sshFactory->shouldReceive('create')->andReturns($ssh);
 
-        $context = new Context((new Project())->setPostRollback($hooks), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), force: $force, releaseId: '2024.03.12-0900.000', phase: 'rollback');
+        $context = new Context(new Project()->setPostRollback($hooks), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, new Archiver(), force: $force, releaseId: '2024.03.12-0900.000', phase: 'rollback');
 
-        return (new Rollbacker($context, $release))->rollback();
+        return new Rollbacker($context, $release)->rollback();
     }
 
     private function fakeServer(string $command): string

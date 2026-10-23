@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Automate\Tests\Model;
 
 use Automate\Model\Server;

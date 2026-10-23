@@ -37,7 +37,7 @@ class ClearListenerTest extends AbstractMockTestCase
         ]);
 
         $platform = new Platform('production', maxReleases: 1);
-        $server = (new Server())->setName('front-01')->setPath('/srv/2024.01.01-1200.123/app');
+        $server = new Server()->setName('front-01')->setPath('/srv/2024.01.01-1200.123/app');
         $platform->addServer($server);
 
         $ssh = \Mockery::spy(TransportInterface::class);
@@ -49,7 +49,7 @@ class ClearListenerTest extends AbstractMockTestCase
         $context = new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, \Mockery::mock(Archiver::class), releaseId: '2024.03.10-2340.241');
         $context->connect();
 
-        (new ClearListener())->clearReleases(new DeployEvent($context));
+        new ClearListener()->clearReleases(new DeployEvent($context));
 
         $ssh->shouldHaveReceived('exec')->with('rm -R /srv/2024.01.01-1200.123/app/releases/2024.03.08-1000.100')->once();
         $ssh->shouldNotHaveReceived('exec', ['rm -R /srv/2024.01.01-1200.123/app/releases/failed']);
@@ -67,7 +67,7 @@ class ClearListenerTest extends AbstractMockTestCase
         ]);
 
         $platform = new Platform('production', maxReleases: 1);
-        $server = (new Server())->setName('front-01')->setPath('/srv/app');
+        $server = new Server()->setName('front-01')->setPath('/srv/app');
         $platform->addServer($server);
 
         $ssh = \Mockery::spy(TransportInterface::class);
@@ -80,7 +80,7 @@ class ClearListenerTest extends AbstractMockTestCase
         $context = new Context(new Project(), $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, \Mockery::mock(Archiver::class), releaseId: '2024.03.09-1200.200');
         $context->connect();
 
-        (new ClearListener())->clearReleases(new DeployEvent($context));
+        new ClearListener()->clearReleases(new DeployEvent($context));
 
         $ssh->shouldNotHaveReceived('exec', ['rm -R /srv/app/releases/2024.03.09-1200.200']);
         $ssh->shouldNotHaveReceived('exec', ['rm -R /srv/app/releases/2024.03.09-1200.500']);

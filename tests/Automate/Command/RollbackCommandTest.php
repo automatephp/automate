@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Automate\Tests\Command;
 
 use Automate\Application;
@@ -12,7 +14,7 @@ class RollbackCommandTest extends TestCase
 {
     public function testRollbackIsRefusedWithoutConfirmation(): void
     {
-        $tester = new CommandTester((new Application())->get('rollback'));
+        $tester = new CommandTester(new Application()->get('rollback'));
 
         $status = $tester->execute(
             ['platform' => 'review', '--config' => __DIR__.'/../../fixtures/rollback.yml'],
@@ -31,10 +33,10 @@ class RollbackCommandTest extends TestCase
     #[TestWith(['2024.03.09-1200.123/'])]
     public function testMalformedReleaseIsRefusedBeforeAnyConnection(string $release): void
     {
-        $tester = new CommandTester((new Application())->get('rollback'));
+        $tester = new CommandTester(new Application()->get('rollback'));
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(sprintf('"%s" is not a release id', $release));
+        $this->expectExceptionMessageIsOrContains(sprintf('"%s" is not a release id', $release));
 
         $tester->execute(
             ['platform' => 'review', 'release' => $release, '--config' => __DIR__.'/../../fixtures/rollback.yml', '--yes' => true],
@@ -44,7 +46,7 @@ class RollbackCommandTest extends TestCase
 
     public function testSummaryListsTheVariableNames(): void
     {
-        $tester = new CommandTester((new Application())->get('rollback'));
+        $tester = new CommandTester(new Application()->get('rollback'));
 
         $tester->execute(
             ['platform' => 'review', '--config' => __DIR__.'/../../fixtures/rollback.yml', '--var' => ['slug=feat-x']],

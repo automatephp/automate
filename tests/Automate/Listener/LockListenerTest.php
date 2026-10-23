@@ -78,7 +78,7 @@ class LockListenerTest extends AbstractMockTestCase
         [$context, $sshList] = $this->createContext();
         [$first, $second] = $sshList;
 
-        (new LockListener())->clearLockFile(new DeployEvent($context));
+        new LockListener()->clearLockFile(new DeployEvent($context));
 
         $first->shouldNotHaveReceived('exec', ['rm '.self::LOCK_FILE]);
         $second->shouldNotHaveReceived('exec', ['rm '.self::LOCK_FILE]);
@@ -94,7 +94,7 @@ class LockListenerTest extends AbstractMockTestCase
         $sshList = [];
 
         foreach (['front-01', 'front-02'] as $name) {
-            $server = (new Server())->setName($name)->setPath('/home/wwwroot/demo');
+            $server = new Server()->setName($name)->setPath('/home/wwwroot/demo');
             $platform->addServer($server);
 
             $ssh = \Mockery::spy(TransportInterface::class);
