@@ -84,7 +84,14 @@ class ClearListener implements EventSubscriberInterface
                 --$keep;
             }
 
+            // the sort is only as good as the names: never remove the release that is live
+            $current = $session->getCurrentReleaseId();
+
             foreach ($releases as $release) {
+                if (basename($release) === $current) {
+                    continue;
+                }
+
                 $context->getLogger()->info('Remove old release : '.$release, $session->getServer());
                 $session->rm($release, true);
             }
