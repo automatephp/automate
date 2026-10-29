@@ -1,9 +1,9 @@
 name: Build
 
 on:
-    push:
-        tags:
-            - '*'
+    release:
+        types:
+            - created
     workflow_dispatch:
 
 permissions:
@@ -47,7 +47,7 @@ jobs:
                 run: build/automate.phar --version
 
             -   name: Ensure the PHAR embeds the released version
-                if: github.ref_type == 'tag'
+                if: github.event_name == 'release'
                 run: build/automate.phar --version | grep -F "$GITHUB_REF_NAME"
 
             -   uses: actions/upload-artifact@v5
@@ -120,8 +120,8 @@ jobs:
                     path: build/${{ matrix.filename }}
 
     release:
-        name: Publish the release
-        if: github.ref_type == 'tag'
+        name: Upload artifacts to the release
+        if: github.event_name == 'release'
         needs: [ static-binary ]
         runs-on: ubuntu-latest
         timeout-minutes: 15
@@ -147,13 +147,5 @@ jobs:
                 with:
                     subject-path: build/automate*
 
-            -   name: Create the draft release
-                run: |
-                    gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
-                        || gh release create "$GITHUB_REF_NAME" --draft --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
-
             -   name: Upload files
                 run: gh release upload "$GITHUB_REF_NAME" build/automate.phar build/automate-* build/checksums.txt --clobber
-
-            -   name: Publish the release
-                run: gh release edit "$GITHUB_REF_NAME" --draft=false
