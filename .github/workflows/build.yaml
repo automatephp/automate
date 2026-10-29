@@ -1,30 +1,44 @@
 name: Build
 
 on:
-    release:
-        types:
-            - created
+    push:
+        tags:
+            - '*'
     workflow_dispatch:
 
 permissions:
-    contents: write
+    contents: read
+
+concurrency:
+    group: build-${{ github.ref }}
+    cancel-in-progress: false
+
+env:
+    SPC_VERSION: 2.8.5
+    PHP_VERSION: '8.4'
+    PHP_EXTENSIONS: dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring
 
 jobs:
     phar:
         name: Build PHAR
         runs-on: ubuntu-latest
+        timeout-minutes: 15
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v5
+                with:
+                    fetch-depth: 0
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.4
+                    php-version: ${{ env.PHP_VERSION }}
                     coverage: none
                     tools: box
 
             -   name: Install dependencies
                 uses: ramsey/composer-install@v3
+                with:
+                    composer-options: --no-dev
 
             -   name: Build PHAR
                 run: box compile
@@ -32,7 +46,11 @@ jobs:
             -   name: Ensure the PHAR works
                 run: build/automate.phar --version
 
-            -   uses: actions/upload-artifact@v4
+            -   name: Ensure the PHAR embeds the released version
+                if: github.ref_type == 'tag'
+                run: build/automate.phar --version | grep -F "$GITHUB_REF_NAME"
+
+            -   uses: actions/upload-artifact@v5
                 name: Upload the PHAR artifact
                 with:
                     name: automate-phar
@@ -41,40 +59,41 @@ jobs:
     static-binary:
         name: Build static binary ${{ matrix.filename }}
         needs: [ phar ]
+        timeout-minutes: 60
         strategy:
             fail-fast: false
             matrix:
                 include:
                     # Linux amd64
                     -   runs_on: ubuntu-latest
-                        spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-linux-x86_64
+                        spc_archive: spc-linux-x86_64.tar.gz
                         build_options: --build-micro --with-upx-pack
                         filename: automate-linux-amd64
                     # MacOS arm64
                     -   runs_on: macos-latest
-                        spc_binary: https://dl.static-php.dev/static-php-cli/spc-bin/nightly/spc-macos-aarch64
+                        spc_archive: spc-macos-aarch64.tar.gz
                         build_options: --build-micro
                         filename: automate-darwin-arm64
 
         runs-on: ${{ matrix.runs_on }}
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v5
 
-            -   uses: actions/download-artifact@v4
+            -   uses: actions/download-artifact@v5
                 with:
+                    name: automate-phar
                     path: build
-                    merge-multiple: true
-
-            -   name: Setup PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                    php-version: 8.4
-                    coverage: none
 
             -   name: Get static-php-cli binary
                 run: |
-                    curl -fsSL -o bin/spc ${{ matrix.spc_binary }}
+                    curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/${SPC_VERSION}/${{ matrix.spc_archive }}" | tar -xz -C bin spc
                     chmod +x bin/spc
+
+            -   name: Cache the downloaded sources
+                uses: actions/cache@v4
+                with:
+                    path: downloads
+                    key: spc-downloads-${{ matrix.filename }}-${{ env.SPC_VERSION }}-${{ env.PHP_VERSION }}-${{ env.PHP_EXTENSIONS }}
 
             -   name: Fixing missing requirements
                 run: |
@@ -87,36 +106,54 @@ jobs:
 
             -   name: Build static binary
                 run: |
-                    bin/spc download --for-extensions="dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" --with-php=8.4 --retry=3
-                    bin/spc build "dom,gmp,openssl,phar,sodium,xml,xmlwriter,filter,tokenizer,iconv,mbstring" ${{ matrix.build_options }}
+                    bin/spc download --for-extensions="$PHP_EXTENSIONS" --with-php="$PHP_VERSION" --retry=3
+                    bin/spc build "$PHP_EXTENSIONS" ${{ matrix.build_options }}
                     bin/spc micro:combine build/automate.phar --output build/${{ matrix.filename }}
 
             -   name: Ensure the static binary works
                 run: build/${{ matrix.filename }} --version
 
-            -   uses: actions/upload-artifact@v4
+            -   uses: actions/upload-artifact@v5
                 name: Upload the static binary artifact
                 with:
                     name: ${{ matrix.filename }}
                     path: build/${{ matrix.filename }}
 
     release:
-        name: Upload artifacts to the release
-        if: github.event_name == 'release'
+        name: Publish the release
+        if: github.ref_type == 'tag'
         needs: [ static-binary ]
         runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: write
+            id-token: write
+            attestations: write
+        env:
+            GH_TOKEN: ${{ github.token }}
+            GH_REPO: ${{ github.repository }}
         steps:
-            -   uses: actions/checkout@v4
-
-            -   uses: actions/download-artifact@v4
+            -   uses: actions/download-artifact@v5
                 with:
                     path: build
                     merge-multiple: true
 
-            -   name: Upload files
+            -   name: Compute checksums
+                working-directory: build
+                run: sha256sum automate.phar automate-* > checksums.txt
+
+            -   name: Attest build provenance
+                uses: actions/attest-build-provenance@v3
+                with:
+                    subject-path: build/automate*
+
+            -   name: Create the draft release
                 run: |
-                    gh release upload ${{ github.ref_name }} ./build/automate.phar
-                    gh release upload ${{ github.ref_name }} ./build/automate-linux-amd64
-                    gh release upload ${{ github.ref_name }} ./build/automate-darwin-arm64
-                env:
-                    GH_TOKEN: ${{ github.token }}
+                    gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
+                        || gh release create "$GITHUB_REF_NAME" --draft --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+
+            -   name: Upload files
+                run: gh release upload "$GITHUB_REF_NAME" build/automate.phar build/automate-* build/checksums.txt --clobber
+
+            -   name: Publish the release
+                run: gh release edit "$GITHUB_REF_NAME" --draft=false
