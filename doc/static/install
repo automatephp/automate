@@ -5,7 +5,7 @@ set -euo pipefail
 CLI_NAME="Automate"
 CLI_EXECUTABLE="automate"
 CLI_CONFIG_DIR=".automate"
-CLI_REPO_LATEST_RELEASE_URL="https://api.github.com/repos/automatephp/automate/releases/latest"
+CLI_REPO_RELEASES_URL="https://api.github.com/repos/automatephp/automate/releases?per_page=10"
 CLI_DOWNLOAD_URL_PATTERN="https://github.com/automatephp/automate/releases/download/~latest_version~/automate-~platform~"
 CLI_BINARY_TMP_NAME="$CLI_EXECUTABLE-"$(date +"%s")
 
@@ -111,21 +111,43 @@ platform_check() {
 last_release_version() {
     output "  Last release version..." "" " ";
 
+    # A release is published before the CI has attached its binaries, so pick
+    # the most recent stable release that already ships the binary of this platform.
+    local releases
     case ${downloader} in
         "curl")
-            latest_version=$(curl -sS "$CLI_REPO_LATEST_RELEASE_URL" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+            releases=$(curl -sSf "$CLI_REPO_RELEASES_URL") || releases=""
             ;;
         "wget")
-            latest_version=$(wget -q -nv -O- "$CLI_REPO_LATEST_RELEASE_URL" 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+            releases=$(wget -q -nv -O- "$CLI_REPO_RELEASES_URL" 2>/dev/null) || releases=""
             ;;
     esac
 
-    if [ $? != 0 ]; then
-        output "Failed to download LATEST version file: ${CLI_LATEST_VERSION_URL}" "error"
+    local selection
+    selection=$(printf '%s\n' "$releases" | awk -v suffix="/${CLI_EXECUTABLE}-${platform}\"" '
+        /"tag_name":/ { tag = $2; gsub(/[",]/, "", tag); prerelease = 1 }
+        /"prerelease":/ {
+            prerelease = ($2 ~ /true/)
+            if (!prerelease && newest == "") newest = tag
+        }
+        /"browser_download_url":/ && !prerelease && substr($0, length($0) - length(suffix) + 1) == suffix {
+            print tag, newest
+            exit
+        }
+    ')
+
+    if [ -z "$selection" ]; then
+        output "Failed to find a release shipping the binary ${CLI_EXECUTABLE}-${platform}." "error"
         exit 1
     fi
 
+    read -r latest_version newest_version <<< "$selection"
+
     output "ok" "success"
+
+    if [ "$latest_version" != "$newest_version" ]; then
+        output "  [!] Release ${newest_version} is still being built, installing ${latest_version} instead" "warning"
+    fi
 }
 
 download_binary() {
@@ -133,16 +155,17 @@ download_binary() {
     latest_url=${latest_url/~platform~/${platform}}
 
     output "  Downloading binary..." "" " ";
+    local status=0
     case ${downloader} in
         "curl")
-            curl -sSf --location "${latest_url}" > "/tmp/${CLI_BINARY_TMP_NAME}"
+            curl -sSf --location "${latest_url}" > "/tmp/${CLI_BINARY_TMP_NAME}" || status=$?
             ;;
         "wget")
-            wget -q "${latest_url}" -O "/tmp/${CLI_BINARY_TMP_NAME}"
+            wget -q "${latest_url}" -O "/tmp/${CLI_BINARY_TMP_NAME}" || status=$?
             ;;
     esac
 
-    if [ $? != 0 ]; then
+    if [ $status != 0 ]; then
         output "The download failed." "error"
         exit 1
     fi
