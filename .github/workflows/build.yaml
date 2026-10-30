@@ -89,11 +89,15 @@ jobs:
                     curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/${SPC_VERSION}/${{ matrix.spc_archive }}" | tar -xz -C bin spc
                     chmod +x bin/spc
 
+            -   name: Compute the cache key
+                id: cache-key
+                run: echo "key=spc-downloads-${{ matrix.filename }}-${SPC_VERSION}-${PHP_VERSION}-${PHP_EXTENSIONS//,/-}" >> "$GITHUB_OUTPUT"
+
             -   name: Cache the downloaded sources
                 uses: actions/cache@v4
                 with:
                     path: downloads
-                    key: spc-downloads-${{ matrix.filename }}-${{ env.SPC_VERSION }}-${{ env.PHP_VERSION }}-${{ env.PHP_EXTENSIONS }}
+                    key: ${{ steps.cache-key.outputs.key }}
 
             -   name: Fixing missing requirements
                 run: |
