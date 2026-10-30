@@ -123,6 +123,8 @@ last_release_version() {
             ;;
     esac
 
+    # awk must read the whole input: exiting early closes the pipe while printf is still
+    # writing, and the SIGPIPE aborts the script under "set -o pipefail".
     local selection
     selection=$(printf '%s\n' "$releases" | awk -v suffix="/${CLI_EXECUTABLE}-${platform}\"" '
         /"tag_name":/ { tag = $2; gsub(/[",]/, "", tag); prerelease = 1 }
@@ -130,9 +132,9 @@ last_release_version() {
             prerelease = ($2 ~ /true/)
             if (!prerelease && newest == "") newest = tag
         }
-        /"browser_download_url":/ && !prerelease && substr($0, length($0) - length(suffix) + 1) == suffix {
+        /"browser_download_url":/ && !prerelease && !found && substr($0, length($0) - length(suffix) + 1) == suffix {
             print tag, newest
-            exit
+            found = 1
         }
     ')
 
