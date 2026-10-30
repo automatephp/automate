@@ -79,7 +79,7 @@ jobs:
         steps:
             -   uses: actions/checkout@v5
 
-            -   uses: actions/download-artifact@v5
+            -   uses: actions/download-artifact@v8
                 with:
                     name: automate-phar
                     path: build
@@ -133,7 +133,7 @@ jobs:
             GH_TOKEN: ${{ github.token }}
             GH_REPO: ${{ github.repository }}
         steps:
-            -   uses: actions/download-artifact@v5
+            -   uses: actions/download-artifact@v8
                 with:
                     path: build
                     merge-multiple: true
