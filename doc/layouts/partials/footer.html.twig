@@ -1,0 +1,18 @@
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__brand">
+            <span class="brand__mark">{% include 'partials/icons.html.twig' with {name: 'logo'} only %}</span>
+            <span>Automate is released under the MIT license.</span>
+        </div>
+        <nav class="footer__links" aria-label="Footer">
+            <a href="{{ url('docs/introduction') }}">Documentation</a>
+            <a href="{{ site.repository }}/releases" target="_blank" rel="noopener">Releases</a>
+            <a href="{{ site.repository }}/issues" target="_blank" rel="noopener">Issues</a>
+            <a href="{{ site.repository }}" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+        <a class="footer__sponsor" href="https://www.mezcalito.fr/" target="_blank" rel="noopener">
+            <span>Sponsored by</span>
+            <img src="{{ asset('logo-mezcalito.svg') }}" alt="Mezcalito" width="120" height="24">
+        </a>
+    </div>
+</footer>

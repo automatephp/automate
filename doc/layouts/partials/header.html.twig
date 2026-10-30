@@ -1,0 +1,30 @@
+<header class="header">
+    <div class="header__inner">
+        <a class="brand" href="{{ url('/') }}" aria-label="Automate, home">
+            <span class="brand__mark">{% include 'partials/icons.html.twig' with {name: 'logo'} only %}</span>
+            <span class="brand__name">Automate</span>
+        </a>
+
+        {% if page.section == 'docs' %}
+            <div class="header__search" id="search" data-pagefind-ui></div>
+        {% endif %}
+
+        <nav class="header__nav" aria-label="Main">
+            <a class="header__link{% if page.section == 'docs' %} is-active{% endif %}" href="{{ url('docs/introduction') }}">Docs</a>
+            <a class="header__link header__link--cli" href="{{ url('docs/commands') }}">CLI</a>
+            <a class="header__link header__link--icon" href="{{ site.repository }}" target="_blank" rel="noopener">
+                {% include 'partials/icons.html.twig' with {name: 'github'} only %}
+                <span>GitHub</span>
+            </a>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">
+                <span class="theme-toggle__sun">{% include 'partials/icons.html.twig' with {name: 'sun'} only %}</span>
+                <span class="theme-toggle__moon">{% include 'partials/icons.html.twig' with {name: 'moon'} only %}</span>
+            </button>
+            {% if page.section == 'docs' %}
+                <button class="header__burger" type="button" data-sidebar-toggle aria-label="Open the documentation menu" aria-expanded="false">
+                    {% include 'partials/icons.html.twig' with {name: 'menu'} only %}
+                </button>
+            {% endif %}
+        </nav>
+    </div>
+</header>
