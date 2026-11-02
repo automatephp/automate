@@ -69,6 +69,43 @@ class DeployerTest extends AbstractMockTestCase
         $deployer->deploy();
     }
 
+    public function testCheckoutIsDisambiguatedFromPaths(): void
+    {
+        $this->assertContains('git checkout crowdsec --', $this->deployWithGitRef('crowdsec', ''));
+    }
+
+    public function testTagCheckoutIsDisambiguatedFromPaths(): void
+    {
+        $this->assertContains('git checkout tags/v1.0 --', $this->deployWithGitRef('v1.0', 'v1.0'));
+    }
+
+    /**
+     * @return string[] commands run on the server, without the environment prefix
+     */
+    private function deployWithGitRef(string $gitRef, string $tagListOutput): array
+    {
+        $project = new Loader()->load(__DIR__.'/../../fixtures/simple.yml');
+        $platform = $project->getPlatform('development');
+
+        $commands = [];
+        $ssh = \Mockery::mock(TransportInterface::class);
+        $ssh->shouldReceive('login');
+        $ssh->shouldReceive('execAsync')->andReturn(new Process(['true']));
+        $ssh->shouldReceive('exec')->andReturnUsing(static function (string $command) use ($tagListOutput, &$commands): string {
+            $commands[] = preg_replace('/^export [^;]*; cd [^;&]* && /', '', $command);
+
+            return str_starts_with($command, 'git tag --list') || str_contains($command, '&& git tag --list') ? $tagListOutput : '';
+        });
+
+        $sshFactory = \Mockery::mock(TransportFactory::class);
+        $sshFactory->shouldReceive('create')->andReturn($ssh);
+
+        $context = new Context($project, $platform, \Mockery::spy(LoggerInterface::class), $sshFactory, \Mockery::mock(Archiver::class), gitRef: $gitRef, releaseId: '2024.03.10-2340.241');
+        new Deployer($context)->deploy();
+
+        return $commands;
+    }
+
     public function testFirstDeployHookRunsOnNewServersOnly(): void
     {
         [$commands, $sections] = $this->deployTwoServers(['web1' => true, 'web2' => false]);

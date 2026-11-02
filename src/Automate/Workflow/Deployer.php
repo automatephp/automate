@@ -103,10 +103,10 @@ readonly class Deployer
             $this->context->exec(function (Session $session) use ($listTagsCommand, $gitRef): void {
                 if ('' !== $session->exec($listTagsCommand)) {
                     // checkout a tag
-                    $command = sprintf('git checkout tags/%s', $gitRef);
+                    $command = sprintf('git checkout tags/%s --', $gitRef);
                 } else {
-                    // checkout branch or revision
-                    $command = sprintf('git checkout %s', $gitRef);
+                    // checkout branch or revision ("--" avoids the ambiguity with a path named like the reference)
+                    $command = sprintf('git checkout %s --', $gitRef);
                 }
 
                 $this->context->getLogger()->command($command);
