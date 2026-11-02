@@ -272,7 +272,7 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver->resolveConfiguration(['post_deploy' => [['cmd' => "printf '%s%s'"]]], 'review');
     }
 
-    public function testMaskedValuesIncludePasswords(): void
+    public function testOnlyPasswordsAreMasked(): void
     {
         $io = \Mockery::mock(SymfonyStyle::class);
         $io->expects('askHidden')->andReturns('s3cret');
@@ -280,7 +280,7 @@ class VariableResolverTest extends AbstractMockTestCase
 
         $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['password' => '%pwd%']]]]], 'review');
 
-        $this->assertSame(['slug' => 'x', 'pwd' => 's3cret'], $resolver->getMaskedValues());
+        $this->assertSame(['pwd' => 's3cret'], $resolver->getMaskedValues());
     }
 
     public function testCliVariablesAreReloadedByTheExecChild(): void

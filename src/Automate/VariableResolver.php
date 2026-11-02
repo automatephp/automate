@@ -133,13 +133,14 @@ class VariableResolver
     }
 
     /**
-     * Every resolved value, passwords included, to keep them out of the console output.
+     * Values used as a password, to keep them out of the console output.
+     * The other variables (a branch name, a path...) are not secrets and stay readable in the logs.
      *
      * @return array<string, string>
      */
     public function getMaskedValues(): array
     {
-        return $this->variables;
+        return array_intersect_key($this->variables, $this->passwordVariables);
     }
 
     private function resolveValue(mixed $value, string $path): mixed

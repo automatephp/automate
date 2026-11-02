@@ -13,15 +13,28 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConsoleLoggerTest extends AbstractMockTestCase
 {
-    public function testCommandKeepsTheTokenInsteadOfTheValue(): void
+    public function testCommandKeepsTheTokenInsteadOfThePassword(): void
     {
         $output = new BufferedOutput();
         $io = new SymfonyStyle(new ArrayInput([]), $output);
-        $resolver = new VariableResolver($io, ['api_token' => 's3cret', 'slug' => 's3cret-slug']);
+        $resolver = new VariableResolver($io, ['api_token' => 's3cret']);
+        $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['password' => '%api_token%']]]]], 'review');
 
-        new ConsoleLogger($io, $resolver)->command("curl -H 'Bearer s3cret' /srv/s3cret-slug");
+        new ConsoleLogger($io, $resolver)->command("curl -H 'Bearer s3cret'");
 
-        $this->assertStringContainsString("curl -H 'Bearer %api_token%' /srv/%slug%", $output->fetch());
+        $this->assertStringContainsString("curl -H 'Bearer %api_token%'", $output->fetch());
+    }
+
+    public function testCommandKeepsNonSecretVariablesReadable(): void
+    {
+        $output = new BufferedOutput();
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
+        $resolver = new VariableResolver($io, ['slug' => 'crowdsec']);
+        $resolver->resolveConfiguration(['path' => '/srv/%slug%'], 'review');
+
+        new ConsoleLogger($io, $resolver)->command('git checkout crowdsec --');
+
+        $this->assertStringContainsString('git checkout crowdsec --', $output->fetch());
     }
 
     public function testCommandIsPrintedAsIsWithoutVariables(): void
