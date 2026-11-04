@@ -94,7 +94,7 @@ jobs:
                 run: echo "key=spc-downloads-${{ matrix.filename }}-${SPC_VERSION}-${PHP_VERSION}-${PHP_EXTENSIONS//,/-}" >> "$GITHUB_OUTPUT"
 
             -   name: Cache the downloaded sources
-                uses: actions/cache@v4
+                uses: actions/cache@v6
                 with:
                     path: downloads
                     key: ${{ steps.cache-key.outputs.key }}
