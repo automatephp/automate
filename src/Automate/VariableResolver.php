@@ -24,6 +24,9 @@ class VariableResolver
     /** @var array<string, true> */
     private array $passwordVariables = [];
 
+    /** @var array<string, true> values read from the environment or typed at the prompt */
+    private array $secretVariables = [];
+
     /**
      * @param array<string, string> $variables values given with --var, they take precedence over the environment
      */
@@ -133,13 +136,15 @@ class VariableResolver
     }
 
     /**
-     * Every resolved value, passwords included, to keep them out of the console output.
+     * Values to keep out of the console output: the ones used as a password and the ones read from the
+     * environment or typed at the prompt, where the secrets of a CI go. The values given with --var
+     * are already visible on the command line, masking them would only garble the logs.
      *
      * @return array<string, string>
      */
     public function getMaskedValues(): array
     {
-        return $this->variables;
+        return array_intersect_key($this->variables, $this->secretVariables + $this->passwordVariables);
     }
 
     private function resolveValue(mixed $value, string $path): mixed
@@ -189,6 +194,8 @@ class VariableResolver
 
         $env = getenv(self::ENV_PREFIX.$name);
         if (false !== $env && '' !== $env) {
+            $this->secretVariables[$name] = true;
+
             return $this->variables[$name] = $env;
         }
 
@@ -206,6 +213,8 @@ class VariableResolver
         if (!is_string($answer) || '' === $answer) {
             throw new \RuntimeException(sprintf('Unable to resolve the variable "%%%s%%". Set the "%s" environment variable or run the command interactively.', $name, self::ENV_PREFIX.$name));
         }
+
+        $this->secretVariables[$name] = true;
 
         return $this->variables[$name] = $answer;
     }
