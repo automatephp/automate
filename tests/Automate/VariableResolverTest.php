@@ -272,11 +272,43 @@ class VariableResolverTest extends AbstractMockTestCase
         $resolver->resolveConfiguration(['post_deploy' => [['cmd' => "printf '%s%s'"]]], 'review');
     }
 
-    public function testOnlyPasswordsAreMasked(): void
+    public function testPromptedPasswordIsMasked(): void
     {
         $io = \Mockery::mock(SymfonyStyle::class);
         $io->expects('askHidden')->andReturns('s3cret');
         $resolver = new VariableResolver($io, ['slug' => 'x']);
+
+        $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['password' => '%pwd%']]]]], 'review');
+
+        $this->assertSame(['pwd' => 's3cret'], $resolver->getMaskedValues());
+    }
+
+    public function testCliVariablesAreNotMasked(): void
+    {
+        $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class), ['slug' => 'feat-x']);
+
+        $resolver->resolveConfiguration(['path' => '/srv/%slug%'], 'review');
+
+        $this->assertSame([], $resolver->getMaskedValues());
+    }
+
+    public function testEnvironmentVariablesAreMaskedEvenWhenNotPasswords(): void
+    {
+        putenv('AUTOMATE__sentry_token=s3cret');
+        $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class), ['slug' => 'feat-x']);
+
+        try {
+            $resolver->resolveConfiguration(['post_deploy' => [['cmd' => 'curl %sentry_token% %slug%']]], 'review');
+        } finally {
+            putenv('AUTOMATE__sentry_token');
+        }
+
+        $this->assertSame(['sentry_token' => 's3cret'], $resolver->getMaskedValues());
+    }
+
+    public function testPasswordGivenWithCliIsMasked(): void
+    {
+        $resolver = new VariableResolver(\Mockery::mock(SymfonyStyle::class), ['pwd' => 's3cret']);
 
         $resolver->resolveConfiguration(['platforms' => ['review' => ['servers' => ['vm' => ['password' => '%pwd%']]]]], 'review');
 

@@ -25,6 +25,24 @@ class ConsoleLoggerTest extends AbstractMockTestCase
         $this->assertStringContainsString("curl -H 'Bearer %api_token%'", $output->fetch());
     }
 
+    public function testCommandKeepsTheTokenOfAnEnvironmentSecretUsedInAHook(): void
+    {
+        putenv('AUTOMATE__api_token=s3cret');
+        $output = new BufferedOutput();
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
+        $resolver = new VariableResolver($io);
+
+        try {
+            $resolver->resolveConfiguration(['post_deploy' => [['cmd' => "curl -H 'Bearer %api_token%'"]]], 'review');
+        } finally {
+            putenv('AUTOMATE__api_token');
+        }
+
+        new ConsoleLogger($io, $resolver)->command("curl -H 'Bearer s3cret'");
+
+        $this->assertStringContainsString("curl -H 'Bearer %api_token%'", $output->fetch());
+    }
+
     public function testCommandKeepsNonSecretVariablesReadable(): void
     {
         $output = new BufferedOutput();

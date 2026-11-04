@@ -47,7 +47,7 @@ See [CI integration](/docs/ci-integration/) for complete examples.
 
 ## Masking
 
-The deploy summary lists the **names** of the variables, never their values. In the commands printed to the console, only the values used as a `password` are replaced by their `%name%` token; the other values, such as a branch name, stay readable. The values are still exported to the hooks as `AUTOMATE__name` environment variables, except the ones used as a `password`.
+The deploy summary lists the **names** of the variables, never their values. In the commands printed to the console, the values read from an `AUTOMATE__*` environment variable, typed at the prompt or used as a `password` are replaced by their `%name%` token. The values given with `--var` stay readable, since they are already visible on the command line: pass the secrets through the environment. The values are still exported to the hooks as `AUTOMATE__name` environment variables, except the ones used as a `password`.
 
 ## Escaping and quoting
 
